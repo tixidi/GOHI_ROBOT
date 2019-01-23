@@ -12,8 +12,8 @@
 // #define  per_circle_position (360/120)*8*18
 // #define  pid_t  0.1
 
-#define wheel_radius  0.0510//0.0625
-#define body_radius   0.2825//0.565
+#define wheel_radius  0.0510//0.0625  轮子半径
+#define body_radius   0.2825//0.565   车身半径
 #define degree_to_radian  0.017453f
 #define radian_to_degree  57.2958f
 /*

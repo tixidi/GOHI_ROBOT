@@ -206,9 +206,11 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
     {
     case READ_MOT1_ERROR_STATE :
         analysis_state=readCommandAnalysis(command_state_ , (unsigned char *)&robot->motor_error_state.error1 , sizeof(robot->motor_error_state.error1));
+        std::cerr <<"READ_MOT1_ERROR_STATE     dfffffffffffffffffffffffffffffffffffffs                   " <<(unsigned int )robot->motor_error_state.error1 <<std::endl;    
         break;
     case READ_MOT2_ERROR_STATE :
         analysis_state=readCommandAnalysis(command_state_ , (unsigned char *)&robot->motor_error_state.error2 , sizeof(robot->motor_error_state.error2));
+        std::cerr <<"READ_MOT2_ERROR_STATE     dfffffffffffffffffffffffffffffffffffffs                   " <<(unsigned int )robot->motor_error_state.error2 <<std::endl;  
         break;
     case READ_MOT3_ERROR_STATE :
         analysis_state=readCommandAnalysis(command_state_ , (unsigned char *)&robot->motor_error_state.error3 , sizeof(robot->motor_error_state.error3));
@@ -226,7 +228,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
     case READ_MOT1_SPEED :      
         analysis_state=readCommandAnalysis(command_state_ , (short int* )&temp_mea_servo1_speed , sizeof(robot->ask_measure_motor_speed.servo1));
         robot->ask_measure_motor_speed.servo1=(float)temp_mea_servo1_speed;
-        robot->ask_measure_motor_speed.servo1=robot->ask_measure_motor_speed.servo1/(8*18/0.1/20);
+        robot->ask_measure_motor_speed.servo1=robot->ask_measure_motor_speed.servo1/(8*30/0.1/20);
         robot->ask_measure_motor_speed.servo1=robot->ask_measure_motor_speed.servo1*2*3.14/60;    
         std::cerr <<"command1  " <<robot->ask_measure_motor_speed.servo1 <<std::endl;  //rad/s      
 
@@ -235,7 +237,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
     case READ_MOT2_SPEED :      
         analysis_state=readCommandAnalysis(command_state_ , (short int* )&temp_mea_servo2_speed , sizeof(robot->ask_measure_motor_speed.servo2));
         robot->ask_measure_motor_speed.servo2=(float)temp_mea_servo2_speed;
-        robot->ask_measure_motor_speed.servo2=robot->ask_measure_motor_speed.servo2/(8*18/0.1/20);
+        robot->ask_measure_motor_speed.servo2=robot->ask_measure_motor_speed.servo2/(8*30/0.1/20);
         robot->ask_measure_motor_speed.servo2=robot->ask_measure_motor_speed.servo2*2*3.14/60;
         std::cerr <<"command2  "<<robot->ask_measure_motor_speed.servo2 <<std::endl;//rad/s
       
@@ -605,9 +607,11 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
         break;
 
     case SET_MOT1_BRAKE_STATE :
+        robot->ask_brake_config.brake1=2;
         sendStruct(MOTOR1_ADDR , WRITE_REG,SET_BRAKE_STATE_ADDR, (unsigned char *)&robot->ask_brake_config.brake1 , sizeof(robot->ask_brake_config.brake1));  
         break;
     case SET_MOT2_BRAKE_STATE :
+        robot->ask_brake_config.brake2=2;
         sendStruct(MOTOR2_ADDR , WRITE_REG,SET_BRAKE_STATE_ADDR, (unsigned char *)&robot->ask_brake_config.brake2 , sizeof(robot->ask_brake_config.brake2));     
         break;
     case SET_MOT3_BRAKE_STATE :
@@ -627,7 +631,7 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
     case SET_CAR1_LEFT_SPEED_CONTROL :
 
        
-        robot->ask_expect_motor_speed.servo1=1.24;
+        // robot->ask_expect_motor_speed.servo1=1.24;
         // std::cerr <<"command5_____" <<robot->ask_expect_motor_speed.servo1 <<std::endl;//setup 
         robot->ask_expect_motor_speed.servo1=(robot->ask_expect_motor_speed.servo1)*60/2/3.14; //rpm
         robot->ask_expect_motor_speed.servo1=robot->ask_expect_motor_speed.servo1*8*30/0.1/20;  
@@ -637,7 +641,7 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
         break;
     case SET_CAR1_RIGHT_SPEED_CONTROL :
  //
-        robot->ask_expect_motor_speed.servo2=-1.24;//31 rad/s
+        // robot->ask_expect_motor_speed.servo2=-1.24;//31 rad/s
         // std::cerr <<"command6______" <<robot->ask_expect_motor_speed.servo2 <<std::endl;
         robot->ask_expect_motor_speed.servo2=(robot->ask_expect_motor_speed.servo2)*60/2/3.14;
         robot->ask_expect_motor_speed.servo2=robot->ask_expect_motor_speed.servo2*8*30/0.1/20;

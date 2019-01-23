@@ -36,8 +36,8 @@ include_directories(
 
 
 
- add_executable(gohi_hw_flat_car_node src/main.cpp src/HIGO_ROS.cpp src/transport_serial.cpp src/HIGO_AP.cpp include/sdk/hf_link/hf_link_modbus.cpp include/sdk/hf_link/hf_link_state_machine_modbus.cpp include/sdk/hf_link/robot_control.cpp)
- add_dependencies(gohi_hw_flat_car_node  gohi_msgs_gencpp)
- target_link_libraries(gohi_hw_flat_car_node ${catkin_LIBRARIES})
+ add_executable(flat_car_hw_node src/main.cpp src/HIGO_ROS.cpp src/transport_serial.cpp src/HIGO_AP.cpp include/sdk/hf_link/hf_link_modbus.cpp include/sdk/hf_link/hf_link_state_machine_modbus.cpp include/sdk/hf_link/robot_control.cpp)
+ add_dependencies(flat_car_hw_node  gohi_msgs_gencpp)
+ target_link_libraries(flat_car_hw_node ${catkin_LIBRARIES})
 
 

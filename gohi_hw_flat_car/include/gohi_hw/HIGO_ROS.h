@@ -23,8 +23,7 @@
 
 
 #include <gohi_msgs/robot_state.h>
-#include <gohi_msgs/roll_config.h>
-#include <gohi_msgs/stair_config.h>
+#include <gohi_msgs/brake_config.h>
 
 
 // for ros headers
@@ -60,10 +59,7 @@ private:
 	ros::CallbackQueue queue_;
 	// publish the robot state for diagnose system
 	ros::Publisher robot_state_publisher_;
-	ros::Subscriber stair_cmd_subscribe_;
-	ros::Subscriber roll_cmd_subscribe_;
-	
-
+	ros::Subscriber brake_cmd_subscribe_;
 
 	ros::ServiceServer getparam_srv_;
 	ros::ServiceServer setparam_srv_;
@@ -72,14 +68,14 @@ private:
 	std::string base_mode_;
 	bool with_arm_;
 	double controller_freq_;
-	unsigned char roll_config_callback_flag;
-	unsigned char stair_config_call_back_flag;
+	unsigned char brake_config_callback_flag;
+	unsigned char brake_config_callback_flag1;
+	
 	
 
 	//hardware resource
 	gohi_msgs::robot_state robot_state;
-	gohi_msgs::roll_config roll_config ;
-	gohi_msgs::stair_config stair_config;
+	gohi_msgs::brake_config brake_config;
 	
 
     std::vector<double> wheel_pos_, wheel_vel_, wheel_eff_, wheel_cmd_;
@@ -185,8 +181,8 @@ private:
 
 	}
 
-	 void stair_cmd_callback(const gohi_msgs::stair_configConstPtr& msg);
-	 void roll_cmd_callback(const gohi_msgs::roll_configConstPtr& msg);
+	 void brake_cmd_callback(const gohi_msgs::brake_configConstPtr& msg);
+	 
 	 
 
 };

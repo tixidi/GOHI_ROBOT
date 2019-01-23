@@ -54,7 +54,7 @@ bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int count,int rea
     boost::asio::deadline_timer cicle_timer_(*(port_->getIOinstace()));
     cicle_timer_.expires_from_now(boost::posix_time::millisec(time_out_));
     
-    if(read_or_write)
+    if(read_or_write==1)
     {
         // update command set  data from embedded system
         if (hflink_command_set_[command] != 0)
@@ -90,7 +90,7 @@ bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int count,int rea
             }
         }
     }
-    else 
+    else if(read_or_write==0)
     {
         // update command set  data from embedded system
         if (hflink_command_set_[command] != 0)
@@ -99,7 +99,8 @@ bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int count,int rea
             if (cnt %  (100 / hflink_freq_[command]) == 0)
             {
                 sendCommandModbus(command);
-            } else
+            } 
+            else
             {
                 // skip this package
                 return false;
@@ -110,8 +111,10 @@ bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int count,int rea
         ack_ready_ = false;
         while (!ack_ready_)
         {
+          
             for (int i = 0; i < data.size(); i++)
             {    
+
                 if (hflinkmodbus_->byteAnalysisCall_R(data[i]))
                 {
                     // one package ack arrived  
@@ -126,6 +129,57 @@ bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int count,int rea
                 return false;
             }
         }
+    }
+    else if(read_or_write==2)
+    {
+        if (hflink_command_set_[command] != 0)
+        {
+            // int cnt = count % 100;
+            // if (cnt %  (100 / hflink_freq_[command]) == 0)
+            // {
+                sendCommandModbus(command);
+            // } else
+            // {
+            //     // skip this package
+            //     return false;
+            // }
+        }
+    }
+    else if(read_or_write==3)
+    {
+        // update command set  data from embedded system
+        if (hflink_command_set_[command] != 0)
+        {
+            // int cnt = count % 100;
+            // if (cnt %  (100 / hflink_freq_[command]) == 0)
+            // {
+                sendCommandModbus(command);
+            // } else
+            // {
+            //     // skip this package
+            //     return false;
+            // }
+        }
+
+        // Buffer data = port_->readBuffer();
+        // ack_ready_ = false;
+        // while (!ack_ready_)
+        // {
+        //     for (int i = 0; i < data.size(); i++)
+        //     {    
+        //         if (hflinkmodbus_->byteAnalysisCall(data[i]))
+        //         {
+        //             // one package ack arrived  
+        //             ack_ready_ = true;         
+        //         }
+        //     }
+        //     data = port_->readBuffer();
+        //     if (cicle_timer_.expires_from_now().is_negative())
+        //     {
+        //         std::cerr<<"Timeout continue skip this package"<<std::endl;
+        //         return false;
+        //     }
+        // }
     }
 
 

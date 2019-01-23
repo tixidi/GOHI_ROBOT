@@ -27,7 +27,7 @@ BaseSimpleController::BaseSimpleController()
 : cmd_()
 , base_frame_id_("base_link")
 , cmd_vel_timeout_(0.5)
-, base_name_("mobile_base")
+, base_name_("flat_car_mobile_base")
 {}
 
 bool BaseSimpleController::init(hardware_interface::BaseVelocityInterface* hw,

@@ -17,7 +17,10 @@ find_package(catkin REQUIRED COMPONENTS
    laser_range_config.msg
    robot_desire_point_config.msg
    sick_range.msg
-   laser_range_config1.msg
+   laser_range_config1.msg 
+   flat_car_state.msg
+   brake_config.msg
+
 
    #parameters.msg
  )
