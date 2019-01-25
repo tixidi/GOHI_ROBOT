@@ -1,6 +1,0 @@
-std_msgs/Header header
-uint8 Puncture_id
-int32 Puncture_cmd
-uint32 Puncture_data
-int32 Puncture_xpos
-int32 Puncture_ypos

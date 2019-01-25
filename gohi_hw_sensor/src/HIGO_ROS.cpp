@@ -30,19 +30,15 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		nh_.getParam("base_mode", base_mode_);
 		nh_.getParam("with_arm", with_arm_);
 		nh_.getParam("freq", controller_freq_);
-		robot_state_publisher_ = nh_.advertise<gohi_msgs::robot_state>("robot_state", 10);
-		robot_cmd_publisher_ = nh_.advertise<geometry_msgs::Twist>("/mobile_base/mobile_base_controller/cmd_vel", 1000);
-		stair_cmd_publisher_ = nh_.advertise<gohi_msgs::stair_config>("/mobile_base/stair_controller/cmd_vel", 1000);
-		roll_cmd_publisher_ = nh_.advertise<gohi_msgs::roll_config>("/mobile_base/roll_controller/cmd_vel", 1000);
+		// robot_state_publisher_ = nh_.advertise<gohi_msgs::robot_state>("robot_state", 10);
+
 		idcard_read_config_publisher_ = nh_.advertise<gohi_msgs::idcard_read_config>("/idcard_read_config/cmd", 1000);
 		idcard_write_config_subscriber_ = nh_.subscribe("/idcard_write_config/cmd", 1,  &HIGO_ROS::idcard_write_config_callback, this);
 
 
 		x_ = y_ = theta_ = x_cmd_ = y_cmd_ = theta_cmd_ = 0.0;
 		x_vel_ = y_vel_ = theta_vel_ = 0.0;
-        head_servo1_cmd_ = head_servo2_cmd_  =  0.0;
-        head_servo1_pos_ = head_servo1_vel_ = head_servo1_eff_ = 0;
-        head_servo2_pos_ = head_servo2_vel_ = head_servo2_eff_ = 0;
+
 
 
 		//register the hardware interface on the robothw
@@ -54,34 +50,8 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 	
   		registerInterface(&base_state_interface_);
 		registerInterface(&base_velocity_interface_);
-
-		if (base_mode_ == "3omni-wheel")
-		{
-		    wheel_pos_.resize(3, 0);
-			wheel_vel_.resize(3, 0);
-			wheel_eff_.resize(3, 0);
-			wheel_cmd_.resize(3, 0);
-
-
-			hardware_interface::JointStateHandle wheel1_state_handle("wheel_1", &wheel_pos_[0], &wheel_vel_[0], &wheel_eff_[0]);
-			jnt_state_interface_.registerHandle(wheel1_state_handle);
-			hardware_interface::JointHandle wheel1_handle(wheel1_state_handle, &wheel_cmd_[0]);
-			base_vel_interface_.registerHandle(wheel1_handle);
-
-			hardware_interface::JointStateHandle wheel2_state_handle("wheel_2", &wheel_pos_[1], &wheel_vel_[1], &wheel_eff_[1]);
-			jnt_state_interface_.registerHandle(wheel2_state_handle);
-			hardware_interface::JointHandle wheel2_handle(wheel2_state_handle, &wheel_cmd_[1]);
-			base_vel_interface_.registerHandle(wheel2_handle);
-
-			hardware_interface::JointStateHandle wheel3_state_handle("wheel_3", &wheel_pos_[2], &wheel_vel_[2], &wheel_eff_[2]);
-			jnt_state_interface_.registerHandle(wheel3_state_handle);
-			hardware_interface::JointHandle wheel3_handle(wheel3_state_handle, &wheel_cmd_[2]);
-			base_vel_interface_.registerHandle(wheel3_handle);
-
-			registerInterface(&jnt_state_interface_);
-			registerInterface(&base_vel_interface_);
-		}
-        else if (base_mode_ == "2diff-wheel")
+		
+		 if (base_mode_ == "2diff-wheel")
            {
                wheel_pos_.resize(2,0);
                wheel_vel_.resize(2.0);
@@ -102,65 +72,8 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
                registerInterface(&base_vel_interface_);
 
            }
-    		if (with_arm_)
-    		{
-				arm_pos_.resize(6,0);
-				arm_cmd_.resize(6,0);
-				
-        		// for (int i = 0;i < 6;i++)
-        		// {
-            	// 		//get the joint name
-            	// 	std::stringstream ss;
-			    //     ss << "arm" << (i + 1)<<std::endl;
-			    //     hardware_interface::JointStateHandle arm_state_handle(ss.str(), &arm_pos_[i], &arm_pos_[i], &arm_pos_[i]);
-			    //     jnt_state_interface_.registerHandle(arm_state_handle);
-            	// 	hardware_interface::JointHandle arm_handle(arm_state_handle , &arm_cmd_[i]);
-            	// 	servo_pos_interface_.registerHandle(arm_handle);
-                // }
-				hardware_interface::JointStateHandle arm1_state_handle("arm1", &arm_pos_[0], &arm_pos_[0], &arm_pos_[0]);
-			    jnt_state_interface_.registerHandle(arm1_state_handle);
-            	hardware_interface::JointHandle arm1_handle(arm1_state_handle , &arm_cmd_[0]);
-            	servo_pos_interface_.registerHandle(arm1_handle);
-
-				hardware_interface::JointStateHandle arm2_state_handle("arm2", &arm_pos_[1], &arm_pos_[1], &arm_pos_[1]);
-			    jnt_state_interface_.registerHandle(arm2_state_handle);
-            	hardware_interface::JointHandle arm2_handle(arm2_state_handle , &arm_cmd_[1]);
-            	servo_pos_interface_.registerHandle(arm2_handle);
-				
-				hardware_interface::JointStateHandle arm3_state_handle("arm3", &arm_pos_[2], &arm_pos_[2], &arm_pos_[2]);
-			    jnt_state_interface_.registerHandle(arm3_state_handle);
-            	hardware_interface::JointHandle arm3_handle(arm3_state_handle , &arm_cmd_[2]);
-            	servo_pos_interface_.registerHandle(arm3_handle);
-				
-				hardware_interface::JointStateHandle arm4_state_handle("arm4", &arm_pos_[3], &arm_pos_[3], &arm_pos_[3]);
-			    jnt_state_interface_.registerHandle(arm4_state_handle);
-            	hardware_interface::JointHandle arm4_handle(arm4_state_handle , &arm_cmd_[3]);
-            	servo_pos_interface_.registerHandle(arm4_handle);
-				
-				hardware_interface::JointStateHandle arm5_state_handle("arm5", &arm_pos_[4], &arm_pos_[4], &arm_pos_[4]);
-			    jnt_state_interface_.registerHandle(arm5_state_handle);
-            	hardware_interface::JointHandle arm5_handle(arm5_state_handle , &arm_cmd_[4]);
-            	servo_pos_interface_.registerHandle(arm5_handle);
-				
-				hardware_interface::JointStateHandle arm6_state_handle("arm6", &arm_pos_[5], &arm_pos_[5], &arm_pos_[5]);
-			    jnt_state_interface_.registerHandle(arm6_state_handle);
-            	hardware_interface::JointHandle arm6_handle(arm6_state_handle , &arm_cmd_[5]);
-            	servo_pos_interface_.registerHandle(arm6_handle);								
-    		}
-
-		hardware_interface::JointStateHandle head_servo1_state_handle("servo_1", &head_servo1_pos_, &head_servo1_vel_, &head_servo1_eff_);
-	    jnt_state_interface_.registerHandle(head_servo1_state_handle);
-    	hardware_interface::JointHandle head_servo1_handle(head_servo1_state_handle, &head_servo1_cmd_);
-    	servo_pos_interface_.registerHandle(head_servo1_handle);
-
-    	hardware_interface::JointStateHandle head_servo2_state_handle("servo_2", &head_servo2_pos_, &head_servo2_vel_, &head_servo2_eff_);
-    	jnt_state_interface_.registerHandle(head_servo2_state_handle);
-    	hardware_interface::JointHandle head_servo2_handle(head_servo2_state_handle, &head_servo2_cmd_);
-    	servo_pos_interface_.registerHandle(head_servo2_handle);
 
 
-		registerInterface(&jnt_state_interface_);
-    	registerInterface(&servo_pos_interface_);
 		
  		if (higo_ap_.initialize_ok())
 		{
@@ -193,19 +106,15 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		ros::Time currentTime = ros::Time::now();
 		while (ros::ok())
 		{	  
-
-	
-				higo_ap_.updateCommand(READ_LAXIAN_POSITION, count,0);//射频传感器读卡  ---ok  
-				// higo_ap_.updateCommand(READ_EULER_ANGLE, count,0);//38
+				higo_ap_.updateCommand(READ_LAXIAN_POSITION, count,0);//拉线传感器  ---ok  
+			    higo_ap_.updateCommand(READ_EULER_ANGLE, count,0);//38
 				higo_ap_.updateCommand(READ_RFID_REG_DATA, count,0);//射频传感器读卡  ---ok
-				higo_ap_.updateCommand(READ_THERMOMETER_REG_DATA, count,0);		
+				higo_ap_.updateCommand(READ_THERMOMETER_REG_DATA, count,0);	//温度传感器	
 
              if(idcard_write_flag==1)
 			 {
 				std::cerr << "idcard is  " << std::endl;
                 idcard_write_flag=0;
-				
-
 											
 				std::cerr <<"ID1 interface   " <<(short int)higo_ap_.getRobotAbstract()->rfid_write_data.write_to_reg_data1<<std::endl; 
 				std::cerr <<"ID2 interface   " <<(short int)higo_ap_.getRobotAbstract()->rfid_write_data.write_to_reg_data2<<std::endl; 
@@ -221,11 +130,6 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 				while(write_flag!=0);
 			 }
 		
-		 
-			 
-
-
-		   
 			idcard_read_config_.data[0]=(short int)higo_ap_.getRobotAbstract()->Temperature_Data.read_from_reg_data3;
 			idcard_read_config_.data[1]=(short int)higo_ap_.getRobotAbstract()->Temperature_Data.read_from_reg_data4;
 	
@@ -252,18 +156,15 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 			readBufferUpdate();
 
 			cm.update(ros::Time::now(), ros::Duration(1 / controller_freq_));
-            // ROS_INFO("head_servo1_cmd_ = %.4f  head_servo2_cmd_=%.4f" , head_servo1_cmd_ ,head_servo2_cmd_);
 
 			writeBufferUpdate();     
 			 
 			rate.sleep();
 			
-			// std::cerr << "spend time is  " << (ros::Time::now() - currentTime).toSec() << std::endl;
-			// currentTime = ros::Time::now();
+
 			count++;
 
-		//	std::cerr << "spend time is  " << (ros::Time::now() - currentTime).toSec() <<std::endl;
-		//	std::cerr << "count is  " <<  count<<std::endl;
+		//	std::cerr << "spend time is  " << (ros::Time::now() - currentTime).toSec() <<std::endl
 			
 			currentTime = ros::Time::now();
 		}

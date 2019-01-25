@@ -191,7 +191,7 @@ public:
     //common
     unsigned char byteAnalysisCall(const unsigned char rx_byte);  
     unsigned char byteAnalysisCall_R(const unsigned char rx_byte);  
-    unsigned char byteAnalysisCall_R_FromPAD(const unsigned char rx_byte);  
+   
     
     void datatUpdate(void);      
     //unsigned char writeByteAnalysisCall(const unsigned char rx_byte);
@@ -227,7 +227,6 @@ private:
     // void sendStruct(const Command command_state , unsigned char* p , const unsigned short int len);
     void sendStruct(const ModbusSlaveAddr slave_addr,const ModbusCommandCode command_Code, const ModbusCommandRegAddr command_reg_addr , unsigned char* p ,  unsigned short int len);
     void sendStruct(const ModbusSlaveAddr slave_addr,const ModbusCommandCode command_Code, const ModbusCommandRegAddr command_reg_addr , float* p ,  unsigned short int len);
-    void sendStructToPAD(const ModbusSlaveAddr slave_addr,const ModbusCommandCode command_Code, const ModbusCommandRegAddr command_reg_addr , unsigned char* p ,  unsigned short int len);
 
 };
 #endif  // #ifndef HF_LINK_H

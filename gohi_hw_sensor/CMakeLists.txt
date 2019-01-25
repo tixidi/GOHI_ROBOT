@@ -12,24 +12,16 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   gohi_msgs
-  message_runtime 
-  serial
-  message_generation
 )
 
-add_message_files(
-  FILES
-  Puncture.msg
-)
+
 generate_messages(
   DEPENDENCIES std_msgs
 )
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES gohi_hw_sensor
-  CATKIN_DEPENDS   message_runtime
-  DEPENDS system_lib
+
 )
 
 
@@ -38,9 +30,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   include/sdk/hf_link/
   include/sdk/robot_abstract/
-  include/gohi_hw/
-  include/gohi_hw_sersor/
-  /usr/include/alsa
+
 
 )
 
@@ -50,15 +40,4 @@ add_executable(gohi_hw_node_sensor src/main.cpp src/HIGO_ROS.cpp src/transport_s
 add_dependencies(gohi_hw_node_sensor  gohi_msgs_gencpp)
 target_link_libraries(gohi_hw_node_sensor ${catkin_LIBRARIES})
 
-add_executable(serial_example_node src/serial_example.cpp src/crc.cpp)
-add_dependencies(serial_example_node ${catkin_EXPORTED_TARGETS} ${gohi_hw_sensor_EXPORTED_TARGETS})
-target_link_libraries(serial_example_node ${catkin_LIBRARIES})
-
-add_executable(talker_node src/talker.cpp)
-add_dependencies(talker_node ${catkin_EXPORTED_TARGETS})
-target_link_libraries(talker_node ${catkin_LIBRARIES})
-
-add_executable(listener_node src/listener.cpp)
-add_dependencies(listener_node ${catkin_EXPORTED_TARGETS} ${gohi_hw_sensor_EXPORTED_TARGETS})
-target_link_libraries(listener_node ${catkin_LIBRARIES})
 
