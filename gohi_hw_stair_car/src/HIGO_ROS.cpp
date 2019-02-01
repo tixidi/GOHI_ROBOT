@@ -46,10 +46,10 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 		//register the hardware interface on the robothw
 
-		hardware_interface::BaseStateHandle    base_state_handle("mobile_base", &x_, &y_, &theta_, &x_vel_, &y_vel_, &theta_vel_);
-		base_state_interface_.registerHandle(base_state_handle);
-		hardware_interface::BaseVelocityHandle base_handle(base_state_handle, &x_cmd_, &y_cmd_, &theta_cmd_);
-		base_velocity_interface_.registerHandle(base_handle);
+		// hardware_interface::BaseStateHandle    base_state_handle("mobile_base", &x_, &y_, &theta_, &x_vel_, &y_vel_, &theta_vel_);
+		// base_state_interface_.registerHandle(base_state_handle);
+		// hardware_interface::BaseVelocityHandle base_handle(base_state_handle, &x_cmd_, &y_cmd_, &theta_cmd_);
+		// base_velocity_interface_.registerHandle(base_handle);
 	
   		registerInterface(&base_state_interface_);
 		registerInterface(&base_velocity_interface_);
@@ -249,10 +249,10 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 
 
-		 	higo_ap_.updateCommand(SET_CAR1_LEFT_SPEED_CONTROL, count,1);
-			// std::cerr << "spend time is  " << (ros::Time::now() - currentTime).toSec() << std::endl;
-			higo_ap_.updateCommand(SET_CAR1_RIGHT_SPEED_CONTROL, count,1);		 
-			//std::cerr << "spend time is  " << (ros::Time::now() - currentTime).toSec() << std::endl;
+		 	// higo_ap_.updateCommand(SET_CAR1_LEFT_SPEED_CONTROL, count,1);
+			// // std::cerr << "spend time is  " << (ros::Time::now() - currentTime).toSec() << std::endl;
+			// higo_ap_.updateCommand(SET_CAR1_RIGHT_SPEED_CONTROL, count,1);		 
+			// //std::cerr << "spend time is  " << (ros::Time::now() - currentTime).toSec() << std::endl;
   			higo_ap_.updateCommand(SET_CAR2_POSITION_CONTROL, count,1);
 			//   std::cerr << "spend time is  " << (ros::Time::now() - currentTime).toSec() << std::endl;
 		    higo_ap_.updateCommand(SET_CAR2_SPEED_CONTROL, count,1); //设置地龙速度

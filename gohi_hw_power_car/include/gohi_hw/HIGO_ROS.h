@@ -23,8 +23,7 @@
 
 
 #include <gohi_msgs/robot_state.h>
-#include <gohi_msgs/roll_config.h>
-#include <gohi_msgs/stair_config.h>
+#include <gohi_msgs/brake_config.h>
 
 
 // for ros headers
@@ -38,6 +37,7 @@
 #include <hf_link_modbus.h>
 
 #include <gohi_hw/HIGO_AP.h>
+
 
 
 
@@ -60,8 +60,7 @@ private:
 	ros::CallbackQueue queue_;
 	// publish the robot state for diagnose system
 	ros::Publisher robot_state_publisher_;
-	ros::Subscriber stair_cmd_subscribe_;
-	ros::Subscriber roll_cmd_subscribe_;
+	ros::Subscriber brake_cmd_subscribe_;
 	
 
 
@@ -72,18 +71,17 @@ private:
 	std::string base_mode_;
 	bool with_arm_;
 	double controller_freq_;
-	unsigned char roll_config_callback_flag;
-	unsigned char stair_config_call_back_flag;
+	unsigned char brake_config_callback_flag;
+	unsigned char brake_config_callback_flag1;
+	
 	
 
 	//hardware resource
 	gohi_msgs::robot_state robot_state;
-	gohi_msgs::roll_config roll_config ;
-	gohi_msgs::stair_config stair_config;
+	gohi_msgs::brake_config brake_config;
 	
 
     std::vector<double> wheel_pos_, wheel_vel_, wheel_eff_, wheel_cmd_;
-    std::vector<double> arm_pos_  , arm_vel_  , arm_eff_, arm_cmd_;
     double x_, y_, theta_, x_cmd_, y_cmd_, theta_cmd_;
     double x_vel_, y_vel_, theta_vel_;
 
@@ -118,15 +116,6 @@ private:
 		higo_ap_.getRobotAbstract()->expect_robot_speed.y = y_cmd_;
 		higo_ap_.getRobotAbstract()->expect_robot_speed.z = theta_cmd_;
 
-        if (with_arm_)
-        {
-           		higo_ap_.getRobotAbstract()->expect_arm_state.servo1 = arm_cmd_[0];
-           		higo_ap_.getRobotAbstract()->expect_arm_state.servo2 = arm_cmd_[1];
-		        higo_ap_.getRobotAbstract()->expect_arm_state.servo3 = arm_cmd_[2];
-           		higo_ap_.getRobotAbstract()->expect_arm_state.servo4 = arm_cmd_[3];
-           		higo_ap_.getRobotAbstract()->expect_arm_state.servo5 = arm_cmd_[4];
-           		higo_ap_.getRobotAbstract()->expect_arm_state.servo6 = arm_cmd_[5];
-        }
         // the servo num is different
         higo_ap_.getRobotAbstract()->expect_head_state.pitch  = head_servo1_cmd_;
         higo_ap_.getRobotAbstract()->expect_head_state.yaw    = head_servo2_cmd_;
@@ -153,15 +142,6 @@ private:
         robot_state.system_time = higo_ap_.getRobotAbstract()->system_info.system_time;
 
 
-        if (with_arm_)
-        {
-        	arm_pos_[0] = higo_ap_.getRobotAbstract()->measure_arm_state.servo1;
-            arm_pos_[1] = higo_ap_.getRobotAbstract()->measure_arm_state.servo2;
-            arm_pos_[2] = higo_ap_.getRobotAbstract()->measure_arm_state.servo3;
-            arm_pos_[3] = higo_ap_.getRobotAbstract()->measure_arm_state.servo4;
-            arm_pos_[4] = higo_ap_.getRobotAbstract()->measure_arm_state.servo5;
-            arm_pos_[5] = higo_ap_.getRobotAbstract()->measure_arm_state.servo6;
-        }
 
 		// wheel_vel_[0] = higo_ap_.getRobotAbstract()->measure_motor_speed.servo1;
 		// wheel_vel_[1] = higo_ap_.getRobotAbstract()->measure_motor_speed.servo2;
@@ -185,10 +165,9 @@ private:
 
 	}
 
-	 void stair_cmd_callback(const gohi_msgs::stair_configConstPtr& msg);
-	 void roll_cmd_callback(const gohi_msgs::roll_configConstPtr& msg);
+	 void brake_cmd_callback(const gohi_msgs::brake_configConstPtr& msg);
 	 
-
+	 
 };
 
 

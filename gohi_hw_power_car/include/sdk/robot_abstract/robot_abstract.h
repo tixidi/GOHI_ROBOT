@@ -21,7 +21,7 @@
 #include "motor_parameters.h"
 #include "chassis_parameters.h"
 #include "head_parameters.h"
-#include "arm_parameters.h"
+// #include "arm_parameters.h"
 #include "laxian_parameters.h"
 
 #include "interface.h"
@@ -40,14 +40,14 @@ public:
         memset(&motor_para , 0 , sizeof(motor_para));
         memset(&chassis_para , 0 , sizeof(chassis_para));
         memset(&head_para , 0 , sizeof(head_para));
-        memset(&arm_para , 0 , sizeof(arm_para));
+        // memset(&arm_para , 0 , sizeof(arm_para));
     }
 
 public:
     MotorParameters motor_para;
     ChassisParameters chassis_para;
     HeadParameters head_para;
-    ArmParameters arm_para;
+    // ArmParameters arm_para;
     float degree_to_radian ,  radian_to_degree;
 };
 
@@ -76,8 +76,8 @@ public:
         memset(&measure_robot_coordinate , 0 , sizeof(measure_robot_coordinate));
 
         /************************************arm*************************************************/
-        memset(&expect_arm_state , 0 , sizeof(expect_arm_state));
-        memset(&measure_arm_state , 0 , sizeof(measure_arm_state));
+        // memset(&expect_arm_state , 0 , sizeof(expect_arm_state));
+        // memset(&measure_arm_state , 0 , sizeof(measure_arm_state));
 
         /************************************head************************************************/
         memset(&expect_head_state , 0 , sizeof(expect_head_state));
@@ -152,8 +152,8 @@ public:
     ChassisCoord   measure_robot_coordinate;
 
     /************************************arm***************************************************/
-    ArmDOFVector expect_arm_state;
-    ArmDOFVector measure_arm_state;
+    // ArmDOFVector expect_arm_state;
+    // ArmDOFVector measure_arm_state;
 
     /************************************head**************************************************/
     HeadPose   expect_head_state;    //(pitch,roll,yaw)(radian,radian,radian)
