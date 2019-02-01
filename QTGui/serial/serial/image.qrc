@@ -1,0 +1,34 @@
+<RCC>
+    <qresource prefix="/">
+        <file>style.qss</file>
+        <file>img/caoping.jpg</file>
+        <file>img/down.ico</file>
+        <file>img/left.ico</file>
+        <file>img/right.ico</file>
+        <file>img/shamo.jpg</file>
+        <file>img/up.ico</file>
+        <file>img/roll.ico</file>
+        <file>img/roll_left.ico</file>
+        <file>img/roll_right.ico</file>
+        <file>img/down1.ico</file>
+        <file>img/left1.ico</file>
+        <file>img/leftright.ico</file>
+        <file>img/nav.ico</file>
+        <file>img/nav1.ico</file>
+        <file>img/right1.ico</file>
+        <file>img/stair_down.ico</file>
+        <file>img/stair_up.ico</file>
+        <file>img/stop.ico</file>
+        <file>img/up1.ico</file>
+        <file>img/updown.ico</file>
+        <file>img/left2.ico</file>
+        <file>img/stoproll.ico</file>
+        <file>img/stopstair.ico</file>
+        <file>img/stopstair1.ico</file>
+        <file>img/nextdatatable.ico</file>
+        <file>img/stopstair2.ico</file>
+        <file>img/stopstair3.ico</file>
+        <file>img/chunse.jpg</file>
+        <file>img/huise.jpg</file>
+    </qresource>
+</RCC>
