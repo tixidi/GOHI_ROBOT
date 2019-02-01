@@ -36,42 +36,42 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		idcard_write_config_subscriber_ = nh_.subscribe("/idcard_write_config/cmd", 1,  &HIGO_ROS::idcard_write_config_callback, this);
 
 
-		x_ = y_ = theta_ = x_cmd_ = y_cmd_ = theta_cmd_ = 0.0;
-		x_vel_ = y_vel_ = theta_vel_ = 0.0;
+		// x_ = y_ = theta_ = x_cmd_ = y_cmd_ = theta_cmd_ = 0.0;
+		// x_vel_ = y_vel_ = theta_vel_ = 0.0;
 
 
 
 		//register the hardware interface on the robothw
 
-		hardware_interface::BaseStateHandle    base_state_handle("mobile_base", &x_, &y_, &theta_, &x_vel_, &y_vel_, &theta_vel_);
-		base_state_interface_.registerHandle(base_state_handle);
-		hardware_interface::BaseVelocityHandle base_handle(base_state_handle, &x_cmd_, &y_cmd_, &theta_cmd_);
-		base_velocity_interface_.registerHandle(base_handle);
+		// hardware_interface::BaseStateHandle    base_state_handle("mobile_base", &x_, &y_, &theta_, &x_vel_, &y_vel_, &theta_vel_);
+		// base_state_interface_.registerHandle(base_state_handle);
+		// hardware_interface::BaseVelocityHandle base_handle(base_state_handle, &x_cmd_, &y_cmd_, &theta_cmd_);
+		// base_velocity_interface_.registerHandle(base_handle);
 	
-  		registerInterface(&base_state_interface_);
-		registerInterface(&base_velocity_interface_);
+  		// registerInterface(&base_state_interface_);
+		// registerInterface(&base_velocity_interface_);
 		
-		 if (base_mode_ == "2diff-wheel")
-           {
-               wheel_pos_.resize(2,0);
-               wheel_vel_.resize(2.0);
-               wheel_eff_.resize(2,0);
-               wheel_cmd_.resize(2,0);
+		//  if (base_mode_ == "2diff-wheel")
+        //    {
+        //        wheel_pos_.resize(2,0);
+        //        wheel_vel_.resize(2.0);
+        //        wheel_eff_.resize(2,0);
+        //        wheel_cmd_.resize(2,0);
 
-               hardware_interface::JointStateHandle wheel1_state_handle("wheel1", &wheel_pos_[0], &wheel_vel_[0], &wheel_eff_[0]);
-               jnt_state_interface_.registerHandle(wheel1_state_handle);
-               hardware_interface::JointHandle wheel1_handle(wheel1_state_handle, &wheel_cmd_[0]);
-               base_vel_interface_.registerHandle(wheel1_handle);
+        //        hardware_interface::JointStateHandle wheel1_state_handle("wheel1", &wheel_pos_[0], &wheel_vel_[0], &wheel_eff_[0]);
+        //        jnt_state_interface_.registerHandle(wheel1_state_handle);
+        //        hardware_interface::JointHandle wheel1_handle(wheel1_state_handle, &wheel_cmd_[0]);
+        //        base_vel_interface_.registerHandle(wheel1_handle);
 
-               hardware_interface::JointStateHandle wheel2_state_handle("wheel2", &wheel_pos_[1], &wheel_vel_[1], &wheel_eff_[1]);
-               jnt_state_interface_.registerHandle(wheel2_state_handle);
-               hardware_interface::JointHandle wheel2_handle(wheel2_state_handle, &wheel_cmd_[1]);
-               base_vel_interface_.registerHandle(wheel2_handle);
+        //        hardware_interface::JointStateHandle wheel2_state_handle("wheel2", &wheel_pos_[1], &wheel_vel_[1], &wheel_eff_[1]);
+        //        jnt_state_interface_.registerHandle(wheel2_state_handle);
+        //        hardware_interface::JointHandle wheel2_handle(wheel2_state_handle, &wheel_cmd_[1]);
+        //        base_vel_interface_.registerHandle(wheel2_handle);
 
-               registerInterface(&jnt_state_interface_);
-               registerInterface(&base_vel_interface_);
+        //        registerInterface(&jnt_state_interface_);
+        //        registerInterface(&base_vel_interface_);
 
-           }
+        //    }
 
 
 		
@@ -153,11 +153,11 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 			idcard_read_config_publisher_.publish(idcard_read_config_);			  
 				
 			//----------------------------------------------------
-			readBufferUpdate();
+			// readBufferUpdate();
 
 			cm.update(ros::Time::now(), ros::Duration(1 / controller_freq_));
 
-			writeBufferUpdate();     
+			// writeBufferUpdate();     
 			 
 			rate.sleep();
 			

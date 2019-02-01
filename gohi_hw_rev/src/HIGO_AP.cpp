@@ -196,7 +196,3 @@ bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int count,int rea
 }
 
 
-  void HIGO_AP::updateRobot()
-  {
-     hflinkmodbus_->datatUpdate();
-  }

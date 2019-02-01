@@ -3,7 +3,8 @@
 
 #include "robot_abstract.h"
 #include "hf_link_state_machine_modbus.h"
-#include "robot_control.h"
+
+
 
 //comand type
 enum MotorModbusCommand{
@@ -152,7 +153,7 @@ public:
     HFLink_Modbus(RobotAbstract* robot_  , unsigned char my_id_= 0x11 , unsigned char friend_id_= 0x01 , unsigned char port_num_ = 1) :
         StateMachineModbus(my_id_ , friend_id_ , port_num_)
     {
-        hf_link_node_model = HF_LINK_NODE_MODEL ;
+
         //enable hflink ack , generally, master disable and slave enable
         //and slave also can disable to reduce communication burden
         hf_link_ack_en = 0;
@@ -175,10 +176,7 @@ public:
     {
         return receive_package_renew[command_state];
     }
-    inline Robot_Control* getRobotControl()
-    {
-        return &robot_control;
-    }
+
     // float get_d_past_angel(void){    //recording d angle for robot coordinate calculation
     //     float temp=robot->ask_motor_control_data.d_past_angle;
     //     robot->ask_motor_control_data.d_past_angle=0;
@@ -199,7 +197,7 @@ public:
     unsigned char byteAnalysisCall_R(const unsigned char rx_byte);  
     unsigned char byteAnalysisCall_R_FromPAD(const unsigned char rx_byte);  
     
-    void datatUpdate(void);      
+     
     //unsigned char writeByteAnalysisCall(const unsigned char rx_byte);
     //unsigned char readByteAnalysisCall(const unsigned char rx_byte);
     
@@ -221,7 +219,7 @@ private:
     
 
     RobotAbstract* robot;      //robot abstract pointer to hflink
-    Robot_Control robot_control;
+
     MotorModbusCommand    command_state_;
 
     unsigned char packageAnalysis(void);

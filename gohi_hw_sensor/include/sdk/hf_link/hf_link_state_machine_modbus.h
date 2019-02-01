@@ -2,7 +2,6 @@
 #define HF_LINK_STATE_MACHINE_MODBUS_H
 
 #include "stdio.h"
-#include "hf_link_platform.h"
 #include <tabcrc.h>
 #include <iostream>
 #include <string.h> 

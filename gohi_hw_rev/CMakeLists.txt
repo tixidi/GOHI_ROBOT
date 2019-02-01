@@ -35,7 +35,7 @@ include_directories(
 
 
 
- add_executable(gohi_hw_node_rev src/main.cpp src/HIGO_ROS.cpp src/transport_serial.cpp src/HIGO_AP.cpp include/sdk/hf_link/hf_link_modbus.cpp include/sdk/hf_link/hf_link_state_machine_modbus.cpp include/sdk/hf_link/robot_control.cpp)
+ add_executable(gohi_hw_node_rev src/main.cpp src/HIGO_ROS.cpp src/transport_serial.cpp src/HIGO_AP.cpp include/sdk/hf_link/hf_link_modbus.cpp include/sdk/hf_link/hf_link_state_machine_modbus.cpp )
  add_dependencies(gohi_hw_node_rev  gohi_msgs_gencpp)
  target_link_libraries(gohi_hw_node_rev ${catkin_LIBRARIES})
 

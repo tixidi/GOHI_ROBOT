@@ -19,7 +19,6 @@ public:
 
     
 
-    void updateRobot();
 
     inline RobotAbstract* getRobotAbstract()
     {
