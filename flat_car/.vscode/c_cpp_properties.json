@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/wb/gohi_ws/devel/include",
+                "/opt/ros/kinetic/include",
+                "/home/wb/gohi_ws/src/GOHI_ROBOT/flat_car/base_simple_controller/include",
+                "/home/wb/gohi_ws/src/GOHI_ROBOT/flat_car/gohi_hw_flat_car/include",
+                "/home/wb/gohi_ws/src/GOHI_ROBOT/gohi_hw_rev/include",
+                "/home/wb/gohi_ws/src/GOHI_ROBOT/gohi_hw_sensor/include",
+                "/home/wb/gohi_ws/src/GOHI_ROBOT/sick_test/sick_test/include",
+                "/home/wb/gohi_ws/src/opencvtest/include",
+                "/home/wb/gohi_ws/src/usb_cam/include",
+                "/usr/include"
+            ],
+            "name": "Linux",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}
