@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/new/botton">
-        <file>img/help-about.png</file>
-        <file>img/forward.PNG</file>
-        <file>img/turn.png</file>
-        <file>img/start.png</file>
-    </qresource>
-</RCC>
