@@ -204,7 +204,6 @@ private:
     unsigned char readCommandAnalysis(const MotorModbusCommand command_state , unsigned char* p , const unsigned short int len);
     unsigned char readCommandAnalysis(const MotorModbusCommand command_state ,short int* p ,  unsigned short int len);
     unsigned char readCommandAnalysis(const MotorModbusCommand command_state , int* p ,  unsigned short int len);
-    unsigned char setCommandAnalysis(const MotorModbusCommand command_state , unsigned char* p , const unsigned short int len);
     unsigned char setCommandAnalysis(const MotorModbusCommand command_state , float* p , const unsigned short int len);
 
     void sendStruct(const ModbusSlaveAddr slave_addr,const ModbusCommandCode command_Code, const ModbusCommandRegAddr command_reg_addr , unsigned char* p ,  unsigned short int len);

@@ -9,8 +9,6 @@
 #define motor_num 2
 #define HF_LINK_NODE_MODEL  1    //1:master(PC)  0 :slave(MCU)
 
-// #define  per_circle_position (360/120)*8*18
-// #define  pid_t  0.1
 
 #define wheel_radius  0.0510//0.0625  轮子半径
 #define body_radius   0.2825//0.565   车身半径

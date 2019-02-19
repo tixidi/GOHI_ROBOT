@@ -61,7 +61,6 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
     int temp_mea_motor2_position;
  
     float  per_circle_position =(360/120)*8*30;
-    float  per_circle_position1 =(360/120)*8*18;
 
     float  pid_t  =0.1;
 
@@ -104,38 +103,16 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
     switch (command_state_)
     {
     case READ_MOT1_ERROR_STATE :
-        analysis_state=readCommandAnalysis(command_state_ , (unsigned char *)&robot->motor_error_state.error1 , sizeof(robot->motor_error_state.error1));
-        std::cerr <<"READ_MOT1_ERROR_STATE     dfffffffffffffffffffffffffffffffffffffs                   " <<(unsigned int )robot->motor_error_state.error1 <<std::endl;    
+        analysis_state=readCommandAnalysis(command_state_ , (short int*)&robot->motor_error_state.error1 , sizeof(robot->motor_error_state.error1));
+        std::cerr <<"READ_MOT1_ERROR_STATE     eeeeeeeeeeeeeeeeeeeeeeeeeeee11111111111111                  " <<(unsigned int )robot->motor_error_state.error1 <<std::endl;    
         break;
     case READ_MOT2_ERROR_STATE :
-        analysis_state=readCommandAnalysis(command_state_ , (unsigned char *)&robot->motor_error_state.error2 , sizeof(robot->motor_error_state.error2));
-        std::cerr <<"READ_MOT2_ERROR_STATE     dfffffffffffffffffffffffffffffffffffffs                   " <<(unsigned int )robot->motor_error_state.error2 <<std::endl;  
-        break;
-
-    case READ_MOT1_SPEED :      
-        analysis_state=readCommandAnalysis(command_state_ , (short int* )&temp_mea_servo1_speed , sizeof(robot->ask_measure_motor_speed.servo1));
-        robot->ask_measure_motor_speed.servo1=(float)temp_mea_servo1_speed;
-        robot->ask_measure_motor_speed.servo1=robot->ask_measure_motor_speed.servo1/(8*30/0.1/20);
-        robot->ask_measure_motor_speed.servo1=robot->ask_measure_motor_speed.servo1*2*3.14/60;    
-        std::cerr <<"command1  " <<robot->ask_measure_motor_speed.servo1 <<std::endl;  //rad/s      
-        break;
-    case READ_MOT2_SPEED :      
-        analysis_state=readCommandAnalysis(command_state_ , (short int* )&temp_mea_servo2_speed , sizeof(robot->ask_measure_motor_speed.servo2));
-        robot->ask_measure_motor_speed.servo2=(float)temp_mea_servo2_speed;
-        robot->ask_measure_motor_speed.servo2=robot->ask_measure_motor_speed.servo2/(8*30/0.1/20);
-        robot->ask_measure_motor_speed.servo2=robot->ask_measure_motor_speed.servo2*2*3.14/60;
-        std::cerr <<"command2  "<<robot->ask_measure_motor_speed.servo2 <<std::endl;//rad/s
-        break;
-
-    case READ_CAR1_MOTOR1_COMPLETE_STATE :
-        analysis_state=readCommandAnalysis(command_state_ , (unsigned char *)&robot->motor_pos_comp_state.posComp1 , sizeof(robot->motor_pos_comp_state.posComp1));
-        break;
-    case READ_CAR1_MOTOR2_COMPLETE_STATE :
-        analysis_state=readCommandAnalysis(command_state_ , (unsigned char *)&robot->motor_pos_comp_state.posComp2 , sizeof(robot->motor_pos_comp_state.posComp2));
+        analysis_state=readCommandAnalysis(command_state_ , (short int*)&robot->motor_error_state.error2 , sizeof(robot->motor_error_state.error2));
+        std::cerr <<"READ_MOT2_ERROR_STATE     eeeeeeeeeeeeeeeeeeeeeeeeeeee22222222222222                 " <<(unsigned int )robot->motor_error_state.error2 <<std::endl;  
         break;
 
     case READ_MOT1_REAL_POSITION:
-        // d_past_angle[0] =0;          
+        
         analysis_state=readCommandAnalysis(command_state_ , (int* )&temp_mea_motor1_position , sizeof(robot->ask_measure_motor_position.position1));
         robot->ask_measure_motor_position.position1=(float)temp_mea_motor1_position;
   
@@ -147,23 +124,23 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
 
         //calc motor speed  degree/s
         robot->ask_measure_motor_speed.servo1=  (robot->ask_measure_motor_position_dif.position1) * 360 / ( per_circle_position*pid_t )*degree_to_radian;
-        //std::cerr <<"电机1速度: " <<robot->ask_measure_motor_speed.servo1<<"弧度每秒" <<std::endl; //读电机1位置
+        std::cerr <<"电机1速度: " <<robot->ask_measure_motor_speed.servo1<<" rad/s" <<std::endl; //读电机1位置
+
         //----------------------------------------------------------------------------------------
-        //std::cerr <<"电机1速度: " <<robot->ask_measure_motor_position_dif.position1<<"弧度每秒" <<std::endl;
-        per_meter_odometry+=(robot->ask_measure_motor_position_dif.position1/per_circle_position)*wheel_radius*2*3.141592653*100;
-        if(per_meter_odometry>=1)
-        {
-            meter_flag=1;
-            per_meter_odometry=0;
-        }
-        if(meter_flag==1)
-        {
-            meter_flag=0;
-            std::cerr <<"已运动一米%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" <<std::endl;
-            // robot->ask_expect_motor_speed.servo1=0;
-            // robot->ask_expect_motor_speed.servo2=0;
+        // per_meter_odometry+=(robot->ask_measure_motor_position_dif.position1/per_circle_position)*wheel_radius*2*3.141592653*100;
+        // if(per_meter_odometry>=1)
+        // {
+        //     meter_flag=1;
+        //     per_meter_odometry=0;
+        // }
+        // if(meter_flag==1)
+        // {
+        //     meter_flag=0;
+        //     std::cerr <<"已运动一米%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" <<std::endl;
+        //     // robot->ask_expect_motor_speed.servo1=0;
+        //     // robot->ask_expect_motor_speed.servo2=0;
         
-        }
+        // }
         break;
 
     case READ_MOT2_REAL_POSITION :  
@@ -179,7 +156,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
 
         //calc motor speed  degree/s
         robot->ask_measure_motor_speed.servo2=   robot->ask_measure_motor_position_dif.position2 * 360 / ( per_circle_position*pid_t )*degree_to_radian;
-        //std::cerr <<"电机2速度: " <<(robot->ask_measure_motor_speed.servo2)<<"弧度每秒" <<std::endl;
+        std::cerr <<"电机2速度: " <<(robot->ask_measure_motor_speed.servo2)<<" rad/s" <<std::endl;
   
         break;
         
@@ -198,7 +175,13 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
         break;
     case SET_CAR1_RIGHT_SPEED_CONTROL :
         analysis_state=setCommandAnalysis(command_state_ , (float* )&robot->ask_expect_motor_speed.servo2 , sizeof(robot->ask_expect_motor_speed.servo2) );
-        break;        
+        break;   
+
+    case READ_EULER_ANGLE :    
+        analysis_state=readCommandAnalysis(command_state_ , (short int*)&robot->euler_angle , sizeof(robot->euler_angle) );   
+        std::cerr <<"measure pitch  " <<robot->euler_angle.pitch*180.0/32768  <<std::endl;  
+        std::cerr <<"measure roll  " <<robot->euler_angle.roll *180.0/32768<<std::endl;   
+        std::cerr <<"measure yaw  " <<robot->euler_angle.yaw*180.0/32768<<std::endl;      
 
     default :
         analysis_state = 0;
@@ -243,18 +226,11 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
 {
    short int temp_ask_servo1_speed ;
    short int temp_ask_servo2_speed ;
-   short int temp_ask_servo3_speed ; 
-   short int temp_ask_servo4_speed ; 
-   short int temp_ask_servo5_speed ; 
-   short int temp_ask_servo6_speed ; 
-   short int temp_positionPhaseChange;
    
-   
-    void *single_command;
+   void *single_command;
 
-    float  per_circle_position1 =(360/120)*8*18;
 
-    receive_package_renew[(unsigned char)command_state] = 0 ;
+   receive_package_renew[(unsigned char)command_state] = 0 ;
 
     switch (command_state)
     {
@@ -265,28 +241,12 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
         sendStruct(MOTOR2_ADDR , READ_REG,READ_ERROR_STATE_ADDR,(unsigned char *)single_command , 0);
         break;   
    
-    case READ_MOT1_SPEED :
-        sendStruct(MOTOR1_ADDR , READ_REG,READ_MOT_SPEED_ADDR,(unsigned char *)single_command , 0);
-        break;
-    case READ_MOT2_SPEED :
-        sendStruct(MOTOR2_ADDR , READ_REG,READ_MOT_SPEED_ADDR,(unsigned char *)single_command , 0);
-        break;
-
     case READ_MOT1_REAL_POSITION :
         sendStruct(MOTOR1_ADDR , READ_REG,READ_MOT_POSITION_ADDR,(unsigned char *)single_command , 0);
         break;
     case READ_MOT2_REAL_POSITION :
         sendStruct(MOTOR2_ADDR , READ_REG,READ_MOT_POSITION_ADDR,(unsigned char *)single_command , 0);
         break;
-
-
-    case READ_CAR1_MOTOR1_COMPLETE_STATE :
-        sendStruct(MOTOR1_ADDR , READ_REG,READ_POSITION_COMPLETE_STATE_ADDR,(unsigned char *)single_command , 0);              
-        break;
-    case READ_CAR1_MOTOR2_COMPLETE_STATE :
-        sendStruct(MOTOR2_ADDR , READ_REG,READ_POSITION_COMPLETE_STATE_ADDR,(unsigned char *)single_command , 0);              
-        break;
-
 
     case SET_MOT1_BRAKE_STATE :
         robot->ask_brake_config.brake1=2;
@@ -299,7 +259,7 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
 
 
     case SET_CAR1_LEFT_SPEED_CONTROL :
-        // robot->ask_expect_motor_speed.servo1=1.24;
+        // robot->ask_expect_motor_speed.servo1=1.24;// rad/s
         // std::cerr <<"command5_____" <<robot->ask_expect_motor_speed.servo1 <<std::endl;//setup 
         robot->ask_expect_motor_speed.servo1=(robot->ask_expect_motor_speed.servo1)*60/2/3.14; //rpm
         robot->ask_expect_motor_speed.servo1=robot->ask_expect_motor_speed.servo1*8*30/0.1/20;  
@@ -308,8 +268,8 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
         sendStruct(MOTOR1_ADDR , WRITE_REG,SET_MOT_SPEED_ADDR, (unsigned char *)&temp_ask_servo1_speed, sizeof(temp_ask_servo1_speed) );      
         break;
     case SET_CAR1_RIGHT_SPEED_CONTROL :
- //
-        // robot->ask_expect_motor_speed.servo2=-1.24;//31 rad/s
+
+        // robot->ask_expect_motor_speed.servo2=-1.24;// rad/s
         // std::cerr <<"command6______" <<robot->ask_expect_motor_speed.servo2 <<std::endl;
         robot->ask_expect_motor_speed.servo2=(robot->ask_expect_motor_speed.servo2)*60/2/3.14;
         robot->ask_expect_motor_speed.servo2=robot->ask_expect_motor_speed.servo2*8*30/0.1/20;
@@ -365,16 +325,7 @@ unsigned char HFLink_Modbus::readCommandAnalysis(const MotorModbusCommand comman
     return 1;
 }
 
-unsigned char HFLink_Modbus::setCommandAnalysis(const MotorModbusCommand command_state , unsigned char* p ,  unsigned short int len)
-{ 
-    if (hf_link_node_model == 1) 
-    { 
-        printf("I'm master , received a ack ");
-        receive_package_renew[(unsigned char)command_state] = 1 ;
-    }
-    
-    return 1;
-}
+
 unsigned char HFLink_Modbus::setCommandAnalysis(const MotorModbusCommand command_state , float* p ,  unsigned short int len)
 {
 
@@ -442,18 +393,18 @@ void HFLink_Modbus::sendStruct(const ModbusSlaveAddr slave_addr,const ModbusComm
 void HFLink_Modbus::datatUpdate(void)
 {
 
-        // robot->expect_robot_speed.x=0.1;READ_RFID_REG_DATA
-        // robot->expect_robot_speed.y=0.0;
-        // robot->expect_robot_speed.z=0.0;
+        robot->expect_robot_speed.x=0.1;
+        robot->expect_robot_speed.y=0.0;
+        robot->expect_robot_speed.z=0.0;
 
         robot_control.robotSpeedSet((float* )&robot->expect_robot_speed , (float * )&robot->ask_expect_motor_speed);   //平仓机只修改这里，expect_motor_speed需要转换为相同的单位     
         robot_control.getRobotSpeed((float* )&robot->ask_measure_motor_speed , (float* )&robot->measure_robot_speed);
 
-        // std::cerr <<"measure m1 speed  " <<robot->ask_measure_motor_speed.servo1 <<std::endl;
-        // std::cerr <<"measure m2 speed  " <<robot->ask_measure_motor_speed.servo2 <<std::endl;
-        // std::cerr <<"measure m3 speed  " <<robot->ask_measure_motor_speed.servo3<<std::endl;
-        // std::cerr <<"X speed  " <<robot->measure_robot_speed.x <<std::endl;
-        // std::cerr <<"Y speed  " <<robot->measure_robot_speed.y<<std::endl;
+        std::cerr <<"measure m1 speed  " <<robot->ask_measure_motor_speed.servo1 <<std::endl;
+        std::cerr <<"measure m2 speed  " <<robot->ask_measure_motor_speed.servo2 <<std::endl;
+        std::cerr <<"measure m3 speed  " <<robot->ask_measure_motor_speed.servo3<<std::endl;
+        std::cerr <<"X speed  " <<robot->measure_robot_speed.x <<std::endl;
+        std::cerr <<"Y speed  " <<robot->measure_robot_speed.y<<std::endl;
 
         robot->measure_motor_mileage.servo1 = past_total_angle[0] ;//degree
         robot->measure_motor_mileage.servo2 = past_total_angle[1] ;//degree
@@ -471,8 +422,8 @@ void HFLink_Modbus::datatUpdate(void)
        
         robot_control.getGlobalCoordinate( d_len , (float* )&robot->measure_global_coordinate);
 
-        // std::cerr <<"X Position  " <<  robot->measure_global_coordinate.x  <<std::endl;
-        // std::cerr <<"Y Position  " <<  robot->measure_global_coordinate.y <<std::endl;
-        // std::cerr <<"Z Position  " <<  robot->measure_global_coordinate.z  <<std::endl;
+        std::cerr <<"X Position  " <<  robot->measure_global_coordinate.x  <<std::endl;
+        std::cerr <<"Y Position  " <<  robot->measure_global_coordinate.y <<std::endl;
+        std::cerr <<"Z Position  " <<  robot->measure_global_coordinate.z  <<std::endl;
 
 }

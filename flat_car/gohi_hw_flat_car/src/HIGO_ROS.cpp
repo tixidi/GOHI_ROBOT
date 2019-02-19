@@ -94,8 +94,6 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
     		higo_ap_.updateCommand(READ_MOT1_ERROR_STATE, count,0);
 			higo_ap_.updateCommand(READ_MOT2_ERROR_STATE, count,0);
 			
-		    higo_ap_.updateCommand(READ_MOT1_SPEED, count,0);
-			higo_ap_.updateCommand(READ_MOT2_SPEED, count,0);
 		    
 			higo_ap_.updateCommand(READ_MOT1_REAL_POSITION, count,0);		//读电机左轮的速度	
 		    higo_ap_.updateCommand(READ_MOT2_REAL_POSITION, count,0);	 	//读电机右轮的速度	 

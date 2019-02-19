@@ -117,15 +117,12 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
     		higo_ap_.updateCommand(READ_MOT3_ERROR_STATE, count,0);
 			higo_ap_.updateCommand(READ_MOT4_ERROR_STATE, count,0);
 			
-		    higo_ap_.updateCommand(READ_MOT3_SPEED, count,0);
-			higo_ap_.updateCommand(READ_MOT4_SPEED, count,0);
 		    
 			higo_ap_.updateCommand(READ_MOT3_REAL_POSITION, count,0);		//读电机左轮的速度	
 		    higo_ap_.updateCommand(READ_MOT4_REAL_POSITION, count,0);	 	//读电机右轮的速度	 
 			
 			
-            // higo_ap_.updateRobot();
-		
+
 			readBufferUpdate();
 
 			cm.update(ros::Time::now(), ros::Duration(1 / controller_freq_));

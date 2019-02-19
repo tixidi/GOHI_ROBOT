@@ -114,21 +114,21 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
         break;
 
 
-    case READ_MOT3_SPEED :      
-        analysis_state=readCommandAnalysis(command_state_ , (short int* )&temp_mea_servo3_speed , sizeof(robot->ask_measure_motor_speed.servo3));
-        robot->ask_measure_motor_speed.servo3=(float)temp_mea_servo3_speed;
-        robot->ask_measure_motor_speed.servo3=robot->ask_measure_motor_speed.servo3/(8*18/0.1/20);
-        robot->ask_measure_motor_speed.servo3=robot->ask_measure_motor_speed.servo3*2*3.14/60;
-        std::cerr <<"read motor3 speed is  "<<robot->ask_measure_motor_speed.servo3 <<std::endl;//rad/s
-        break;
-    case READ_MOT4_SPEED :      
-        analysis_state=readCommandAnalysis(command_state_ , (short int* )&temp_mea_servo4_speed , sizeof(robot->ask_measure_motor_speed.servo4));
-        robot->ask_measure_motor_speed.servo4=(float)temp_mea_servo4_speed;
-        robot->ask_measure_motor_speed.servo4=robot->ask_measure_motor_speed.servo4/(8*18/0.1/20);
-        robot->ask_measure_motor_speed.servo4=robot->ask_measure_motor_speed.servo4*2*3.14/60;
-        std::cerr <<"read motor4 speed is  "<<robot->ask_measure_motor_speed.servo4 <<std::endl;//rad/s
+    // case READ_MOT3_SPEED :      
+    //     analysis_state=readCommandAnalysis(command_state_ , (short int* )&temp_mea_servo3_speed , sizeof(robot->ask_measure_motor_speed.servo3));
+    //     robot->ask_measure_motor_speed.servo3=(float)temp_mea_servo3_speed;
+    //     robot->ask_measure_motor_speed.servo3=robot->ask_measure_motor_speed.servo3/(8*18/0.1/20);
+    //     robot->ask_measure_motor_speed.servo3=robot->ask_measure_motor_speed.servo3*2*3.14/60;
+    //     std::cerr <<"read motor3 speed is  "<<robot->ask_measure_motor_speed.servo3 <<std::endl;//rad/s
+    //     break;
+    // case READ_MOT4_SPEED :      
+    //     analysis_state=readCommandAnalysis(command_state_ , (short int* )&temp_mea_servo4_speed , sizeof(robot->ask_measure_motor_speed.servo4));
+    //     robot->ask_measure_motor_speed.servo4=(float)temp_mea_servo4_speed;
+    //     robot->ask_measure_motor_speed.servo4=robot->ask_measure_motor_speed.servo4/(8*18/0.1/20);
+    //     robot->ask_measure_motor_speed.servo4=robot->ask_measure_motor_speed.servo4*2*3.14/60;
+    //     std::cerr <<"read motor4 speed is  "<<robot->ask_measure_motor_speed.servo4 <<std::endl;//rad/s
 
-        break;
+    //     break;
 
 
 
@@ -325,7 +325,7 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
         sendStruct(MOTOR3_ADDR , WRITE_MORE_REG,SET_MOT_POSITION_ADDR,(unsigned char* )&robot->ask_position_config , sizeof(robot->ask_position_config) );
         break;   
     case SET_CAR2_SPEED_CONTROL :
-       // robot->dilong_speed=6;
+        robot->dilong_speed=6;
         robot->ask_expect_motor_speed.servo4=robot->dilong_speed;
         robot->ask_expect_motor_speed.servo4=(robot->ask_expect_motor_speed.servo4)*60/2/3.14;
         robot->ask_expect_motor_speed.servo4=robot->ask_expect_motor_speed.servo4*8*30/0.1/20;
