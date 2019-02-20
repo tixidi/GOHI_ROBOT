@@ -66,7 +66,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
 
   
     float  per_circle_position =(360/120)*8*30;
-    float  per_circle_position1 =(360/120)*8*18;
+
 
     float  pid_t  =0.1;
 
@@ -113,25 +113,6 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
         analysis_state=readCommandAnalysis(command_state_ , (unsigned char *)&robot->motor_error_state.error4 , sizeof(robot->motor_error_state.error4));
         break;
 
-
-    // case READ_MOT3_SPEED :      
-    //     analysis_state=readCommandAnalysis(command_state_ , (short int* )&temp_mea_servo3_speed , sizeof(robot->ask_measure_motor_speed.servo3));
-    //     robot->ask_measure_motor_speed.servo3=(float)temp_mea_servo3_speed;
-    //     robot->ask_measure_motor_speed.servo3=robot->ask_measure_motor_speed.servo3/(8*18/0.1/20);
-    //     robot->ask_measure_motor_speed.servo3=robot->ask_measure_motor_speed.servo3*2*3.14/60;
-    //     std::cerr <<"read motor3 speed is  "<<robot->ask_measure_motor_speed.servo3 <<std::endl;//rad/s
-    //     break;
-    // case READ_MOT4_SPEED :      
-    //     analysis_state=readCommandAnalysis(command_state_ , (short int* )&temp_mea_servo4_speed , sizeof(robot->ask_measure_motor_speed.servo4));
-    //     robot->ask_measure_motor_speed.servo4=(float)temp_mea_servo4_speed;
-    //     robot->ask_measure_motor_speed.servo4=robot->ask_measure_motor_speed.servo4/(8*18/0.1/20);
-    //     robot->ask_measure_motor_speed.servo4=robot->ask_measure_motor_speed.servo4*2*3.14/60;
-    //     std::cerr <<"read motor4 speed is  "<<robot->ask_measure_motor_speed.servo4 <<std::endl;//rad/s
-
-    //     break;
-
-
-
     case READ_CAR2_MOTOR3_COMPLETE_STATE :
         analysis_state=readCommandAnalysis(command_state_ , (short int* )&robot->motor_pos_comp_state.posComp3 ,     sizeof(robot->motor_pos_comp_state.posComp3));
         std::cerr <<"get servo3 state  " <<(int)robot->motor_pos_comp_state.posComp3<<std::endl;
@@ -162,7 +143,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
 
         //calc motor speed  degree/s
         robot->ask_measure_motor_speed.servo3=   robot->ask_measure_motor_position_dif.position3 * 360 / ( per_circle_position*pid_t )*degree_to_radian;
-  
+        std::cerr <<"get servo3 speed  " <<robot->ask_measure_motor_speed.servo3<<std::endl;
         break;
     case READ_MOT4_REAL_POSITION :      
         // d_past_angle[1] =0;            
@@ -177,7 +158,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
 
         //calc motor speed  degree/s
         robot->ask_measure_motor_speed.servo4=   robot->ask_measure_motor_position_dif.position4 * 360 / ( per_circle_position*pid_t )*degree_to_radian;
-        
+        std::cerr <<"get servo4 speed  " <<robot->ask_measure_motor_speed.servo4<<std::endl;
         break;
 
 
@@ -325,7 +306,7 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
         sendStruct(MOTOR3_ADDR , WRITE_MORE_REG,SET_MOT_POSITION_ADDR,(unsigned char* )&robot->ask_position_config , sizeof(robot->ask_position_config) );
         break;   
     case SET_CAR2_SPEED_CONTROL :
-        robot->dilong_speed=6;
+        
         robot->ask_expect_motor_speed.servo4=robot->dilong_speed;
         robot->ask_expect_motor_speed.servo4=(robot->ask_expect_motor_speed.servo4)*60/2/3.14;
         robot->ask_expect_motor_speed.servo4=robot->ask_expect_motor_speed.servo4*8*30/0.1/20;
@@ -384,17 +365,7 @@ unsigned char HFLink_Modbus::readCommandAnalysis(const MotorModbusCommand comman
     return 1;
 }
 
-unsigned char HFLink_Modbus::setCommandAnalysis(const MotorModbusCommand command_state , unsigned char* p ,  unsigned short int len)
-{ 
-    if (hf_link_node_model == 1) 
-    { // master  , the slave can set the mastcharer's data ,so this c unsigned short int lenode means received the slave's ack
 
-        printf("I'm master , received a ack ");
-        receive_package_renew[(unsigned char)command_state] = 1 ;
-    }
-    
-    return 1;
-}
 unsigned char HFLink_Modbus::setCommandAnalysis(const MotorModbusCommand command_state , float* p ,  unsigned short int len)
 {
 

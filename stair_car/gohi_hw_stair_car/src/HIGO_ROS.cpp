@@ -23,7 +23,7 @@ void HIGO_ROS::roll_cmd_callback(const stair_car_msgs::roll_configConstPtr& msg)
 	// if(msg->brake_config==1)
 	{
 		brake_config_callback_flag=msg->brake_config;
-		brake_config_callback_flag1=msg->brake_config;
+
 		
 	}								  
  }
@@ -121,7 +121,8 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 			higo_ap_.updateCommand(READ_MOT3_REAL_POSITION, count,0);		//读电机左轮的速度	
 		    higo_ap_.updateCommand(READ_MOT4_REAL_POSITION, count,0);	 	//读电机右轮的速度	 
 			
-			
+		    higo_ap_.updateCommand(READ_CAR2_MOTOR3_COMPLETE_STATE, count,0);	//读电机位置完成状态
+
 
 			readBufferUpdate();
 
@@ -135,8 +136,8 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 			robot_state_publisher_.publish(robot_state);
 			
-			std::cerr << "spend time is  " <<(int)brake_config_callback_flag << std::endl;
-			std::cerr << "spend time is  " << (int)brake_config_callback_flag1 << std::endl;
+			// std::cerr << "spend time is  " <<(int)brake_config_callback_flag << std::endl;
+
 
 			if(brake_config_callback_flag==1)
 			{
