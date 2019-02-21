@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(gohi_hw_sensor_msgs)
+project(gohi_hw_imu_msgs)
 
 find_package(catkin REQUIRED COMPONENTS
   message_generation
@@ -9,9 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
 
  add_message_files(
    FILES
-   idcard_write_config.msg
-   idcard_read_config.msg
 
+   imu_state.msg
 
 
    #parameters.msg

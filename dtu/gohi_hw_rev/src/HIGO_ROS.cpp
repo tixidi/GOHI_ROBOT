@@ -25,9 +25,9 @@ void HIGO_ROS::idcard_read_config_callback(const gohi_hw_rev_msgs::idcard_read_c
 	higo_ap_.getRobotAbstract()->rfid_read_data.read_from_reg_data8=msg.data[13];  
 
 
-	higo_ap_.getRobotAbstract()->euler_angle.pitch=msg.data[14];
-	higo_ap_.getRobotAbstract()->euler_angle.roll =msg.data[15];
-	higo_ap_.getRobotAbstract()->euler_angle.yaw=msg.data[16];
+	// higo_ap_.getRobotAbstract()->euler_angle.pitch=msg.data[14];
+	// higo_ap_.getRobotAbstract()->euler_angle.roll =msg.data[15];
+	// higo_ap_.getRobotAbstract()->euler_angle.yaw=msg.data[16];
 
 
 	std::cerr <<"measure temp_for: " <<msg.data[0]<<"  'C" <<std::endl; 
@@ -49,9 +49,7 @@ void HIGO_ROS::idcard_read_config_callback(const gohi_hw_rev_msgs::idcard_read_c
 	std::cerr <<"ID8 interface   " <<msg.data[13]<<std::endl; 		
 
 
-	std::cerr <<"measure pitch  " <<msg.data[14]  <<std::endl;  
-	std::cerr <<"measure roll  " <<msg.data[15]<<std::endl;   
-	std::cerr <<"measure yaw  " <<msg.data[16]<<std::endl;   
+
 
   	idcard_read_flag=1;
 								  
@@ -72,6 +70,22 @@ void HIGO_ROS::idcard_read_config_callback(const gohi_hw_rev_msgs::idcard_read_c
 								  
  }
 
+ void HIGO_ROS::imu_state_read_callback(const gohi_hw_rev_msgs::imu_state& msg)
+ {
+	std::cerr << "imu read is  " << std::endl;
+
+  	
+	higo_ap_.getRobotAbstract()->euler_angle.pitch=msg.euler_x;
+	higo_ap_.getRobotAbstract()->euler_angle.roll =msg.euler_y;
+	higo_ap_.getRobotAbstract()->euler_angle.yaw=msg.euler_z;
+    
+	std::cerr <<"measure pitch  " <<msg.euler_x  <<std::endl;  
+	std::cerr <<"measure roll  " <<msg.euler_y<<std::endl;   
+	std::cerr <<"measure yaw  " <<msg.euler_z<<std::endl;   
+
+	imu_read_flag=1;
+								  
+ }
 
 
 
@@ -98,7 +112,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 		idcard_read_config_subscriber_ = nh_.subscribe("/idcard_read_config/cmd", 1,  &HIGO_ROS::idcard_read_config_callback, this);
 		sick_range_read_config_subscriber_ = nh_.subscribe("/sick_range", 1,  &HIGO_ROS::laser_range_read_config_callback, this);
-
+		imu_state_subscriber_ = nh_.subscribe("/imu_state_data", 1,  &HIGO_ROS::imu_state_read_callback, this);
 
 
 		

@@ -1,6 +1,9 @@
 #!/bin/bash
 
-echo 'KERENL=="usb 1-3",ATTRS{idVendor}=="10c4",ATTRS{idProduct}=="ea60",MODE:="0666",GROUP:="dialout",SYMLINK+="ttyUSB00001"' > /etc/udev/rules.d/ttyUSB00001.rules
+echo 'KERENL=="ttyUSB*",ATTRS{idVendor}=="046d",ATTRS{idProduct}=="c52f",MODE:="0666",GROUP:="dialout",SYMLINK+="ttyros1"' > /etc/udev/rules.d/ttyUSB00001.rules
+echo 'KERENL=="ttyUSB*",ATTRS{idVendor}=="0bda",ATTRS{idProduct}=="5411",MODE:="0666",GROUP:="dialout",SYMLINK+="ttyros2"' > /etc/udev/rules.d/ttyUSB00001.rules
+echo 'KERENL=="ttyUSB*",ATTRS{idVendor}=="1d6b",ATTRS{idProduct}=="0002",MODE:="0666",GROUP:="dialout",SYMLINK+="ttyros3"' > /etc/udev/rules.d/ttyUSB00001.rules
+
 
 service udev reload
 sleep 2

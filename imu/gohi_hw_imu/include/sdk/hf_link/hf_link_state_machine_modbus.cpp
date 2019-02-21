@@ -149,7 +149,7 @@ unsigned char StateMachineModbus::receiveStates_R(unsigned char rx_data)
                 CrcRecValue=0;
                 rx_buffer[0]=rx_data;
                 rev_valid_data_num=0;
-                //   std::cerr<<"00"<<std::endl;
+                //   std::cerr<<"00      "<<(int )tx_message.slave_addr<<std::endl;
             }
         }
         else if(modbus_receive_state_==1)
@@ -244,110 +244,6 @@ unsigned char StateMachineModbus::receiveStates_R(unsigned char rx_data)
 }
 
 
-unsigned char StateMachineModbus::receiveStates_R_from_PAD(unsigned char rx_data)
-{
-   static unsigned char rev_valid_data_num;
-   static  unsigned char rev_request_num=0;
-        
-        if(modbus_receive_state_==0)
-        {
-            if ((rx_data == 0x70) ||(rx_data == 0x71)||(rx_data == 0x72)||(rx_data == 0x73)||(rx_data == 0x74)||
-            (rx_data == 0x75)||(rx_data == 0x76)||(rx_data == 0x80)||(rx_data == 0x81))//get slave addr
-            {
-                modbus_receive_state_ = 1;
-                CrcRecValue=0;
-                rx_buffer[0]=rx_data;
-                rev_valid_data_num=0;
-                //   std::cerr<<"00"<<std::endl;
-            }
-        }
-        else if(modbus_receive_state_==1)
-        {
-            if (rx_data == 0x04)
-            {
-                modbus_receive_state_ = 2;
-                rx_buffer[1]=rx_data;
-                //  std::cerr<<"11"<<std::endl;
-            }
-            else 
-            {    
-                // rev_sum_changed=0;
-                std::cerr<<"other status"<<std::endl;
-                modbus_receive_state_ = 0;
-            }
-        } 
-        else if(modbus_receive_state_==2)
-        {
-             
-            if (rx_data ==0x10)
-            {
-                modbus_receive_state_ = 3;
-                rx_buffer[2]=rx_data;
-                //  std::cerr<<"22"<<std::endl;
-                rev_valid_data_num=0;
-            }
-            else
-                modbus_receive_state_ = 0;
-        }
-        else if(modbus_receive_state_==3)
-        {                                  
-            rx_buffer[3+rev_valid_data_num]=rx_data;
-            //  std::cerr<<"33"<<std::endl;   
-            if(++rev_valid_data_num>=rx_buffer[2])
-            {
-                modbus_receive_state_=4;
-                //  std::cerr<<"44"<<std::endl;   
-                McMBCRC16(rx_buffer,3+rev_valid_data_num,&CrcRecValue);
-            }
-                   
-        }
-        else if(modbus_receive_state_==4)
-        {          
-            if (rx_data == (unsigned char)(CrcRecValue&0xFF))
-            {
-                modbus_receive_state_ = 5;
-             //   std::cerr<<"55"<<std::endl;
-            }
-            else
-            modbus_receive_state_ = 0;
-        }
-        else if(modbus_receive_state_==5)
-        {          
-            if (rx_data == (unsigned char)(CrcRecValue>>8))
-            {
-                modbus_receive_state_ = 0;
-                receive_message_count ++ ;
-
-                rx_message.slave_addr=rx_buffer[0];    //clear flag
-                rx_message.command_id=rx_buffer[1];
-                rx_message.slave_reg_addr=tx_message.slave_reg_addr;
-
-                // rx_message.data[0]=tx_message.slave_reg_addr>>8;
-                // rx_message.data[1]=tx_message.slave_reg_addr&0xFF;
-                
-
-            //    std::cerr <<"1" <<(int)rx_message.slave_addr<<std::endl;
-            //    std::cerr <<"1" <<(int)rx_message.command_id <<std::endl;
-            //    std::cerr <<"1" <<(int)rx_message.slave_reg_addr <<std::endl; 
-                for (int i=0;i<rx_buffer[2];i++)
-                {
-                    rx_message.data[i]=rx_buffer[3+rx_buffer[2]-i-1];
-                    // std::cerr <<"1" <<(int)rx_message.data[i] <<std::endl;                    
-                }
-                memset(&rx_buffer , 0 , sizeof(rx_buffer));
-                memset(&tx_buffer, 0 , sizeof(tx_buffer));  
-                // std::cerr<<"66"<<std::endl;
-                return 1 ;
-            }
-            else
-                modbus_receive_state_ = 0;
-        }
-
-    return 0;
-}
-
-
-
 /***********************************************************************************************************************
 * Function:    void StateMachine::sendMessage(void)
 *
@@ -382,6 +278,7 @@ void StateMachineModbus::Request03(const HFMessageModbus* tx_message_){
     if(tx_message_->slave_addr==0x08)           tx_buffer[5]=2;
     if(tx_message_->slave_addr==0x50)           tx_buffer[5]=3;
     if(tx_message_->slave_reg_addr==0x0024)     tx_buffer[5]=2;
+    if(tx_message_->slave_addr==0x09)           tx_buffer[5]=4;
 
 
     McMBCRC16(tx_buffer,6,&CrcTemp);
@@ -417,6 +314,23 @@ void StateMachineModbus::Request04(const HFMessageModbus* tx_message_){
         send_message_count++;
         tx_buffer_length =10;
     }
+    else if(tx_message_->slave_addr==0x7F)   
+    {
+
+        tx_buffer[0]=tx_message_->slave_addr;
+        tx_buffer[1]=tx_message_->command_id;
+        tx_buffer[2]=tx_message_->slave_reg_addr>>8;
+        tx_buffer[3]=tx_message_->slave_reg_addr&0xFF;
+
+        tx_buffer[4]=0;
+        tx_buffer[5]=11;
+   
+        McMBCRC16(tx_buffer,6,&CrcTemp);
+        tx_buffer[6]=CrcTemp&0xFF;
+        tx_buffer[7]=CrcTemp>>8;
+        send_message_count++;
+        tx_buffer_length =8;
+    }    
     else
     {
         tx_buffer[0]=tx_message_->slave_addr;
@@ -599,122 +513,6 @@ void StateMachineModbus::Request16(const HFMessageModbus* tx_message_, unsigned 
 
 }
 
-void StateMachineModbus::Request04ToPAD(const HFMessageModbus* tx_message_){
-    unsigned short int CrcTemp;
-
-    unsigned char tx_buffer_to_pad[50];
-
-    // std::cerr <<"command7_____" <<std::endl;//setup 
-
-    tx_buffer[0]=tx_message_->slave_addr;
-    tx_buffer[1]=tx_message_->command_id;
-    tx_buffer[2]=tx_message_->slave_reg_addr>>8;
-    tx_buffer[3]=tx_message_->slave_reg_addr&0xFF;
-    //unsigned short int tx_i  = 0;
-    // tx_buffer[4]=tx_message_->data[0]>>8;
-    // tx_buffer[5]=tx_message_->data[0]&0xFF;
-    //
-    tx_buffer[4]=0;
-    tx_buffer[5]=1;
-    if(tx_message_->slave_addr==0x7F)           tx_buffer[5]=11;
-    if(tx_message_->slave_addr==0x70)           tx_buffer[5]=3; //interface
-    if(tx_message_->slave_addr==0x71)           tx_buffer[5]=3; //interface
-    if(tx_message_->slave_addr==0x72)           tx_buffer[5]=3; //interface
-    if(tx_message_->slave_addr==0x73)           tx_buffer[5]=3; //interface
-    
-    
-
-    // std::cerr <<"write_to_reg_data1  " <<(short int)tx_buffer[0]<<std::endl; 
-    // std::cerr <<"write_to_reg_data2  " <<(short int)tx_buffer[1]<<std::endl; 
-    // std::cerr <<"write_to_reg_data3  " <<(short int)tx_buffer[2]<<std::endl;
-    // std::cerr <<"write_to_reg_data4  " <<(short int)tx_buffer[3]<<std::endl; 
-    // std::cerr <<"write_to_reg_data5  " <<(short int)tx_buffer[4]<<std::endl; 
-    // std::cerr <<"write_to_reg_data6  " <<(short int)tx_buffer[5]<<std::endl; 
-
-    send_message_count++;
-
-    HexToAscii(tx_buffer,&tx_buffer_to_pad[1],6*2); //16进制转换字符串
-
-
-    memcpy(tx_buffer , &tx_buffer_to_pad[1], 12);  
-
-    McMBCRC16(tx_buffer,12,&CrcTemp);
-    
-    tx_buffer[12]=CrcTemp&0xFF;
-    tx_buffer[13]=CrcTemp>>8;
-
-    HexToAscii(tx_buffer+12,tx_buffer_to_pad+13,4);
-
-
-    tx_buffer_to_pad[0]=0x2A;
-    tx_buffer_to_pad[17]=0x23;
-    memcpy(tx_buffer , tx_buffer_to_pad, 18);
-
-
-
-    tx_buffer_length =18;
-
-
-
-}
-void StateMachineModbus::Request16ToPAD(const HFMessageModbus* tx_message_){
-
-     unsigned short int  i;
-    unsigned short int  LongSen;
-
-    unsigned short int  CrcTemp;
-
-
-    tx_buffer[0]=tx_message_->slave_addr;
-    tx_buffer[1]=tx_message_->command_id;
-
-    if ((tx_buffer[0] == 0x70) ||(tx_buffer[0] == 0x71)||(tx_buffer[0] == 0x72)||(tx_buffer[0] == 0x73)||(tx_buffer[0] == 0x74)||
-            (tx_buffer[0] == 0x75)||(tx_buffer[0] == 0x76))
-    {
-        tx_buffer[2]=0;
-               
-        McMBCRC16(tx_buffer,3,&CrcTemp);
-        tx_buffer[3]=CrcTemp&0xFF;
-        tx_buffer[4]=CrcTemp>>8;
-        tx_buffer_length =5;
-        send_message_count++;       
-        
-        std::cerr <<"read_from_reg_data1  " <<(short int)tx_buffer[0]<<std::endl; 
-        std::cerr <<"read_from_reg_data2  " <<(short int)tx_buffer[1]<<std::endl; 
-        std::cerr <<"read_from_reg_data3  " <<(short int)tx_buffer[2]<<std::endl;
-        std::cerr <<"read_from_reg_data4  " <<(short int)tx_buffer[3]<<std::endl; 
-        std::cerr <<"read_from_reg_data5  " <<(short int)tx_buffer[4]<<std::endl; 
-
-    }
-    else if((tx_buffer[0] == 0x80)||(tx_buffer[0] == 0x81))
-    {
-
-        for(i=0;i<tx_to_PAD_num;i++)
-        {
-
-        tx_buffer[2+2*i]=tx_to_PAD_buffer[i]>>8; //positionPhaseChange=500*10;// 2 bytes
-        tx_buffer[2+2*i+1]=tx_to_PAD_buffer[i]&0xff; 
-        }
-        
-        McMBCRC16(tx_buffer,tx_to_PAD_num*2+2,&CrcTemp);
-        tx_buffer[tx_to_PAD_num*2+2]=CrcTemp&0xFF;
-        tx_buffer[tx_to_PAD_num*2+3]=CrcTemp>>8;
-        tx_buffer_length =tx_to_PAD_num*2+4;
-
-
-        std::cerr <<"read_  " <<(short int)tx_buffer_length<<std::endl; 
-
-        for(int iiii=0;iiii<tx_buffer_length;iiii++)
-             std::cerr <<"read_from_reg_data " <<(short int)tx_buffer[iiii]<<std::endl; 
-
-
-
-        send_message_count++;        
-    }
-
-    
-
-}
 
 
 
@@ -758,3 +556,4 @@ void StateMachineModbus::HexToAscii(unsigned char * pHex, unsigned char * pAscii
     }   // for (int i = ...)
 }
        
+

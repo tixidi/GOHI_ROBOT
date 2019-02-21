@@ -1,0 +1,8 @@
+<launch>
+
+  <node name="gohi_hw_node_imu" pkg="gohi_hw_imu" type="gohi_hw_node_imu" />
+
+
+
+
+</launch>

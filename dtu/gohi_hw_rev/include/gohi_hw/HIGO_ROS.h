@@ -26,7 +26,7 @@
 #include <gohi_hw_rev_msgs/laser_range_config.h>
 #include <gohi_hw_rev_msgs/robot_desire_point_config.h>
 #include <gohi_hw_rev_msgs/sick_range.h>
-
+#include <gohi_hw_rev_msgs/imu_state.h>
 
 
 // for ros headers
@@ -73,6 +73,8 @@ private:
 
     ros::Subscriber idcard_read_config_subscriber_;
 	ros::Subscriber sick_range_read_config_subscriber_;
+	ros::Subscriber imu_state_subscriber_;
+	
 	
 	
 
@@ -94,11 +96,14 @@ private:
 	gohi_hw_rev_msgs::idcard_read_config idcard_read_config_;
 	gohi_hw_rev_msgs::laser_range_config laser_range_config_;
 	gohi_hw_rev_msgs::robot_desire_point_config robot_desire_point_config_;
+	gohi_hw_rev_msgs::imu_state imu_state_;
 
 	
 
 	unsigned char idcard_read_flag;
 	unsigned char sick_range_read_flag;
+	unsigned char imu_read_flag;
+
 	
 
 
@@ -129,6 +134,8 @@ private:
 	}
 	void idcard_read_config_callback(const gohi_hw_rev_msgs::idcard_read_config& msg);
 	void laser_range_read_config_callback(const gohi_hw_rev_msgs::sick_range& msg);
+	void imu_state_read_callback(const gohi_hw_rev_msgs::imu_state& msg);
+	
 	
 
 };

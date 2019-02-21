@@ -2,10 +2,10 @@
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "robothw");
-    ros::NodeHandle nh("gohi");
+    ros::init(argc, argv, "robothw_dtu");
+    ros::NodeHandle nh("gohi_hw_dtu");
 
-    HIGO_ROS higo(nh, "serial:///dev/pts/19", "/home/wb/gohi_ws/src/GOHI_ROBOT/dtu/gohi_hw_rev/config.txt");
+    HIGO_ROS higo(nh, "serial:///dev/ttyUSB2", "/home/zhuxi/gohi_ws/src/GOHI_ROBOT/dtu/gohi_hw_rev/config.txt");
 
     higo.mainloop();
     return 0;

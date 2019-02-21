@@ -109,9 +109,9 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
     case READ_EULER_ANGLE:
         // std::cerr <<"yyy3"  <<std::endl;//setup 
         analysis_state=readCommandAnalysis(command_state_ , (short int*)&robot->euler_angle , sizeof(robot->euler_angle) );   
-        std::cerr <<"measure pitch  " <<robot->euler_angle.pitch*180.0/32768  <<std::endl;  
-        std::cerr <<"measure roll  " <<robot->euler_angle.roll *180.0/32768<<std::endl;   
-        std::cerr <<"measure yaw  " <<robot->euler_angle.yaw*180.0/32768<<std::endl;   
+        // std::cerr <<"measure pitch  " <<robot->euler_angle.pitch*180.0/32768  <<std::endl;  
+        // std::cerr <<"measure roll  " <<robot->euler_angle.roll *180.0/32768<<std::endl;   
+        // std::cerr <<"measure yaw  " <<robot->euler_angle.yaw*180.0/32768<<std::endl;   
         
         break;
 

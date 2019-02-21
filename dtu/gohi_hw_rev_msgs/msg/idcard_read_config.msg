@@ -1,6 +1,6 @@
 std_msgs/Header header
 
-int32[17]  data
+int32[14]  data
 
 #float32  temperature_forward
 #float32  temperature_backward

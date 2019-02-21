@@ -70,7 +70,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 	
 				higo_ap_.updateCommand(READ_LAXIAN_POSITION, count,0);//拉线传感器  ---ok  
-				// higo_ap_.updateCommand(READ_EULER_ANGLE, count,0);//38
+
 				higo_ap_.updateCommand(READ_RFID_REG_DATA, count,0);//射频传感器读卡  ---ok
 				higo_ap_.updateCommand(READ_THERMOMETER_REG_DATA, count,0);	//温度传感器	
 
@@ -109,9 +109,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 			idcard_read_config_.data[11]=(short int)higo_ap_.getRobotAbstract()->rfid_read_data.read_from_reg_data6;
 			idcard_read_config_.data[12]=(short int)higo_ap_.getRobotAbstract()->rfid_read_data.read_from_reg_data7;
 			idcard_read_config_.data[13]=(short int)higo_ap_.getRobotAbstract()->rfid_read_data.read_from_reg_data8;
-		    idcard_read_config_.data[14]=(short int)higo_ap_.getRobotAbstract()->euler_angle.pitch;
-			idcard_read_config_.data[15]=(short int)higo_ap_.getRobotAbstract()->euler_angle.roll;				
-			idcard_read_config_.data[16]=(short int)higo_ap_.getRobotAbstract()->euler_angle.yaw;	
+
 
 			idcard_read_config_publisher_.publish(idcard_read_config_);			  
 				
