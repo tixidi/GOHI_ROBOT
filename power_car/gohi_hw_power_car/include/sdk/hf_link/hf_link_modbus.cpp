@@ -59,7 +59,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
 
 
 
-    float  per_circle_position =(360/120)*8*30;
+    float  per_circle_position =(360/120)*8*18;
 
     
     float  pid_t  =0.1;
@@ -378,9 +378,9 @@ void HFLink_Modbus::sendStruct(const ModbusSlaveAddr slave_addr,const ModbusComm
 void HFLink_Modbus::datatUpdate(void)
 {
 
-        robot->expect_robot_speed.x=0.1;
-        robot->expect_robot_speed.y=0.0;
-        robot->expect_robot_speed.z=0.0;
+        // robot->expect_robot_speed.x=0.1;
+        // robot->expect_robot_speed.y=0.0;
+        // robot->expect_robot_speed.z=0.0;
 
         robot_control.robotSpeedSet((float* )&robot->expect_robot_speed , (float * )&robot->ask_expect_motor_speed);   //平仓机只修改这里，expect_motor_speed需要转换为相同的单位     
 

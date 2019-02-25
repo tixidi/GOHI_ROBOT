@@ -60,7 +60,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
     int temp_mea_motor1_position;
     int temp_mea_motor2_position;
  
-    float  per_circle_position =(360/120)*8*30;
+    float  per_circle_position =(360/120)*8*18;
 
     float  pid_t  =0.1;
 
@@ -262,7 +262,7 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
         // robot->ask_expect_motor_speed.servo1=1.24;// rad/s
         // std::cerr <<"command5_____" <<robot->ask_expect_motor_speed.servo1 <<std::endl;//setup 
         robot->ask_expect_motor_speed.servo1=(robot->ask_expect_motor_speed.servo1)*60/2/3.14; //rpm
-        robot->ask_expect_motor_speed.servo1=robot->ask_expect_motor_speed.servo1*8*30/0.1/20;  
+        robot->ask_expect_motor_speed.servo1=robot->ask_expect_motor_speed.servo1*8*18/0.1/20;  
 
         temp_ask_servo1_speed     =(short int )robot->ask_expect_motor_speed.servo1;
         sendStruct(MOTOR1_ADDR , WRITE_REG,SET_MOT_SPEED_ADDR, (unsigned char *)&temp_ask_servo1_speed, sizeof(temp_ask_servo1_speed) );      
@@ -272,7 +272,7 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
         // robot->ask_expect_motor_speed.servo2=-1.24;// rad/s
         // std::cerr <<"command6______" <<robot->ask_expect_motor_speed.servo2 <<std::endl;
         robot->ask_expect_motor_speed.servo2=(robot->ask_expect_motor_speed.servo2)*60/2/3.14;
-        robot->ask_expect_motor_speed.servo2=robot->ask_expect_motor_speed.servo2*8*30/0.1/20;
+        robot->ask_expect_motor_speed.servo2=robot->ask_expect_motor_speed.servo2*8*18/0.1/20;
         temp_ask_servo2_speed     =(short int )robot->ask_expect_motor_speed.servo2;        
         sendStruct(MOTOR2_ADDR , WRITE_REG,SET_MOT_SPEED_ADDR, (unsigned char *)&temp_ask_servo2_speed, sizeof(temp_ask_servo2_speed) );
         break;                     
@@ -393,9 +393,9 @@ void HFLink_Modbus::sendStruct(const ModbusSlaveAddr slave_addr,const ModbusComm
 void HFLink_Modbus::datatUpdate(void)
 {
 
-        robot->expect_robot_speed.x=0.1;
-        robot->expect_robot_speed.y=0.0;
-        robot->expect_robot_speed.z=0.0;
+        // robot->expect_robot_speed.x=0.1;
+        // robot->expect_robot_speed.y=0.0;
+        // robot->expect_robot_speed.z=0.0;
 
         robot_control.robotSpeedSet((float* )&robot->expect_robot_speed , (float * )&robot->ask_expect_motor_speed);   //平仓机只修改这里，expect_motor_speed需要转换为相同的单位     
         robot_control.getRobotSpeed((float* )&robot->ask_measure_motor_speed , (float* )&robot->measure_robot_speed);

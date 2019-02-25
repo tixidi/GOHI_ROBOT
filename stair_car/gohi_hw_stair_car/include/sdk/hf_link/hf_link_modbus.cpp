@@ -66,7 +66,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
 
   
     float  per_circle_position =(360/120)*8*30;
-
+    float  per_circle_position1 =(360/120)*8*15;
 
     float  pid_t  =0.1;
 
@@ -153,11 +153,11 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
         robot->ask_measure_motor_position_dif.position4=robot->ask_measure_motor_position.position4-robot->ask_measure_motor_position_last.position4;
         robot->ask_measure_motor_position_last.position4=robot->ask_measure_motor_position.position4;
         //recording total angle for robot coordinate calculation
-        d_past_angle[1] = (robot->ask_measure_motor_position_dif.position4/per_circle_position)*360;
-        past_total_angle[1]+= ( robot->ask_measure_motor_position_dif.position4/per_circle_position)*360;
+        d_past_angle[1] = (robot->ask_measure_motor_position_dif.position4/per_circle_position1)*360;
+        past_total_angle[1]+= ( robot->ask_measure_motor_position_dif.position4/per_circle_position1)*360;
 
         //calc motor speed  degree/s
-        robot->ask_measure_motor_speed.servo4=   robot->ask_measure_motor_position_dif.position4 * 360 / ( per_circle_position*pid_t )*degree_to_radian;
+        robot->ask_measure_motor_speed.servo4=   robot->ask_measure_motor_position_dif.position4 * 360 / ( per_circle_position1*pid_t )*degree_to_radian;
         std::cerr <<"get servo4 speed  " <<robot->ask_measure_motor_speed.servo4<<std::endl;
         break;
 
@@ -228,7 +228,9 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
    
    void *single_command;
 
-   float  per_circle_position1 =(360/120)*8*18;
+   float  per_circle_position =(360/120)*8*30;
+   float  per_circle_position1 =(360/120)*8*15;
+
 
     receive_package_renew[(unsigned char)command_state] = 0 ;
 
@@ -288,11 +290,11 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
         // std::cerr <<"stair ask  position " <<robot->ask_position_set.position <<std::endl;
 
         robot->ask_position_set.positionPhaseChange=(robot->ask_position_set.positionPhaseChange)*60/2/3.14;
-        robot->ask_position_set.positionPhaseChange=robot->ask_position_set.positionPhaseChange*8*18/0.1/20;
+        robot->ask_position_set.positionPhaseChange=robot->ask_position_set.positionPhaseChange*8*30/0.1/20;
         robot->ask_position_config.positionPhaseChange      =robot->ask_position_set.positionPhaseChange;  
         robot->ask_position_config.positiontype             =robot->ask_position_set.positiontype;  
 
-        robot->ask_position_set.position=(robot->ask_position_set.position*radian_to_degree*per_circle_position1)/360;
+        robot->ask_position_set.position=(robot->ask_position_set.position*radian_to_degree*per_circle_position)/360;
         robot->ask_position_config.positionH=robot->ask_position_set.position>>16;   
         robot->ask_position_config.positionL=robot->ask_position_set.position&0xFFFF;   
 
@@ -309,7 +311,7 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
         
         robot->ask_expect_motor_speed.servo4=robot->dilong_speed;
         robot->ask_expect_motor_speed.servo4=(robot->ask_expect_motor_speed.servo4)*60/2/3.14;
-        robot->ask_expect_motor_speed.servo4=robot->ask_expect_motor_speed.servo4*8*30/0.1/20;
+        robot->ask_expect_motor_speed.servo4=robot->ask_expect_motor_speed.servo4*8*15/0.1/20;
         temp_ask_servo4_speed     =(short int )robot->ask_expect_motor_speed.servo4;      
         sendStruct(MOTOR4_ADDR , WRITE_REG,SET_MOT_SPEED_ADDR,(unsigned char *)&temp_ask_servo4_speed, sizeof(temp_ask_servo4_speed) );              
         break;
