@@ -65,10 +65,11 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 		int count = 0;
 		ros::Time currentTime = ros::Time::now();
+		int i =1;
 		while (ros::ok())
 		{	  
 
-	
+/*	
 				higo_ap_.updateCommand(READ_LAXIAN_POSITION, count,0);//拉线传感器  ---ok  
 
 				higo_ap_.updateCommand(READ_RFID_REG_DATA, count,0);//射频传感器读卡  ---ok
@@ -109,8 +110,10 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 			idcard_read_config_.data[11]=(short int)higo_ap_.getRobotAbstract()->rfid_read_data.read_from_reg_data6;
 			idcard_read_config_.data[12]=(short int)higo_ap_.getRobotAbstract()->rfid_read_data.read_from_reg_data7;
 			idcard_read_config_.data[13]=(short int)higo_ap_.getRobotAbstract()->rfid_read_data.read_from_reg_data8;
-
-
+			*/              
+			sleep(50);	
+			idcard_read_config_.data[0] =i++;
+			if(i>37)i =1;
 			idcard_read_config_publisher_.publish(idcard_read_config_);			  
 				
 			//----------------------------------------------------

@@ -1,0 +1,8 @@
+<launch>
+
+  <node name="gohi_hw_node_tcp" pkg="gohi_hw_tcp" type="gohi_hw_node_tcp" />
+
+
+
+
+</launch>

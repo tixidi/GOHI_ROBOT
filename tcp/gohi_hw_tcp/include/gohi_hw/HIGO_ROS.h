@@ -21,9 +21,7 @@
 #include <controller_manager/controller_manager.h>      //ref diffbot.h
 
 
-
-#include <gohi_hw_sensor_msgs/idcard_write_config.h>
-#include <gohi_hw_sensor_msgs/idcard_read_config.h>
+#include <gohi_hw_imu_msgs/imu_state.h>
 
 
 
@@ -35,13 +33,14 @@
 #include <ros/callback_queue.h>
 
 // for hf link and transport
-#include <gohi_hw/transport.h>
-#include <gohi_hw/transport_serial.h>
+// #include <gohi_hw/transport.h>
+// #include <gohi_hw/transport_serial.h>
+#include <gohi_hw/transport_tcp.h>
+
 // #include <hf_link.h>
 #include <hf_link_modbus.h>
 
 #include <gohi_hw/HIGO_AP.h>
-#include <modbus/modbus.h>
 
 
 
@@ -57,6 +56,7 @@ public:
     }
 	void mainloop();
 
+	client_ptr new_session;
 private:
 	//communication with embeded system
 	HIGO_AP higo_ap_;
@@ -67,9 +67,7 @@ private:
 	ros::Publisher robot_cmd_publisher_;
 	ros::Publisher stair_cmd_publisher_;
 	ros::Publisher roll_cmd_publisher_;
-	ros::Publisher idcard_read_config_publisher_;
-
-	ros::Subscriber idcard_write_config_subscriber_;
+	ros::Publisher imu_state_publisher_;
 
 
 
@@ -82,9 +80,7 @@ private:
 	double controller_freq_;
 
 	//hardware resource
-
-	gohi_hw_sensor_msgs::idcard_write_config idcard_write_config_;
-	gohi_hw_sensor_msgs::idcard_read_config  idcard_read_config_;
+	gohi_hw_imu_msgs::imu_state imu_state_;
 
 	unsigned char idcard_write_flag;
 	unsigned char idcard_read_flag;
@@ -108,14 +104,8 @@ private:
 
 
 
-
-
-
-
-
-
 	}
-	 void idcard_write_config_callback(const gohi_hw_sensor_msgs::idcard_write_config& msg);
+
 };
 
 

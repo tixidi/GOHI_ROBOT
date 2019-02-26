@@ -1,3 +1,4 @@
 std_msgs/Header header
-int32[14]  data
+int32[8]  data
+
 

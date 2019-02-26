@@ -21,12 +21,11 @@
 #include <controller_manager/controller_manager.h>      //ref diffbot.h
 
 
+#include <gohi_hw_idnev_msgs/idnev_state.h>
 
-#include <gohi_hw_sensor_msgs/idcard_write_config.h>
-#include <gohi_hw_sensor_msgs/idcard_read_config.h>
+#include <gohi_hw_idnev_msgs/idcard_write_config.h>
 
-
-
+#include <gohi_hw_idnev_msgs/idcard_read_config.h>
 
 
 
@@ -41,7 +40,6 @@
 #include <hf_link_modbus.h>
 
 #include <gohi_hw/HIGO_AP.h>
-#include <modbus/modbus.h>
 
 
 
@@ -50,7 +48,8 @@ class HIGO_ROS : public  hardware_interface::RobotHW
 {
 
 public:
-	HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr);
+	HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr,std::string idConfig_addr);
+	
     double getFreq()const
     {
        	return controller_freq_;
@@ -67,10 +66,11 @@ private:
 	ros::Publisher robot_cmd_publisher_;
 	ros::Publisher stair_cmd_publisher_;
 	ros::Publisher roll_cmd_publisher_;
-	ros::Publisher idcard_read_config_publisher_;
+	ros::Publisher idnev_state_publisher_;
 
-	ros::Subscriber idcard_write_config_subscriber_;
 
+	//subscriber the robot state for diagnose system
+	ros::Subscriber idnev_state_subscriber_;
 
 
 	ros::ServiceServer getparam_srv_;
@@ -82,9 +82,8 @@ private:
 	double controller_freq_;
 
 	//hardware resource
+	gohi_hw_idnev_msgs::idnev_state idnev_state_;
 
-	gohi_hw_sensor_msgs::idcard_write_config idcard_write_config_;
-	gohi_hw_sensor_msgs::idcard_read_config  idcard_read_config_;
 
 	unsigned char idcard_write_flag;
 	unsigned char idcard_read_flag;
@@ -108,14 +107,10 @@ private:
 
 
 
-
-
-
-
-
-
 	}
-	 void idcard_write_config_callback(const gohi_hw_sensor_msgs::idcard_write_config& msg);
+void idcard_read_config_callback(const gohi_hw_idnev_msgs::idcard_read_config& msg);
+
+
 };
 
 
