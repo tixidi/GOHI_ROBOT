@@ -127,27 +127,30 @@ bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int count,int rea
             }
         }
 
-        Buffer data = client_tcp_->readBuffer();
-        ack_ready_ = false;
-        while (!ack_ready_)
-        {
+        readCommandModbus();
+
+        // Buffer data = client_tcp_->readBuffer();
+        // ack_ready_ = false;
+        // std::cerr << "read3:"<< data.size()<<std::endl;
+        // while (!ack_ready_)
+        // {
           
-            for (int i = 0; i < data.size(); i++)
-            {    
+        //     for (int i = 0; i < data.size(); i++)
+        //     {    
 
-                if (hflinkmodbus_->byteAnalysisCall_R(data[i]))
-                {
-                    // one package ack arrived  
-                    ack_ready_ = true;          
-                }
+        //         if (hflinkmodbus_->byteAnalysisCall_R(data[i]))
+        //         {
+        //             // one package ack arrived  
+        //             ack_ready_ = true;          
+        //         }
 
-            }
-            data = client_tcp_->readBuffer();
-            if (cicle_timer_.expires_from_now().is_negative())
-            {
-                return false;
-            }
-        }
+        //     }
+        //     data = client_tcp_->readBuffer();
+        //     if (cicle_timer_.expires_from_now().is_negative())
+        //     {
+        //         return false;
+        //     }
+        // }
     }
 
     return true;

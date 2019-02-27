@@ -57,6 +57,24 @@ public:
         client_tcp_->writeBuffer(data);
     }
 
+    inline void readCommandModbus()
+    {
+        Buffer data=client_tcp_->readBuffer();   
+        std::cerr << "read3:"<< data.size()<<std::endl;
+        
+        for (int i = 0; i < data.size(); i++)
+        {    
+
+            if (hflinkmodbus_->byteAnalysisCall_R(data[i]))
+            {
+                    // one package ack arrived  
+                std::cerr << "read is ok:"<<std::endl;
+                ack_ready_ = true;          
+            }
+
+        }
+    }
+
   
 private:
 

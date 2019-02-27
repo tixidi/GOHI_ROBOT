@@ -113,6 +113,8 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 				idnev_state_.id_number =higo_ap_.getRobotAbstract()->id_info_data.id_number;
 				idnev_state_.x_speed =higo_ap_.getRobotAbstract()->id_info_data.x_speed;
 				idnev_state_.Rz =higo_ap_.getRobotAbstract()->id_info_data.Rz;
+				idnev_state_.stair_position = higo_ap_.getRobotAbstract()->id_info_data.stair_position;
+				idnev_state_.roll_speed = higo_ap_.getRobotAbstract()->id_info_data.roll_speed;
 				idnev_state_publisher_.publish(idnev_state_);			  
 			}else{
 				//do nothing 

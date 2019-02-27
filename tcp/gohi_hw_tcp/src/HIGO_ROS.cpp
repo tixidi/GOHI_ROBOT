@@ -53,18 +53,14 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		{	  
 
 	
-			higo_ap_.updateCommand(READ_EULER_ANGLE, count,0);//38
+			higo_ap_.updateCommand(READ_LAXIAN_POSITION, count,0);//38
 
 
-			        // std::cerr <<"measure pitch  " <<robot->euler_angle.pitch*180.0/32768  <<std::endl;  
-        // std::cerr <<"measure roll  " <<robot->euler_angle.roll *180.0/32768<<std::endl;   
-        // std::cerr <<"measure yaw  " <<robot->euler_angle.yaw*180.0/32768<<std::endl;   
+     	    // imu_state_.euler_x=higo_ap_.getRobotAbstract()->euler_angle.pitch;
+			// imu_state_.euler_y=higo_ap_.getRobotAbstract()->euler_angle.roll;				
+			// imu_state_.euler_z=higo_ap_.getRobotAbstract()->euler_angle.yaw;	
 
-		    imu_state_.euler_x=higo_ap_.getRobotAbstract()->euler_angle.pitch;
-			imu_state_.euler_y=higo_ap_.getRobotAbstract()->euler_angle.roll;				
-			imu_state_.euler_z=higo_ap_.getRobotAbstract()->euler_angle.yaw;	
-
-			imu_state_publisher_.publish(imu_state_);			  
+			// imu_state_publisher_.publish(imu_state_);			  
 				
 			//----------------------------------------------------
 			readBufferUpdate();

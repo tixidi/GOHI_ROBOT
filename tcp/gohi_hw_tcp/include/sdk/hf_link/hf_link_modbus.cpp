@@ -104,7 +104,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
     case READ_LAXIAN_POSITION:
         analysis_state=readCommandAnalysis(command_state_ , (unsigned char *)&temp_laxian_length , sizeof(robot->laxian_length.length_data) );   
         robot->laxian_length.length_data=temp_laxian_length;
-        // std::cerr <<"measure Length: " <<temp_laxian_length<<"  mm" <<std::endl; 
+        std::cerr <<"measure Length: " <<temp_laxian_length<<"  mm" <<std::endl; 
         break;
     case READ_EULER_ANGLE:
         // std::cerr <<"yyy3"  <<std::endl;//setup 
@@ -201,6 +201,7 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
 
     case READ_LAXIAN_POSITION:
         sendStruct(LAXIAN_ADDR , READ_REG,READ_LAXIAN_POSITION_ADDR,(unsigned char *)single_command , 0);           
+        //   std::cerr <<"yyy2"  <<std::endl;//setup 
         break;             
     case READ_EULER_ANGLE:
             // std::cerr <<"yyy2"  <<std::endl;//setup 

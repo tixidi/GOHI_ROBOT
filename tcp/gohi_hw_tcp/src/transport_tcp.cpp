@@ -4,7 +4,7 @@
 client::client(boost::asio::io_service &io_service, tcp::endpoint &endpoint)
 		: io_service_(io_service),
          socket_(io_service), 
-         endpoint_(endpoint)
+         endpoint_(endpoint),m_buf(1024.,0)
 {
      
 
@@ -30,7 +30,7 @@ void client::handle_connect(const boost::system::error_code &error)
 		}
 		static tcp::no_delay option(true);
 		socket_.set_option(option); 
-        
+     
 }
 
 
@@ -109,9 +109,8 @@ Buffer client::readBuffer()
 
 	if (!read_buffer_.empty())
 	{
-		Buffer data(read_buffer_.front());
-		read_buffer_.pop();
-        std::cerr << "read " << std::endl;
+		Buffer data(read_buffer_.front());                
+		read_buffer_.pop();        
 		return data;
 	}
 	Buffer data;
@@ -122,13 +121,12 @@ void client::start_a_read()
 {
     boost::mutex::scoped_lock lock(port_mutex_);
 
-
-	boost::asio::async_read_until(socket_,	sbuf,"\n",
+    socket_.async_read_some(boost::asio::buffer(temp_read_buf_),
 			boost::bind(&client::handle_read,
 			shared_from_this(),
 			boost::asio::placeholders::error,
-			boost::asio::placeholders::bytes_transferred));
-
+			boost::asio::placeholders::bytes_transferred)
+                 );
 }
 
 void client::handle_read(const boost::system::error_code &ec, size_t bytesTransferred)
@@ -138,12 +136,10 @@ void client::handle_read(const boost::system::error_code &ec, size_t bytesTransf
 		std::cerr << "Transport Serial read Error " << std::endl;
 		return;
 	}
-	std::cerr << buf << std::endl;
-	// boost::mutex::scoped_lock lock(read_mutex_);
-	// Buffer data(temp_read_buf_.begin(), temp_read_buf_.begin() + bytesTransferred);
-	// read_buffer_.push(data);
-	// start_a_read();
-    	std::cerr << "read " << std::endl;
+    boost::mutex::scoped_lock lock(read_mutex_);
+	Buffer data(temp_read_buf_.begin(), temp_read_buf_.begin() + bytesTransferred);
+	read_buffer_.push(data);
+	start_a_read();
 }
 
 

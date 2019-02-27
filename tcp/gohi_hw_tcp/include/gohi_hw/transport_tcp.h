@@ -26,7 +26,7 @@
 #include <boost/thread.hpp>
 
 
-typedef std::vector<uint8_t> Buffer;
+typedef std::vector<char> Buffer;
 
 using boost::asio::ip::tcp;
 using boost::asio::ip::address;
@@ -38,9 +38,14 @@ public:
 
 	std::queue<Buffer> write_buffer_;
 	std::queue<Buffer> read_buffer_;
+
+	Buffer m_buf;
+
     boost::shared_ptr<boost::asio::io_service> ios_;
 	bool initializeTcp();
 	void mainRun();
+
+
 
 
 	virtual Buffer readBuffer();

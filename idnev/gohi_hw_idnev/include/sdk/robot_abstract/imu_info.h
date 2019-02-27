@@ -23,6 +23,8 @@ typedef struct{
     int id_number;
     float x_speed;
     float Rz;
+    float stair_position;
+    float roll_speed;
 }ID_Info;
 
 typedef  struct{
