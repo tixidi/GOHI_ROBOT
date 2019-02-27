@@ -7,7 +7,7 @@ void HIGO_ROS::idcard_read_config_callback(const gohi_hw_idnev_msgs::idcard_read
  {
 	std::cerr << "idcard is  " << std::endl;
 
-	higo_ap_.getRobotAbstract()->id_info_data.id_number=msg.data[0];
+	higo_ap_.getRobotAbstract()->id_info_data.id_number=msg.data[13];
 	// higo_ap_.getRobotAbstract()->id_info_data.x_speed =msg.data[1];
 	
 
@@ -32,7 +32,7 @@ void HIGO_ROS::idcard_read_config_callback(const gohi_hw_idnev_msgs::idcard_read
 	// // higo_ap_.getRobotAbstract()->euler_angle.yaw=msg.data[16];
 
 
-	std::cerr <<"ID number =" <<msg.data[0]<<std::endl; 
+	std::cerr <<"ID number =" <<msg.data[13]<<std::endl; 
 	// std::cerr <<"x_speed   =" <<msg.data[1]<<std::endl;  
 	// std::cerr <<"Rz        =" <<msg.data[2]<<std::endl; 
 
@@ -75,6 +75,13 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		idnev_state_publisher_  = nh_.advertise<gohi_hw_idnev_msgs::idnev_state>("/idnev_state_data", 1000);
 		idnev_state_subscriber_ = nh_.subscribe("/idcard_read_config/cmd", 1,  &HIGO_ROS::idcard_read_config_callback, this);
        
+
+           
+   		robot_cmd_publisher_ = nh_.advertise<geometry_msgs::Twist>("/flat_car_mobile_base/flat_car_mobile_base_controller/cmd_vel", 1000);//flat-car-cmd_vel
+		// stair_cmd_publisher_ = nh_.advertise<gohi_hw_rev_msgs::stair_config>("/mobile_base/stair_controller/cmd_vel", 1000);//stair-car-position-cmd_vel
+		// roll_cmd_publisher_ = nh_.advertise<gohi_hw_rev_msgs::roll_config>("/mobile_base/roll_controller/cmd_vel", 1000);//stair-car-speed-cmd_vel
+
+
 		
  		if (higo_ap_.initialize_ok())
 		{
@@ -91,7 +98,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 	void HIGO_ROS::mainloop()
 	{
 		ros::CallbackQueue cm_callback_queue;
-
+	    geometry_msgs::Twist twist;
 		ros::NodeHandle cm_nh("hw_idnev");
 		cm_nh.setCallbackQueue(&cm_callback_queue);
 		controller_manager::ControllerManager cm(this, cm_nh);
@@ -109,14 +116,32 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 	
 			// higo_ap_.updateCommand(READ_EULER_ANGLE, count,0);//38
-			if(higo_ap_.dataAnalysis(higo_ap_.getRobotAbstract()->id_info_data)){
+			if(higo_ap_.dataAnalysis(higo_ap_.getRobotAbstract()->id_info_data))
+			{
 				idnev_state_.id_number =higo_ap_.getRobotAbstract()->id_info_data.id_number;
 				idnev_state_.x_speed =higo_ap_.getRobotAbstract()->id_info_data.x_speed;
 				idnev_state_.Rz =higo_ap_.getRobotAbstract()->id_info_data.Rz;
 				idnev_state_.stair_position = higo_ap_.getRobotAbstract()->id_info_data.stair_position;
 				idnev_state_.roll_speed = higo_ap_.getRobotAbstract()->id_info_data.roll_speed;
-				idnev_state_publisher_.publish(idnev_state_);			  
-			}else{
+				// idnev_state_publisher_.publish(idnev_state_);	
+
+
+
+				//flat-car speed control
+				twist.linear.x = (float)idnev_state_.x_speed;
+				twist.linear.y = 0;
+				twist.linear.z = 0;
+				twist.angular.x = 0;
+				twist.angular.y = 0;
+				twist.angular.z = (float)idnev_state_.Rz;
+        		std::cerr <<"car1 interface x_speed  " <<twist.linear.x <<std::endl; 
+        		std::cerr <<"car1 interface y_speed  " <<twist.linear.y <<std::endl; 
+        		std::cerr <<"car1 interface z_speed  " <<twist.angular.z<<std::endl; 				
+				robot_cmd_publisher_.publish(twist);		
+
+			}
+			else
+			{
 				//do nothing 
 			}
 			// std::cerr <<"measure pitch  " <<robot->euler_angle.pitch*180.0/32768  <<std::endl;  
