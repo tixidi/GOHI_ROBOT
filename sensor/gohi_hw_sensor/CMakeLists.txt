@@ -95,7 +95,7 @@ include_directories(
 
 
 
-add_executable(gohi_hw_node_sensor src/main.cpp src/HIGO_ROS.cpp src/transport_serial.cpp src/HIGO_AP.cpp include/sdk/hf_link/hf_link_modbus.cpp include/sdk/hf_link/hf_link_state_machine_modbus.cpp)
+add_executable(gohi_hw_node_sensor src/main.cpp src/HIGO_ROS.cpp src/transport_tcp.cpp src/HIGO_AP.cpp include/sdk/hf_link/hf_link_modbus.cpp include/sdk/hf_link/hf_link_state_machine_modbus.cpp)
 add_dependencies(gohi_hw_node_sensor  gohi_hw_sensor_msgs_gencpp)
 target_link_libraries(gohi_hw_node_sensor ${catkin_LIBRARIES} )
 

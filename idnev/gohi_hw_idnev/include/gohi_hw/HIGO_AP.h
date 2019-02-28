@@ -5,6 +5,7 @@
 
 #include <fstream>
 #include <gohi_hw/transport_serial.h>
+
 #include <hf_link_modbus.h>
 #include <cstdlib>
 
@@ -59,7 +60,9 @@ public:
     
 
 private:
+    //first modify******************************
     boost::shared_ptr<Transport> port_;
+    
  //   boost::shared_ptr<HFLink> hflink_;
     boost::shared_ptr<HFLink_Modbus> hflinkmodbus_;
     

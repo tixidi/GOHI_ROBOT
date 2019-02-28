@@ -4,7 +4,11 @@
 #define HIGO_AP_H_
 
 #include <fstream>
-#include <gohi_hw/transport_serial.h>
+
+//first modify***************
+// #include <gohi_hw/transport_serial.h>
+#include <gohi_hw/transport_tcp.h>
+
 #include <hf_link_modbus.h>
 #include <cstdlib>
 
@@ -15,7 +19,7 @@ public:
 
  //   bool updateCommand(const Command &command, int count);
     bool updateCommand(const MotorModbusCommand &command, int count);
-    bool updateCommand(const MotorModbusCommand &command, int count,int read_or_write);
+    bool updateCommand( const MotorModbusCommand &command,int &count,int read_or_write);
 
     
 
@@ -28,7 +32,7 @@ public:
 
     inline boost::shared_ptr<boost::asio::io_service> getIOinstace()
     {
-        return port_->getIOinstace();
+        return client_tcp_->getIOinstace();
     }
 
     bool reconfig()
@@ -44,7 +48,11 @@ public:
 
 
 private:
-    boost::shared_ptr<Transport> port_;
+//first modify *************************
+    // boost::shared_ptr<Transport> port_;
+    boost::shared_ptr<client> client_tcp_;
+    boost::asio::io_service io_service;
+
  //   boost::shared_ptr<HFLink> hflink_;
     boost::shared_ptr<HFLink_Modbus> hflinkmodbus_;
     
@@ -73,10 +81,71 @@ private:
     {
         hflinkmodbus_->masterSendCommand(command_state);
         Buffer data(hflinkmodbus_->getSerializedData(), hflinkmodbus_->getSerializedLength() + hflinkmodbus_->getSerializedData());
-        port_->writeBuffer(data);
+        client_tcp_->writeBuffer(data);
     }
 
-  
+
+ //first modify**0*************************
+    inline void readCommandModbus0(const MotorModbusCommand &command)
+    {
+         boost::asio::deadline_timer cicle_timer_(io_service);
+         cicle_timer_.expires_from_now(boost::posix_time::millisec(time_out_));
+        Buffer data=client_tcp_->readBuffer();   
+        // std::cerr << "read:"<< data.size()<<std::endl;
+        ack_ready_ = false;
+        while (!ack_ready_)
+        {
+            for (int i = 0; i < data.size(); i++)
+            {    
+                if (hflinkmodbus_->byteAnalysisCall_R(data[i]))
+                {
+                    // hflinkmodbus_->rev_packetage =1;
+                    std::cerr << "read is ok"<<std::endl;
+                    // one package ack arrived  
+                    ack_ready_ = true;         
+                }
+            }
+            data = client_tcp_->readBuffer();
+            if (cicle_timer_.expires_from_now().is_negative())
+            {
+                if(command == READ_MOT1_REAL_POSITION){
+                    hflinkmodbus_->rev_packetage_mot1 =2;
+                }else if(command == READ_MOT2_REAL_POSITION)
+                    hflinkmodbus_->rev_packetage_mot2 =2;
+                
+                std::cerr<<"Timeout continue skip this package"<<std::endl;
+                return;
+            }
+        }
+    }
+    inline void readCommandModbus1()
+    {
+         boost::asio::deadline_timer cicle_timer_(io_service);
+        cicle_timer_.expires_from_now(boost::posix_time::millisec(time_out_));
+        Buffer data=client_tcp_->readBuffer();   
+        // std::cerr << "read31:"<< data.size()<<std::endl;
+        
+        ack_ready_ = false;
+        while (!ack_ready_)
+        {
+            for (int i = 0; i < data.size(); i++)
+            {    
+                if (hflinkmodbus_->byteAnalysisCall(data[i]))
+                {
+                    // hflinkmodbus_->rev_packetage =1;
+                     std::cerr << "read31 is ok"<<std::endl;
+                    // one package ack arrived  
+                    ack_ready_ = true;         
+                }
+            }
+            data = client_tcp_->readBuffer();
+            if (cicle_timer_.expires_from_now().is_negative())
+            {
+                std::cerr<<"Timeout continue skip this package"<<std::endl;
+                return;
+            }
+        }
+    }  
 
     // a single object for robot
     RobotAbstract my_robot_;

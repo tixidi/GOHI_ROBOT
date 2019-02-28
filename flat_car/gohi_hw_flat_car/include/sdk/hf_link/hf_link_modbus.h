@@ -138,7 +138,8 @@ public:
         //and slave also can disable to reduce communication burden
         hf_link_ack_en = 0;
         if(hf_link_node_model == 0) hf_link_ack_en = 1;
-
+        rev_packetage_mot1=1;
+        rev_packetage_mot2=1;
         robot=robot_;
         shaking_hands_state = 0;
         analysis_package_count  = 0;
@@ -171,7 +172,9 @@ public:
     //command updata flag , the robot need to traverse These flag to decide update his own behavior
     unsigned char receive_package_renew[LAST_COMMAND_FLAG_];
 
-
+    //if rev not packetage
+    unsigned char rev_packetage_mot1;
+    unsigned char rev_packetage_mot2;
 
 public:  
     //common

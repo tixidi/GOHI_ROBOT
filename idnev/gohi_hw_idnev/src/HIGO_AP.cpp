@@ -15,9 +15,12 @@ HIGO_AP::HIGO_AP(std::string url, std::string config_addr,std::string idConfig_a
                                                      boost::posix_time::milliseconds(time_out_)));
     }else if (transport_method == "udp")
     {
+
     }else if (transport_method == "tcp")
     {
+        
     }
+
 
     //process the config file
     file_.open(config_addr.c_str(), std::fstream::in);

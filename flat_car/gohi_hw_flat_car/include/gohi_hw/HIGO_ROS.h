@@ -36,8 +36,11 @@
 #include <ros/callback_queue.h>
 
 // for hf link and transport
-#include <gohi_hw/transport.h>
-#include <gohi_hw/transport_serial.h>
+//first modify************************I
+// #include <gohi_hw/transport.h>
+// #include <gohi_hw/transport_serial.h>
+#include  <gohi_hw/transport_tcp.h>
+
 // #include <hf_link.h>
 #include <hf_link_modbus.h>
 

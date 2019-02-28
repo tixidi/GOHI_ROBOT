@@ -28,7 +28,6 @@
         "system_error": "cpp",
         "thread": "cpp",
         "cinttypes": "cpp",
-        "typeindex": "cpp",
-        "fstream": "cpp"
+        "typeindex": "cpp"
     }
 }
