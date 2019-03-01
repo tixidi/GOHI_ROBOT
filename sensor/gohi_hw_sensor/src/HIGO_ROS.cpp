@@ -69,7 +69,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		while (ros::ok())
 		{	  
 
-				//  higo_ap_.updateCommand(READ_LAXIAN_POSITION, count,0);//拉线传感器  ---ok  
+				  higo_ap_.updateCommand(READ_LAXIAN_POSITION, count,0);//拉线传感器  ---ok  
 
 				  higo_ap_.updateCommand(READ_RFID_REG_DATA, count,0);//射频传感器读卡  ---ok
 				// higo_ap_.updateCommand(READ_THERMOMETER_REG_DATA, count,0);	//温度传感器	

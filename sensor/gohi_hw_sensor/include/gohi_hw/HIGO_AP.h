@@ -58,7 +58,7 @@ public:
 
 
  //first modify***************************
-    inline void readCommandModbus()
+    inline void readCommandModbus0()
     {
         boost::asio::deadline_timer cicle_timer_(io_service);
          cicle_timer_.expires_from_now(boost::posix_time::millisec(time_out_));
@@ -70,6 +70,33 @@ public:
             for (int i = 0; i < data.size(); i++)
             {    
                 if (hflinkmodbus_->byteAnalysisCall_R(data[i]))
+                {
+                    std::cerr << "read is ok"<<std::endl;
+                    // one package ack arrived  
+                    ack_ready_ = true;         
+                }
+            }
+            data = client_tcp_->readBuffer();
+            if (cicle_timer_.expires_from_now().is_negative())
+            {
+                std::cerr<<"Timeout continue skip this package"<<std::endl;
+                return;
+            }
+        }
+    }
+
+    inline void readCommandModbus1()
+    {
+        boost::asio::deadline_timer cicle_timer_(io_service);
+         cicle_timer_.expires_from_now(boost::posix_time::millisec(time_out_));
+        Buffer data=client_tcp_->readBuffer();   
+        // std::cerr << "read3:"<< data.size()<<std::endl;
+        ack_ready_ = false;
+        while (!ack_ready_)
+        {
+            for (int i = 0; i < data.size(); i++)
+            {    
+                if (hflinkmodbus_->byteAnalysisCall(data[i]))
                 {
                     std::cerr << "read is ok"<<std::endl;
                     // one package ack arrived  

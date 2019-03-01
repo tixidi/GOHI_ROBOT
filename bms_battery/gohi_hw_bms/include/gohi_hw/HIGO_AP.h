@@ -4,7 +4,9 @@
 #define HIGO_AP_H_
 
 #include <fstream>
-#include <gohi_hw/transport_serial.h>
+//first modify**********************************
+// #include <gohi_hw/transport_serial.h>
+#include <gohi_hw/transport_tcp.h>
 #include <hf_link_modbus.h>
 #include <cstdlib>
 
@@ -30,7 +32,7 @@ public:
 
     inline boost::shared_ptr<boost::asio::io_service> getIOinstace()
     {
-        return port_->getIOinstace();
+        return client_tcp_->getIOinstace();
     }
 
     bool reconfig()
@@ -55,13 +57,77 @@ public:
     {
         hflinkmodbus_->masterSendCommand(command_state);
         Buffer data(hflinkmodbus_->getSerializedData(), hflinkmodbus_->getSerializedLength() + hflinkmodbus_->getSerializedData());
-        port_->writeBuffer(data);
+        client_tcp_->writeBuffer(data);
     }
 
+   // first modify****************************
+    inline bool readCommandModbus()
+    {
+         boost::asio::deadline_timer cicle_timer_(io_service);
+        cicle_timer_.expires_from_now(boost::posix_time::millisec(time_out_));
+        Buffer data = client_tcp_->readBuffer();
+        unsigned char data_buff[160] ={0};
+        int cnt =0;
+        ack_ready_ = false;
+        modbus_receive_state_ =0;
+        while (!ack_ready_)
+        {   
+           
+            for (int i = 0; i < data.size(); i++)
+            {           
+       
+               // std::cerr<<" the data "<<i<<" is "<<data[i]<<std::endl;             
+                data_buff[cnt++] =data[i];
+                //data_buff[cnt] ='\0';
+                //std::cerr<<" the data is "<<data_buff<<std::endl; 
+                if (dataAnalysisCall(data[i]))
+                {
+                    // one package ack arrived 
+                    data_buff[cnt] ='\0';
+                    unsigned char data_buff_temp[160];
+                    for(int i=0; i<strlen((const char *)data_buff)-4;i++){
+                        data_buff_temp[i] =data_buff[i+1];
+                    }
+                    data_buff_temp[strlen((const char *)data_buff)-4] ='\0';
+                    int CRC_data=(int)crc_high_first(data_buff_temp,strlen((const char *)data_buff_temp));
+                    if(strlen((const char *)data_buff_temp)!=153){
+                        std::cerr<<" the data is ERROR!"<<data_buff<<std::endl;
+                        return false;
+                    }
+
+                    if(CRC_data == calculateCrc(data_buff[strlen((const char *)data_buff)-3],data_buff[strlen((const char *)data_buff)-2])){
+                        std::cerr<<" the data is OK"<<data_buff<<std::endl; 
+                        publish_data =dataAnalysis(data_buff,strlen((const char *)data_buff));
+                    }
+                    else{
+                        std::cerr<<" the data is ERROR!"<<data_buff<<std::endl;
+                        return false;
+                    }
+                    // std::cerr<<" the data is "<<data_buff<<std::endl; 
+                    //  std:: cerr<<" the crc is "<<CRC_data<<std::endl; 
+                    
+                    ack_ready_ = true;         
+                }
+            }
+            data = client_tcp_->readBuffer();
+
+            //  std::cerr << "rea Out" <<std::endl;
+            if (cicle_timer_.expires_from_now().is_negative())
+            {
+                std::cerr<<"Timeout continue skip this package"<<std::endl;
+                return false;
+            }
+        }
+    }
     //first modify 
     int publish_data;
 private:
-    boost::shared_ptr<Transport> port_;
+    
+    //first modify***************************
+    boost::shared_ptr<client> client_tcp_;
+    boost::asio::io_service io_service;
+    // boost::shared_ptr<Transport> port_;
+
  //   boost::shared_ptr<HFLink> hflink_;
     boost::shared_ptr<HFLink_Modbus> hflinkmodbus_;
     

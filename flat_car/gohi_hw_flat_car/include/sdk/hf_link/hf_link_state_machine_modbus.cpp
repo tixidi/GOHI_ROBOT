@@ -37,7 +37,7 @@ unsigned char StateMachineModbus::receiveStates(const unsigned char rx_data)
             CrcRecValue=0;
             rev_sum_changed=0;
             rx_buffer[0]=rx_data;
-            // std::cerr<<"0"<<std::endl;
+            //  std::cerr<<"0"<<std::endl;
         }
     }
     else if(modbus_receive_state_==1)
@@ -46,7 +46,7 @@ unsigned char StateMachineModbus::receiveStates(const unsigned char rx_data)
         {
             modbus_receive_state_ = 2;
             rx_buffer[1]=rx_data;
-            //  std::cerr<<"1"<<std::endl;
+            //   std::cerr<<"1"<<std::endl;
         }
         else if(rx_data == tx_message.command_id+0x80)
         {
@@ -55,7 +55,7 @@ unsigned char StateMachineModbus::receiveStates(const unsigned char rx_data)
         }
         else 
         {    
-            // std::cerr<<"2"<<std::endl;
+             std::cerr<<"2"<<std::endl;
             // rev_sum_changed=0;
             modbus_receive_state_ = 0;
         }
@@ -69,8 +69,11 @@ unsigned char StateMachineModbus::receiveStates(const unsigned char rx_data)
             rx_buffer[2]=rx_data;
             // std::cerr<<"2"<<std::endl;
         }
-        else
-            modbus_receive_state_ = 0;
+        else{
+             modbus_receive_state_ = 0;
+            std::cerr<<"3"<<std::endl;
+        }
+           
     }  
 
     else if(modbus_receive_state_==3)
@@ -86,26 +89,32 @@ unsigned char StateMachineModbus::receiveStates(const unsigned char rx_data)
     }
     else if(modbus_receive_state_==4)
     {
-        if (rx_data == tx_message.data[0])
+        // std::cerr<<"data [0]"<<( short int)tx_message.data[0]<<std::endl;
+        if (rx_data == tx_message.data[1])
         {
             modbus_receive_state_ = 5;
             rx_buffer[4]=rx_data;
-            // std::cerr<<"4"<<std::endl;
+             //std::cerr<<"4"<<std::endl;
         }
-        else
+        else{
+  
             modbus_receive_state_ = 0;
+            std::cerr<<"4"<<std::endl;
+        }
     }
     else if(modbus_receive_state_==5)
     {
-        if (rx_data == tx_message.data[1])
+        if (rx_data == tx_message.data[0])
         {
             modbus_receive_state_ = 6;
             rx_buffer[5]=rx_data;
             McMBCRC16(rx_buffer,6,&CrcRecValue);
             // std::cerr<<"5"<<std::endl;         
         }
-        else
-            modbus_receive_state_ = 0;
+        else{
+             modbus_receive_state_ = 0;
+            std::cerr<<"5"<<std::endl;
+        }
     }
     else if(modbus_receive_state_==6)
     {          
@@ -114,8 +123,10 @@ unsigned char StateMachineModbus::receiveStates(const unsigned char rx_data)
             modbus_receive_state_ = 7;
             // std::cerr<<"6"<<std::endl;
         }
-        else
-            modbus_receive_state_ = 0;
+        else{
+             modbus_receive_state_ = 0;
+            std::cerr<<"6"<<std::endl;
+        }
     }
     else if(modbus_receive_state_==7)
     {          
@@ -129,8 +140,10 @@ unsigned char StateMachineModbus::receiveStates(const unsigned char rx_data)
             // std::cerr<<"7"<<std::endl;
             return 1 ;
         }
-        else
-            modbus_receive_state_ = 0;
+        else{
+             modbus_receive_state_ = 0;
+            std::cerr<<"7"<<std::endl;
+        }
     }        
 
     return 0;

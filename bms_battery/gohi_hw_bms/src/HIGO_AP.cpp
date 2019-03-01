@@ -6,21 +6,43 @@
 
 HIGO_AP::HIGO_AP(std::string url, std::string config_addr)
 {
-    std::string transport_method = url.substr(0, url.find("://"));
-    if (transport_method == "serial")
+    //first modify ************************
+
+    // std::string transport_method = url.substr(0, url.find("://"));
+    // if (transport_method == "serial")
+    // {
+    //     port_ = boost::make_shared<TransportSerial>(url);
+    //     time_out_ =50;//default 500
+    //     hflinkmodbus_ = boost::make_shared<HFLink_Modbus>(&my_robot_  , 0x01 , 0x11);
+    //     timer_.reset(new boost::asio::deadline_timer(*(port_->getIOinstace()),
+    //                                                  boost::posix_time::milliseconds(time_out_)));
+    // }else if (transport_method == "udp")
+    // {}
+
+    //first modify ************************
+    if (url == "tcp")
     {
-        port_ = boost::make_shared<TransportSerial>(url);
+       // boost::asio::io_service io_service;
+	    tcp::endpoint endpoint(address::from_string("192.168.0.204"), 502);
+
+        // 直接从 new 操作符的返回值构造
+	    client_ptr new_session(new client(io_service, endpoint));
+   
+
+        client_tcp_=new_session;
         time_out_ =600;//default 500
         hflinkmodbus_ = boost::make_shared<HFLink_Modbus>(&my_robot_  , 0x01 , 0x11);
-        timer_.reset(new boost::asio::deadline_timer(*(port_->getIOinstace()),
-                                                     boost::posix_time::milliseconds(time_out_)));
-    }else if (transport_method == "udp")
-    {
+        timer_.reset(new boost::asio::deadline_timer(io_service,boost::posix_time::milliseconds(time_out_)));
 
+
+	    new_session->start();
+	    new_session->initializeTcp();
+        
+
+    }else if(url == "udp"){
+        // do nothing 
     }
-    else if (transport_method == "tcp")
-    {
-    }
+
 
     //process the config file
     file_.open(config_addr.c_str(), std::fstream::in);
@@ -33,11 +55,11 @@ HIGO_AP::HIGO_AP(std::string url, std::string config_addr)
             std::cout<< temp << hflink_command_set_[i] << hflink_freq_[i]<<std::endl;
         }
         file_.close();
-        initialize_ok_ = port_->initialize_ok();
+        // initialize_ok_ = port_->initialize_ok();
     } else
     {
         std::cerr << "config file can't be opened, check your system" <<std::endl;
-        initialize_ok_ = false;
+        // initialize_ok_ = false;
     }
 }
 
@@ -54,7 +76,7 @@ void HIGO_AP::timeoutHandler(const boost::system::error_code &ec)
 
 bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int count,int read_or_write)
 {
-    boost::asio::deadline_timer cicle_timer_(*(port_->getIOinstace()));
+    boost::asio::deadline_timer cicle_timer_(io_service);
     cicle_timer_.expires_from_now(boost::posix_time::millisec(time_out_));
             
     // if(read_or_write==1)
@@ -110,60 +132,9 @@ bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int count,int rea
                 return false;
             }
         }
+    // first modify****************************
+       readCommandModbus();
 
-        Buffer data = port_->readBuffer();
-        unsigned char data_buff[160] ={0};
-        int cnt =0;
-        ack_ready_ = false;
-        modbus_receive_state_ =0;
-        while (!ack_ready_)
-        {   
-           
-            for (int i = 0; i < data.size(); i++)
-            {           
-       
-               // std::cerr<<" the data "<<i<<" is "<<data[i]<<std::endl;             
-                data_buff[cnt++] =data[i];
-                //data_buff[cnt] ='\0';
-                //std::cerr<<" the data is "<<data_buff<<std::endl; 
-                if (dataAnalysisCall(data[i]))
-                {
-                    // one package ack arrived 
-                    data_buff[cnt] ='\0';
-                    unsigned char data_buff_temp[160];
-                    for(int i=0; i<strlen((const char *)data_buff)-4;i++){
-                        data_buff_temp[i] =data_buff[i+1];
-                    }
-                    data_buff_temp[strlen((const char *)data_buff)-4] ='\0';
-                    int CRC_data=(int)crc_high_first(data_buff_temp,strlen((const char *)data_buff_temp));
-                    if(strlen((const char *)data_buff_temp)!=153){
-                        std::cerr<<" the data is ERROR!"<<data_buff<<std::endl;
-                        return false;
-                    }
-
-                    if(CRC_data == calculateCrc(data_buff[strlen((const char *)data_buff)-3],data_buff[strlen((const char *)data_buff)-2])){
-                        std::cerr<<" the data is OK"<<data_buff<<std::endl; 
-                        publish_data =dataAnalysis(data_buff,strlen((const char *)data_buff));
-                    }
-                    else{
-                        std::cerr<<" the data is ERROR!"<<data_buff<<std::endl;
-                        return false;
-                    }
-                    // std::cerr<<" the data is "<<data_buff<<std::endl; 
-                    //  std:: cerr<<" the crc is "<<CRC_data<<std::endl; 
-                    
-                    ack_ready_ = true;         
-                }
-            }
-            data = port_->readBuffer();
-
-            //  std::cerr << "rea Out" <<std::endl;
-            if (cicle_timer_.expires_from_now().is_negative())
-            {
-                std::cerr<<"Timeout continue skip this package"<<std::endl;
-                return false;
-            }
-        }
 
     }
     return true;

@@ -29,7 +29,7 @@ HIGO_AP::HIGO_AP(std::string url, std::string config_addr)
    
 
         client_tcp_=new_session;
-        time_out_ =50;//default 500
+        time_out_ =100;//default 500
         hflinkmodbus_ = boost::make_shared<HFLink_Modbus>(&my_robot_  , 0x01 , 0x11);
         timer_.reset(new boost::asio::deadline_timer(io_service,boost::posix_time::milliseconds(time_out_)));
 
@@ -94,28 +94,8 @@ bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int count,int rea
         }
 
          //first modify ************************
-        readCommandModbus();
+        readCommandModbus1();
 
-
-        // Buffer data = port_->readBuffer();
-        // ack_ready_ = false;
-        // while (!ack_ready_)
-        // {
-        //     for (int i = 0; i < data.size(); i++)
-        //     {
-        //         if (hflinkmodbus_->byteAnalysisCall(data[i]))
-        //         {
-        //             // one package ack arrived  
-        //             ack_ready_ = true;         
-        //         }
-        //     }
-        //     data = port_->readBuffer();
-        //     if (cicle_timer_.expires_from_now().is_negative())
-        //     {
-        //         std::cerr<<"Timeout continue skip this package"<<std::endl;
-        //         return false;
-        //     }
-        // }
     }
     else if(read_or_write==0)
     {
@@ -135,29 +115,7 @@ bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int count,int rea
         }
 
         //first modify ************************
-        readCommandModbus();
-
-        // Buffer data = port_->readBuffer();
-        // ack_ready_ = false;
-        // while (!ack_ready_)
-        // {
-          
-        //     for (int i = 0; i < data.size(); i++)
-        //     {    
-
-        //         if (hflinkmodbus_->byteAnalysisCall_R(data[i]))
-        //         {
-        //             // one package ack arrived  
-        //             ack_ready_ = true;          
-        //         }
-
-        //     }
-        //     data = port_->readBuffer();
-        //     if (cicle_timer_.expires_from_now().is_negative())
-        //     {
-        //         return false;
-        //     }
-        // }
+        readCommandModbus0();
     }
 
     return true;

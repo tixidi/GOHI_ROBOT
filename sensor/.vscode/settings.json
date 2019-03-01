@@ -1,6 +1,5 @@
 {
     "files.associations": {
-        "*.ipp": "cpp",
         "cctype": "cpp",
         "clocale": "cpp",
         "cmath": "cpp",
@@ -28,7 +27,6 @@
         "system_error": "cpp",
         "thread": "cpp",
         "cinttypes": "cpp",
-        "typeindex": "cpp",
-        "slist": "cpp"
+        "typeindex": "cpp"
     }
 }

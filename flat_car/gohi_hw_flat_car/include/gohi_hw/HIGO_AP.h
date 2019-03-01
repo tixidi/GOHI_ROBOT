@@ -2,9 +2,8 @@
 
 #ifndef HIGO_AP_H_
 #define HIGO_AP_H_
-
 #include <fstream>
-
+#include <ros/ros.h>
 //first modify***************
 // #include <gohi_hw/transport_serial.h>
 #include <gohi_hw/transport_tcp.h>
@@ -69,7 +68,8 @@ private:
     int hflink_command_set_current_[LAST_COMMAND_FLAG_];
 
 
-    int time_out_;
+    int write_time_out_;
+    int read_time_out_;
     bool time_out_flag_;
     boost::mutex wait_mutex_;
     bool ack_ready_;
@@ -82,16 +82,23 @@ private:
         hflinkmodbus_->masterSendCommand(command_state);
         Buffer data(hflinkmodbus_->getSerializedData(), hflinkmodbus_->getSerializedLength() + hflinkmodbus_->getSerializedData());
         client_tcp_->writeBuffer(data);
+        for(int i=0;i<data.size();i++){
+            if(command_state == SET_CAR1_LEFT_SPEED_CONTROL){
+                std::cerr << "write motor1 :"<< (uint16_t)data[i]<<std::endl;
+            }else if(command_state == SET_CAR1_RIGHT_SPEED_CONTROL)
+                std::cerr << "write motor2:"<< (uint16_t)data[i]<<std::endl;
+        }
     }
 
 
  //first modify**0*************************
     inline void readCommandModbus0(const MotorModbusCommand &command)
     {
+         static int time_out_count=0;
          boost::asio::deadline_timer cicle_timer_(io_service);
-         cicle_timer_.expires_from_now(boost::posix_time::millisec(time_out_));
+         cicle_timer_.expires_from_now(boost::posix_time::millisec(read_time_out_));
         Buffer data=client_tcp_->readBuffer();   
-        // std::cerr << "read:"<< data.size()<<std::endl;
+        //  std::cerr << "read:"<< time_out_count++ <<"  "<<time_out_<<std::endl;
         ack_ready_ = false;
         while (!ack_ready_)
         {
@@ -113,35 +120,49 @@ private:
                 }else if(command == READ_MOT2_REAL_POSITION)
                     hflinkmodbus_->rev_packetage_mot2 =2;
                 
-                std::cerr<<"Timeout continue skip this package"<<std::endl;
+                std::cerr<<"read Timeout continue skip this package"<<std::endl;
+                time_out_count=0;
                 return;
             }
         }
     }
-    inline void readCommandModbus1()
+    inline void readCommandModbus1(const MotorModbusCommand &command)
     {
-         boost::asio::deadline_timer cicle_timer_(io_service);
-        cicle_timer_.expires_from_now(boost::posix_time::millisec(time_out_));
+        boost::asio::deadline_timer cicle_timer_(io_service);
+        cicle_timer_.expires_from_now(boost::posix_time::millisec(write_time_out_));
         Buffer data=client_tcp_->readBuffer();   
-        // std::cerr << "read31:"<< data.size()<<std::endl;
-        
+        ros::Time currentTime = ros::Time::now();
+       std::cerr<<"read:::"<<std::endl;
         ack_ready_ = false;
         while (!ack_ready_)
         {
             for (int i = 0; i < data.size(); i++)
-            {    
+            {     
+                
+
+
+                if(command == SET_CAR1_LEFT_SPEED_CONTROL){
+                   std::cerr << " read motor1 :"<< (uint16_t)data[i]<<std::endl;
+                }else if(command == SET_CAR1_RIGHT_SPEED_CONTROL)
+                    std::cerr << "read motor2:"<< (uint16_t)data[i]<<std::endl;
+
                 if (hflinkmodbus_->byteAnalysisCall(data[i]))
                 {
                     // hflinkmodbus_->rev_packetage =1;
-                     std::cerr << "read31 is ok"<<std::endl;
+                     std::cerr << "write is ok"<<std::endl;
                     // one package ack arrived  
                     ack_ready_ = true;         
                 }
             }
             data = client_tcp_->readBuffer();
+            //  std::cerr<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
             if (cicle_timer_.expires_from_now().is_negative())
             {
-                std::cerr<<"Timeout continue skip this package"<<std::endl;
+                if(command == SET_CAR1_LEFT_SPEED_CONTROL){
+                   std::cerr<<"SET_CAR1_LEFT_SPEED_CONTROL write Timeout continue skip this package"<<std::endl;
+                }else if(command == SET_CAR1_RIGHT_SPEED_CONTROL)
+                    std::cerr<<"SET_CAR1_RIGHT_SPEED_CONTROL write Timeout continue skip this package"<<std::endl;
+                
                 return;
             }
         }

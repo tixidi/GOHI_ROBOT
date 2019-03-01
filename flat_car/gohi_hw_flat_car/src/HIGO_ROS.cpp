@@ -94,19 +94,19 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		// float  pid_t=0.1;
 		while (ros::ok())
 		{
-    			higo_ap_.updateCommand(READ_MOT1_ERROR_STATE, count,0);			
-				// std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
-				// currentTime = ros::Time::now();
-				higo_ap_.updateCommand(READ_MOT2_ERROR_STATE, count,0);			
-				// std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
+    		// 	higo_ap_.updateCommand(READ_MOT1_ERROR_STATE, count,0);			
+			// 	// std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
+			// 	// currentTime = ros::Time::now();
+			// 	higo_ap_.updateCommand(READ_MOT2_ERROR_STATE, count,0);			
+			// 	// std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
 
-			// currentTime = ros::Time::now();			
-				higo_ap_.updateCommand(READ_MOT1_REAL_POSITION, count,0);		//读电机左轮的速度	
-				// std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
+			// // // currentTime = ros::Time::now();			
+			// 	higo_ap_.updateCommand(READ_MOT1_REAL_POSITION, count,0);		//读电机左轮的速度	
+			// // 	// std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
 
 				
-				higo_ap_.updateCommand(READ_MOT2_REAL_POSITION, count,0);	 	//读电机右轮的速度	 
-				// std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
+			// 	higo_ap_.updateCommand(READ_MOT2_REAL_POSITION, count,0);	 	//读电机右轮的速度	 
+			// // 	// std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
 				// currentTime = ros::Time::now();
 
 			// float intervale_time= (ros::Time::now() - currentTime).toSec();

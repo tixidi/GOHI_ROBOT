@@ -30,10 +30,11 @@ HIGO_AP::HIGO_AP(std::string url, std::string config_addr)
    
 
         client_tcp_=new_session;
-        time_out_ =15;//default 500
+        read_time_out_ =15;//default 500
+        write_time_out_ =15;
         hflinkmodbus_ = boost::make_shared<HFLink_Modbus>(&my_robot_  , 0x01 , 0x11);
-        timer_.reset(new boost::asio::deadline_timer(io_service,boost::posix_time::milliseconds(time_out_)));
-
+        timer_.reset(new boost::asio::deadline_timer(io_service,boost::posix_time::milliseconds(read_time_out_)));
+        timer_.reset(new boost::asio::deadline_timer(io_service,boost::posix_time::milliseconds(write_time_out_)));
 
 	    new_session->start();
 	    new_session->initializeTcp();
@@ -82,7 +83,7 @@ void HIGO_AP::timeoutHandler(const boost::system::error_code &ec)
 //     {
 //         // update command set  data from embedded system
 //         if (hflink_command_set_[command] != 0)
-//         {
+//         {cicle_timer_
 //             int cnt = count % 100;
 //             if (cnt %  (100 / hflink_freq_[command]) == 0)
 //             {
@@ -122,11 +123,11 @@ void HIGO_AP::timeoutHandler(const boost::system::error_code &ec)
 
 //const MotorModbusCommand &command,
 
-bool HIGO_AP::updateCommand( const MotorModbusCommand &command,int &count,int read_or_write)
+bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int &count,int read_or_write)
 {
-    static int send_cnt =0;
-    boost::asio::deadline_timer cicle_timer_(io_service);
-    cicle_timer_.expires_from_now(boost::posix_time::millisec(time_out_));
+    // static int send_cnt =0;
+    // boost::asio::deadline_timer cicle_timer_(io_service);
+    //  cicle_timer_.expires_from_now(boost::posix_time::millisec(time_out_));
 
     if(read_or_write==1)
     {
@@ -146,7 +147,7 @@ bool HIGO_AP::updateCommand( const MotorModbusCommand &command,int &count,int re
             }
         }
         //first modify *******************
-         readCommandModbus1();
+         readCommandModbus1(command);
     }
     else if(read_or_write==0)
     {
