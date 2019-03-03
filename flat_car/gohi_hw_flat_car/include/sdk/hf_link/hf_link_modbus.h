@@ -4,6 +4,14 @@
 #include "robot_abstract.h"
 #include "hf_link_state_machine_modbus.h"
 #include "robot_control.h"
+#include <ros/ros.h>
+
+
+// #define  per_circle_position (360/120)*8*30
+// #define  rpm_per_rads   60/2/3.14
+// #define  hz_per_rpm    (8*30)/0.1/20
+
+// #define  pid_t  0.02*6
 
 //comand type
 enum MotorModbusCommand{
@@ -146,6 +154,9 @@ public:
         write_analysis_package_count=0;
         read_analysis_package_count=0;
         command_state_ = READ_MOT1_ERROR_STATE;
+        memset(&d_past_angle , 0.0 , sizeof(d_past_angle));
+        memset(&past_total_angle , 0.0 , sizeof(past_total_angle));
+        
     }
 
 public:  
@@ -189,9 +200,9 @@ private:
     unsigned char hf_link_node_model;      // 0 slave , 1 master
     unsigned char hf_link_ack_en;          //enable hflink ack
     unsigned char shaking_hands_state;     //1 Success   0 Failed
-    float analysis_package_count;
-    float write_analysis_package_count;
-    float read_analysis_package_count;
+    int analysis_package_count;
+    int write_analysis_package_count;
+    int read_analysis_package_count;
     float control_quality ;    
     float past_total_angle[4];
     float d_past_angle[4];

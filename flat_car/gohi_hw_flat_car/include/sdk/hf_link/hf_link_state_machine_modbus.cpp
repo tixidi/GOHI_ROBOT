@@ -55,8 +55,7 @@ unsigned char StateMachineModbus::receiveStates(const unsigned char rx_data)
         }
         else 
         {    
-             std::cerr<<"2"<<std::endl;
-            // rev_sum_changed=0;
+            std::cerr<<"other status"<<std::endl;
             modbus_receive_state_ = 0;
         }
 
@@ -89,12 +88,11 @@ unsigned char StateMachineModbus::receiveStates(const unsigned char rx_data)
     }
     else if(modbus_receive_state_==4)
     {
-        // std::cerr<<"data [0]"<<( short int)tx_message.data[0]<<std::endl;
         if (rx_data == tx_message.data[1])
         {
             modbus_receive_state_ = 5;
             rx_buffer[4]=rx_data;
-             //std::cerr<<"4"<<std::endl;
+            //  std::cerr<<"4"<<std::endl;
         }
         else{
   
@@ -134,7 +132,7 @@ unsigned char StateMachineModbus::receiveStates(const unsigned char rx_data)
         {
             modbus_receive_state_ = 0;
             receive_message_count ++ ;
-            //rx_buffer[0]=0;
+   
             memset(&rx_buffer , 0 , sizeof(rx_buffer));
             memset(&tx_buffer , 0 , sizeof(tx_buffer));  
             // std::cerr<<"7"<<std::endl;
@@ -142,7 +140,7 @@ unsigned char StateMachineModbus::receiveStates(const unsigned char rx_data)
         }
         else{
              modbus_receive_state_ = 0;
-            std::cerr<<"7"<<std::endl;
+             std::cerr<<"7"<<std::endl;
         }
     }        
 
@@ -198,6 +196,7 @@ unsigned char StateMachineModbus::receiveStates_R(unsigned char rx_data)
             }
             else
                 modbus_receive_state_ = 0;
+                
         }
         else if(modbus_receive_state_==3)
         {                                  
@@ -232,12 +231,7 @@ unsigned char StateMachineModbus::receiveStates_R(unsigned char rx_data)
                 rx_message.command_id=rx_buffer[1];
                 rx_message.slave_reg_addr=tx_message.slave_reg_addr;
 
-                // rx_message.data[0]=tx_message.slave_reg_addr>>8;
-                // rx_message.data[1]=tx_message.slave_reg_addr&0xFF;
-                
-                //    std::cerr <<"1" <<(int)rx_message.slave_addr<<std::endl;
-                //    std::cerr <<"1" <<(int)rx_message.command_id <<std::endl;
-                //    std::cerr <<"1" <<(int)rx_message.slave_reg_addr <<std::endl; 
+
                 for (int i=0;i<rx_buffer[2];i++)
                 {
                     rx_message.data[i]=rx_buffer[3+rx_buffer[2]-i-1];

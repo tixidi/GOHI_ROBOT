@@ -21,7 +21,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		nh_.setCallbackQueue(&queue_);
         base_mode_ = "2diff-wheel";
 		with_arm_ = false;
-		controller_freq_ = 100;
+		controller_freq_ = 50;
 		nh_.getParam("base_mode", base_mode_);
 		nh_.getParam("with_arm", with_arm_);
 		nh_.getParam("freq", controller_freq_);
@@ -89,37 +89,60 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 		int count = 0;
 		ros::Time currentTime = ros::Time::now();
-		// float  per_circle_position =(360/120)*8*30;
-		// float  degree_to_ = 0.017453f;
-		// float  pid_t=0.1;
+
+        static int command_switch_counts=0;
+
+        higo_ap_.getRobotAbstract()->measure_global_coordinate.x=0.0;
+		higo_ap_.getRobotAbstract()->measure_global_coordinate.y=0.0;
+		higo_ap_.getRobotAbstract()->measure_global_coordinate.z=0.0;
+		
+		writeBufferUpdate();
+		higo_ap_.updateRobot();
+        readBufferUpdate();
+		
 		while (ros::ok())
 		{
-    		// 	higo_ap_.updateCommand(READ_MOT1_ERROR_STATE, count,0);			
-			// 	// std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
-			// 	// currentTime = ros::Time::now();
-			// 	higo_ap_.updateCommand(READ_MOT2_ERROR_STATE, count,0);			
-			// 	// std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
 
-			// // // currentTime = ros::Time::now();			
-			// 	higo_ap_.updateCommand(READ_MOT1_REAL_POSITION, count,0);		//读电机左轮的速度	
-			// // 	// std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
+     		std::cerr <<"-------------------------------------------------------------------------------" <<std::endl;
 
-				
-			// 	higo_ap_.updateCommand(READ_MOT2_REAL_POSITION, count,0);	 	//读电机右轮的速度	 
-			// // 	// std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
-				// currentTime = ros::Time::now();
+			switch(command_switch_counts%6)
+			{					   
+				case 0:
+						higo_ap_.updateCommand(READ_MOT1_REAL_POSITION, count,0);	       
+						break;
+				case 1:		
+						higo_ap_.updateCommand(READ_MOT2_REAL_POSITION, count,0);	
+				    	break;
+				case 2:
+						higo_ap_.updateCommand(READ_MOT1_ERROR_STATE, count,0);	
+						break;
+				case 3:		
+						higo_ap_.updateCommand(READ_MOT2_ERROR_STATE, count,0);	
+					    break;
+				case 4:
+						if(brake_config_callback_flag==1)
+						{
+							higo_ap_.updateCommand(SET_MOT1_BRAKE_STATE, count,1);	 	//brake car
+						}
+						else  	
+						{
+							higo_ap_.updateCommand(SET_CAR1_LEFT_SPEED_CONTROL, count,1);
+						}
+				       break;
+				case 5:
+						if(brake_config_callback_flag==1)
+						{
+							higo_ap_.updateCommand(SET_MOT2_BRAKE_STATE, count,1);	 	//brake car			
+						}
+						else  	
+						{
+							higo_ap_.updateCommand(SET_CAR1_RIGHT_SPEED_CONTROL, count,1);	
+						}
+				       break;						
 
-			// float intervale_time= (ros::Time::now() - currentTime).toSec();
-			// std::cerr <<(int)count<< "spend time is  " << intervale_time <<std::endl;
-			// currentTime = ros::Time::now();
-
-            // higo_ap_.getRobotAbstract()->ask_measure_motor_speed.servo1=  (higo_ap_.getRobotAbstract()->ask_measure_motor_position_dif.position1) * 360 / ( per_circle_position*0.145 )*degree_to_;
-        	// std::cerr <<"电机1速度: " <<higo_ap_.getRobotAbstract()->ask_measure_motor_speed.servo1<<" rad/s" <<std::endl; //读电机1位置
-            // higo_ap_.getRobotAbstract()->ask_measure_motor_speed.servo2=  (higo_ap_.getRobotAbstract()->ask_measure_motor_position_dif.position2) * 360 / ( per_circle_position*0.145 )*degree_to_;
-        	// std::cerr <<"电机2速度: " <<higo_ap_.getRobotAbstract()->ask_measure_motor_speed.servo2<<" rad/s" <<std::endl; //读电机1位置
-
-            higo_ap_.updateRobot();
-		
+			}
+			command_switch_counts++;
+            higo_ap_.updateRobot(); //不能放在主程序里面
 		
 			readBufferUpdate();
 
@@ -133,27 +156,13 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 			robot_state_publisher_.publish(robot_state);
 			
-			// std::cerr << "spend time is  " <<(int)brake_config_callback_flag << std::endl;
-			// std::cerr << "spend time is  " <<(int)brake_config_callback_flag1 << std::endl;
-
-			if(brake_config_callback_flag==1)
-			{
-				higo_ap_.updateCommand(SET_MOT2_BRAKE_STATE, count,1);	 	//brake car
-				higo_ap_.updateCommand(SET_MOT1_BRAKE_STATE, count,1);	 	//brake car
-			}
-			else  	
-			{
-				higo_ap_.updateCommand(SET_CAR1_LEFT_SPEED_CONTROL, count,1);
-				// std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
-				// currentTime = ros::Time::now();
-
-				higo_ap_.updateCommand(SET_CAR1_RIGHT_SPEED_CONTROL, count,1);	
-				// std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
-				//  currentTime = ros::Time::now();
-			}
+			std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
+			currentTime = ros::Time::now();
 
 			rate.sleep();
+
 			count++;
+
 		}
 		cm_spinner.stop();
 		hw_spinner.stop();

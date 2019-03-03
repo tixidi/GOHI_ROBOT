@@ -82,12 +82,12 @@ private:
         hflinkmodbus_->masterSendCommand(command_state);
         Buffer data(hflinkmodbus_->getSerializedData(), hflinkmodbus_->getSerializedLength() + hflinkmodbus_->getSerializedData());
         client_tcp_->writeBuffer(data);
-        for(int i=0;i<data.size();i++){
-            if(command_state == SET_CAR1_LEFT_SPEED_CONTROL){
-                std::cerr << "write motor1 :"<< (uint16_t)data[i]<<std::endl;
-            }else if(command_state == SET_CAR1_RIGHT_SPEED_CONTROL)
-                std::cerr << "write motor2:"<< (uint16_t)data[i]<<std::endl;
-        }
+        // for(int i=0;i<data.size();i++){
+        //     if(command_state == SET_CAR1_LEFT_SPEED_CONTROL){
+        //         std::cerr << "write motor1 :"<< (uint16_t)data[i]<<std::endl;
+        //     }else if(command_state == SET_CAR1_RIGHT_SPEED_CONTROL)
+        //         std::cerr << "write motor2:"<< (uint16_t)data[i]<<std::endl;
+        // }
     }
 
 
@@ -95,73 +95,132 @@ private:
     inline void readCommandModbus0(const MotorModbusCommand &command)
     {
          static int time_out_count=0;
+
+         
          boost::asio::deadline_timer cicle_timer_(io_service);
          cicle_timer_.expires_from_now(boost::posix_time::millisec(read_time_out_));
+         
+         ros::Time currentTime = ros::Time::now();
+         time_out_count++ ;
+
+         
+        ack_ready_ = false;  
+        
         Buffer data=client_tcp_->readBuffer();   
-        //  std::cerr << "read:"<< time_out_count++ <<"  "<<time_out_<<std::endl;
-        ack_ready_ = false;
         while (!ack_ready_)
         {
             for (int i = 0; i < data.size(); i++)
             {    
                 if (hflinkmodbus_->byteAnalysisCall_R(data[i]))
                 {
-                    // hflinkmodbus_->rev_packetage =1;
-                    std::cerr << "read is ok"<<std::endl;
+  
+                        if(command == READ_MOT1_ERROR_STATE)
+                        {
+                            
+                            std::cerr<<"the "<< time_out_count<<" count's "<<"READ_MOT1_ERROR_STATE   receive ok"<<std::endl;
+                            
+                        } 
+                        else if(command == READ_MOT2_ERROR_STATE)
+                        {
+                            std::cerr<<"the "<< time_out_count<<" count's "<<"READ_MOT2_ERROR_STATE   receive ok"<<std::endl;
+                        
+                        }  
+                        else if(command == READ_MOT1_REAL_POSITION)
+                        {
+                            std::cerr<<"the "<< time_out_count<<" count's "<<"READ_MOT1_REAL_POSITION   receive ok"<<std::endl;
+                        
+                        }else if(command == READ_MOT2_REAL_POSITION)
+                        {
+                        std::cerr<<"the "<< time_out_count<<" count's "<<"READ_MOT2_REAL_POSITION   receive ok"<<std::endl;
+                        
+                        } 
                     // one package ack arrived  
-                    ack_ready_ = true;         
+                    ack_ready_ = true;    
+                    return;     
                 }
             }
             data = client_tcp_->readBuffer();
             if (cicle_timer_.expires_from_now().is_negative())
             {
-                if(command == READ_MOT1_REAL_POSITION){
-                    hflinkmodbus_->rev_packetage_mot1 =2;
+                if(command == READ_MOT1_ERROR_STATE)
+                {
+                    std::cerr<<"the "<< time_out_count<<" count's "<<"READ_MOT1_ERROR_STATE   Timeout  "<< (float)(ros::Time::now() - currentTime).toSec()<<std::endl;
+                     
+                } 
+                else if(command == READ_MOT2_ERROR_STATE)
+                {
+                    std::cerr<<"the "<< time_out_count<<" count's "<<"READ_MOT2_ERROR_STATE  Timeout  "<< (float)(ros::Time::now() - currentTime).toSec()<<std::endl;
+                   
+                }  
+                else if(command == READ_MOT1_REAL_POSITION)
+                {
+                    std::cerr<<"the "<< time_out_count<<" count's "<<"READ_MOT1_REAL_POSITION  Timeout  "<< (float)(ros::Time::now() - currentTime).toSec()<<std::endl;
+                   
                 }else if(command == READ_MOT2_REAL_POSITION)
-                    hflinkmodbus_->rev_packetage_mot2 =2;
-                
-                std::cerr<<"read Timeout continue skip this package"<<std::endl;
-                time_out_count=0;
+                {
+                   std::cerr<<"the "<< time_out_count<<" count's "<<"READ_MOT2_REAL_POSITION  Timeout  "<< (float)(ros::Time::now() - currentTime).toSec()<<std::endl;
+                  
+                } 
+   
+                ros::Time currentTime = ros::Time::now();
+                // time_out_count=0;
+               
+
                 return;
             }
         }
     }
     inline void readCommandModbus1(const MotorModbusCommand &command)
     {
+          static int time_out_count=0;
         boost::asio::deadline_timer cicle_timer_(io_service);
         cicle_timer_.expires_from_now(boost::posix_time::millisec(write_time_out_));
-        Buffer data=client_tcp_->readBuffer();   
-        ros::Time currentTime = ros::Time::now();
-       std::cerr<<"read:::"<<std::endl;
+
+        ros::Time currentTime = ros::Time::now();                   
+        time_out_count++ ;
+
         ack_ready_ = false;
+        Buffer data=client_tcp_->readBuffer();           
         while (!ack_ready_)
         {
+
+            
             for (int i = 0; i < data.size(); i++)
             {     
-                
 
-
-                if(command == SET_CAR1_LEFT_SPEED_CONTROL){
-                   std::cerr << " read motor1 :"<< (uint16_t)data[i]<<std::endl;
-                }else if(command == SET_CAR1_RIGHT_SPEED_CONTROL)
-                    std::cerr << "read motor2:"<< (uint16_t)data[i]<<std::endl;
+            
+                // std::cerr<<"the "<< i<<" count's "<<(int)data[i]<<"   "<<data.size()<<std::endl;
 
                 if (hflinkmodbus_->byteAnalysisCall(data[i]))
                 {
-                    // hflinkmodbus_->rev_packetage =1;
-                     std::cerr << "write is ok"<<std::endl;
-                    // one package ack arrived  
-                    ack_ready_ = true;         
+                    if(command == SET_CAR1_LEFT_SPEED_CONTROL)
+                    {
+                           
+                    std::cerr<<"the "<< time_out_count<<" count's "<<"SET_CAR1_LEFT_SPEED_CONTROL write receive ok  "<<std::endl;
+                    }
+                    else if(command == SET_CAR1_RIGHT_SPEED_CONTROL)
+                    {
+                    std::cerr<<"the "<< time_out_count<<" count's "<<"SET_CAR1_RIGHT_SPEED_CONTROL write receive ok  "<<std::endl;
+                    }
+
+                    ack_ready_ = true;       
+                    return;  
                 }
             }
             data = client_tcp_->readBuffer();
-            //  std::cerr<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
+           
             if (cicle_timer_.expires_from_now().is_negative())
             {
-                if(command == SET_CAR1_LEFT_SPEED_CONTROL){
-                   std::cerr<<"SET_CAR1_LEFT_SPEED_CONTROL write Timeout continue skip this package"<<std::endl;
-                }else if(command == SET_CAR1_RIGHT_SPEED_CONTROL)
-                    std::cerr<<"SET_CAR1_RIGHT_SPEED_CONTROL write Timeout continue skip this package"<<std::endl;
+                if(command == SET_CAR1_LEFT_SPEED_CONTROL)
+                {
+                   std::cerr<<"the "<< time_out_count<<" count's "<<"SET_CAR1_LEFT_SPEED_CONTROL write Timeout continue skip this package  "<< (float)(ros::Time::now() - currentTime).toSec()<<std::endl;
+                }
+                else if(command == SET_CAR1_RIGHT_SPEED_CONTROL)
+                {
+                   std::cerr<<"the "<< time_out_count<<" count's "<<"SET_CAR1_RIGHT_SPEED_CONTROL write Timeout continue skip this package  "<< (float)(ros::Time::now() - currentTime).toSec()<<std::endl;
+                }
+                ros::Time currentTime = ros::Time::now();
+                // time_out_count=0;
                 
                 return;
             }

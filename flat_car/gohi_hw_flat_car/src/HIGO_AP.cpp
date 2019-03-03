@@ -31,7 +31,7 @@ HIGO_AP::HIGO_AP(std::string url, std::string config_addr)
 
         client_tcp_=new_session;
         read_time_out_ =15;//default 500
-        write_time_out_ =15;
+        write_time_out_ =10;
         hflinkmodbus_ = boost::make_shared<HFLink_Modbus>(&my_robot_  , 0x01 , 0x11);
         timer_.reset(new boost::asio::deadline_timer(io_service,boost::posix_time::milliseconds(read_time_out_)));
         timer_.reset(new boost::asio::deadline_timer(io_service,boost::posix_time::milliseconds(write_time_out_)));
@@ -74,100 +74,23 @@ void HIGO_AP::timeoutHandler(const boost::system::error_code &ec)
 }
 
 
-// bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int count,int read_or_write)
-// {
-//     boost::asio::deadline_timer cicle_timer_(io_service);
-//     cicle_timer_.expires_from_now(boost::posix_time::millisec(time_out_));
-    
-//     if(read_or_write==1)
-//     {
-//         // update command set  data from embedded system
-//         if (hflink_command_set_[command] != 0)
-//         {cicle_timer_
-//             int cnt = count % 100;
-//             if (cnt %  (100 / hflink_freq_[command]) == 0)
-//             {
-//                 sendCommandModbus(command);
-//             } else
-//             {
-//                 // skip this package
-//                 return false;
-//             }
-//         }
-//         //first modify *******************
-//     }
-//     else if(read_or_write==0)
-//     {
-//         // update command set  data from embedded system
-//         if (hflink_command_set_[command] != 0)
-//         {
-//             int cnt = count % 100;
-//             if (cnt %  (100 / hflink_freq_[command]) == 0)
-//             {
-//                 sendCommandModbus(command);
-//             } 
-//             else
-//             {
-//                 // skip this package
-//                 return false;
-//             }
-//         }
-
-//         //first modify *******************
-//         readCommandModbus0();
-//     }
-
-//     return true;
-// }
 
 
-//const MotorModbusCommand &command,
+
 
 bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int &count,int read_or_write)
 {
-    // static int send_cnt =0;
-    // boost::asio::deadline_timer cicle_timer_(io_service);
-    //  cicle_timer_.expires_from_now(boost::posix_time::millisec(time_out_));
+
 
     if(read_or_write==1)
     {
-        // update command set  data from embedded system
-        if (hflink_command_set_[command] != 0)
-        {
-
-            int cnt = count % 100;
-            if (cnt %  (50 / hflink_freq_[command]) == 0)
-            {
-                    sendCommandModbus(command);
-
-            } else
-            {
-                // skip this package
-                return false;
-            }
-        }
-        //first modify *******************
+         sendCommandModbus(command);
          readCommandModbus1(command);
     }
     else if(read_or_write==0)
     {
-        // update command set  data from embedded system
-        if (hflink_command_set_[command] != 0)
-        {
-            int cnt = count % 100;
-            if (cnt %  (50 / hflink_freq_[command]) == 0)
-            {
-                //  std::cerr<<" cnt ="<<cnt<<std::endl;
-                 sendCommandModbus(command);
-            } 
-            else
-            {
-                // skip this package
-                return false;
-            }
-        }
 
-        //first modify *******************
+        sendCommandModbus(command);
         readCommandModbus0(command);
     }
 
