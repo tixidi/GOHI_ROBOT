@@ -7,28 +7,40 @@
  {
 	// if(msg->brake_config==1)
 	{
-		if( msg.relay5)
-		    relay_state  |=  msg.relay5 << 5;
-		else 
-			if(relay_state & 0x20){
-		    	relay_state  = relay_state -0x20;
-			}
-		
-		if( msg.relay6)
-		    relay_state  |= msg.relay6 << 6;
-		else 
-		    if(relay_state & 0x40){
-		    	relay_state  = relay_state -0x40;
-			}
-		// std::cerr << (int)relay_state << std::endl;	
+		// std::cerr<< (uint8_t)msg.relay_state << std::endl;
+		switch(msg.relay_state){
+			case 0x80:
+				 relay_state  |=  (unsigned char)1 << 7;
+				//  std::cerr<< "0x80" << std::endl;
+				 break;
+			case 0x40:
+				 relay_state  |= (unsigned char)1 << 6;
+				//  std::cerr<< "0x40" << std::endl;
+				 break;
+			case 0x20:
+				relay_state  |= (unsigned char)1 << 5;
+				// std::cerr<< "0x20" << std::endl;
+				break;
+			case 0x60: 
+				if(relay_state & 0x80){
+		    		relay_state  = relay_state -0x80;
+				}
+				// std::cerr<< "0x60" << std::endl;
+				break;
+			case 0xa0:
+				if(relay_state & 0x40){
+		    		relay_state  = relay_state -0x40;
+				}
+				// std::cerr<< "0xa0" << std::endl;
+				break;
+			case 0xc0:
+				if(relay_state & 0x20){
+		    		relay_state  = relay_state -0x20;
+				}
+				// std::cerr<< "0xc0" << std::endl;
+				break;
 
-		if( msg.relay7)
-		  relay_state  |=  msg.relay7 << 7;
-		else 
-		 if(relay_state & 0x80){
-		    	relay_state  = relay_state -0x80;
-			}
-		
+		}
 	}	
 							  
  }
@@ -41,7 +53,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		nh_.setCallbackQueue(&queue_);
         base_mode_ = "2diff-wheel";
 		with_arm_ = false;
-		controller_freq_ = 100;
+		controller_freq_ = 50;  //默认 100
 		idcard_write_flag=0;
 		nh_.getParam("base_mode", base_mode_);
 		nh_.getParam("with_arm", with_arm_);
