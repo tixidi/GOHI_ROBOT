@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/wb/gohi_ws/devel/include",
+                "/opt/ros/kinetic/include",
+                "/home/wb/gohi_ws/src/GOHI_ROBOT/flat_car/flat_car_base_simple_controller/include",
+                "/home/wb/gohi_ws/src/GOHI_ROBOT/flat_car/gohi_hw_flat_car/include",
+                "/home/wb/gohi_ws/src/GOHI_ROBOT/power_car/gohi_hw_power_car/include",
+                "/home/wb/gohi_ws/src/GOHI_ROBOT/dtu/gohi_hw_rev/include",
+                "/home/wb/gohi_ws/src/GOHI_ROBOT/sensor/gohi_hw_sensor/include",
+                "/home/wb/gohi_ws/src/GOHI_ROBOT/stair_car/gohi_hw_stair_car/include",
+                "/home/wb/gohi_ws/src/GOHI_ROBOT/sick_laser/sick_test/include",
+                "/home/wb/gohi_ws/src/opencvtest/include",
+                "/home/wb/gohi_ws/src/GOHI_ROBOT/power_car/power_car_base_simple_controller/include",
+                "/home/wb/gohi_ws/src/GOHI_ROBOT/stair_car/stair_car_base_simple_controller/include",
+                "/home/wb/gohi_ws/src/usb_cam/include",
+                "/usr/include"
+            ],
+            "name": "Linux",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}

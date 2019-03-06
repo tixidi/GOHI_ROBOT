@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/wb/sick_link/devel/include",
+                "/home/wb/realsense/devel/include",
+                "/home/wb/catkin_ws/devel/include",
+                "/home/wb/gohi_ws/devel/include",
+                "/opt/ros/kinetic/include",
+                "/home/wb/sick_link/src/sick_test/sick_test/include",
+                "/usr/include"
+            ],
+            "name": "Linux",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}
