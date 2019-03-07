@@ -62,7 +62,9 @@ struct ObstacleField
 };
 
 
-struct ObstacleField obstacle_msg={0.5,0,180,1,0.5,0.0};//0~185 为120视角,这里是60度
+// struct ObstacleField obstacle_msg={0.5,-45,225,1,0.5,0.0};//-45~225 为270视角
+struct ObstacleField obstacle_msg={0.5,45,135,1,0.5,0.0};//45~135 为120视角,这里是60度
+
 
 
 
@@ -238,31 +240,31 @@ void Display(void)
    	glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
   	glVertex2f(0.0f, 0.0f);
  
-    for (int i = int(obstacle_msg.startAngle/obstacle_msg.angleResolution);
-             i < int(obstacle_msg.stopAngle/obstacle_msg.angleResolution); i++)
-    {
+  //   for (int i = int(obstacle_msg.startAngle/obstacle_msg.angleResolution);
+  //            i < int(obstacle_msg.stopAngle/obstacle_msg.angleResolution); i++)
+  //   {
    
-          float tempDist=data.dist1[i] * 0.001; 
+  //         float tempDist=data.dist1[i] * 0.001; 
         
-		      pos_x =(cos((i*0.5) *DEG2RAD + theta)*tempDist);
-		      pos_y =(sin((i*0.5) *DEG2RAD + theta)*tempDist);
+	// 	      pos_x =(cos((i*0.5) *DEG2RAD + theta)*tempDist);
+	// 	      pos_y =(sin((i*0.5) *DEG2RAD + theta)*tempDist);
 
         
-          if(tempDist<obstacle_msg.warnRange)      glColor3f(0.0f, 1.0f, 0.0f);
-          else if(tempDist<obstacle_msg.safeRange) glColor3f(1.0f, 1.0f, 0.0f); 
-          else                                     glColor3f(1.0f, 1.0f, 1.0f);
+  //         if(tempDist<obstacle_msg.warnRange)      glColor3f(0.0f, 1.0f, 0.0f);
+  //         else if(tempDist<obstacle_msg.safeRange) glColor3f(1.0f, 1.0f, 0.0f); 
+  //         else                                     glColor3f(1.0f, 1.0f, 1.0f);
 		
 
 
-		      glVertex2f(pos_x/scale, pos_y/scale);
+	// 	      glVertex2f(pos_x/scale, pos_y/scale);
           
-          glBegin(GL_LINES);
+  //         glBegin(GL_LINES);
 
-          glVertex2f(0.0f,0.0f);
-          glVertex2f(pos_x/scale, pos_y/scale);
-          glEnd();
+  //         glVertex2f(0.0f,0.0f);
+  //         glVertex2f(pos_x/scale, pos_y/scale);
+  //         glEnd();
          
-	} 
+	// } 
 
     glEnd();
     glFlush();
@@ -278,44 +280,40 @@ void checkObstacle(float Tdegree,float Tradius)
 
 void myIdle(void)
 {
+      float tempDist;
       cout<<"Reading scan data."<<endl;
       if (laser.getScanData(&data))
        {
 
+        int startScanPos=int((obstacle_msg.startAngle+45)/obstacle_msg.angleResolution);
+        int endScanPos=int((obstacle_msg.stopAngle+45)/obstacle_msg.angleResolution);
+        cout<<"the startScanPos "<< startScanPos<<endl;
+        cout<<"the endScanPos "<< endScanPos<<endl;
+        cout<<"the dist_len1 "<< data.dist_len1<<endl;
         
      
-        
-        for (int i = 0;i < data.dist_len1 ;i++)
+        maxValue=0.0;
+        for (int i = 0;i <data.dist_len1 ;i++)
         {
    
-          float tempDist=data.dist1[i]; 
-          //   // if(i==180)    cout<<"the num "<< i<<" the value " << tempDist <<endl;
-          cout<<"the num "<< i<<" the value "  <<tempDist<<endl;
-          // sick_range_.data[i]=tempDist;
-          // if(tempDist>=maxValue) maxValue=tempDist;
+          if((i>=startScanPos)&&(i<=endScanPos)) 
+          {
+            tempDist=data.dist1[i]; 
+            cout<<"the num "<< i<<" the value "  <<tempDist<<endl;
+            if(tempDist>=maxValue) maxValue=tempDist;
+            // sick_range_.data[i-startScanPos]=tempDist;
+          } 
 
-       //   checkObstacle(i*0.5,tempDist);
+        // sick_data_publisher_.publish(sick_range_); 
+        if(maxValue==0.0) maxValue=1.0;    
+        obstacle_msg.maxRange=maxValue;
+        // cout<< "the max value"<<maxValue<<endl;
+            
+        //  checkObstacle(i*0.5,tempDist);
           
 	     }
-      
-         maxValue=0.0;
-        for (int i = int(obstacle_msg.startAngle/obstacle_msg.angleResolution);
-                 i < int(obstacle_msg.stopAngle/obstacle_msg.angleResolution); i++)
-        {
-   
-          float tempDist=data.dist1[i]; 
-            // if(i==180)    cout<<"the num "<< i<<" the value " << tempDist <<endl;
-          cout<<"the num "<< i<<" the value " << tempDist <<endl;
-          sick_range_.data[i]=tempDist;
-          // if(tempDist>=maxValue) maxValue=tempDist;
 
-       //   checkObstacle(i*0.5,tempDist);
-          
-	    }
-      // sick_data_publisher_.publish(sick_range_); 
-      //  if(maxValue==0.0) maxValue=1.0;    
-      //  obstacle_msg.maxRange=maxValue;
-      //  cout<< "the max value"<<maxValue<<endl;
+
       }
       else
       {
