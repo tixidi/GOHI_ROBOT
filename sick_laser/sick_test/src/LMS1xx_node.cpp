@@ -63,8 +63,7 @@ struct ObstacleField
 
 
 // struct ObstacleField obstacle_msg={0.5,-45,225,1,0.5,0.0};//-45~225 为270视角
-struct ObstacleField obstacle_msg={0.5,45,135,1,0.5,0.0};//45~135 为120视角,这里是60度
-
+struct ObstacleField obstacle_msg={0.5,30,150,1,0.5,0.0};//30~150 为120视角
 
 
 

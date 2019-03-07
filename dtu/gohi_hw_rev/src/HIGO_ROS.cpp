@@ -266,7 +266,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		  }
 
 
-			higo_ap_.updateCommand(READ_INTERFACE_CAR1_SPEED_CONTROL, count,2);//射频传感器读卡
+			// higo_ap_.updateCommand(READ_INTERFACE_CAR1_SPEED_CONTROL, count,2);//射频传感器读卡
 			//----------------------------------------------------
 			readBufferUpdate();
 

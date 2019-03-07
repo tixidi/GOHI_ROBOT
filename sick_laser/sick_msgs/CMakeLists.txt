@@ -9,11 +9,6 @@ find_package(catkin REQUIRED COMPONENTS
 
  add_message_files(
    FILES
-   robot_state.msg
-   roll_config.msg 
-   stair_config.msg
-   idcard_write_config.msg
-   idcard_read_config.msg
    laser_range_config.msg
    robot_desire_point_config.msg
    sick_range.msg
