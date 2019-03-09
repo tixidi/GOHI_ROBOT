@@ -152,7 +152,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 			}
 			command_switch_counts++;
-            // higo_ap_.updateRobot(); //不能放在主程序里面
+             higo_ap_.updateRobot(); //不能放在主程序里面
 		
 			readBufferUpdate();
 

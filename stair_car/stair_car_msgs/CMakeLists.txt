@@ -20,8 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
    laser_range_config1.msg 
    flat_car_state.msg
    brake_config.msg
-
-
+   relay_state.msg
    #parameters.msg
  )
 

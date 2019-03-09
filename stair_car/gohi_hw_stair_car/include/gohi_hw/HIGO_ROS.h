@@ -26,6 +26,7 @@
 #include <stair_car_msgs/roll_config.h>
 #include <stair_car_msgs/stair_config.h>
 #include <stair_car_msgs/brake_config.h>
+#include <stair_car_msgs/relay_state.h>
 
 // for ros headers
 #include <ros/ros.h>
@@ -48,10 +49,18 @@ public:
 	HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr);
     double getFreq()const
     {
-       	return controller_freq_;
+		
+      	return controller_freq_;
     }
 	void mainloop();
 	
+
+
+
+public:
+	unsigned char allow_set_stair_position_flag;  //松开刹车标志
+	unsigned char update_data_cmd;  //允许升降位置状态更新
+
 
 private:
 	//communication with embeded system
@@ -60,6 +69,7 @@ private:
 	ros::CallbackQueue queue_;
 	// publish the robot state for diagnose system
 	ros::Publisher robot_state_publisher_;
+	ros::Publisher relay_state_publisher_;
 
 	ros::Subscriber stair_cmd_subscribe_;
 	ros::Subscriber roll_cmd_subscribe_;
@@ -83,6 +93,7 @@ private:
 
 	//hardware resource
 	stair_car_msgs::robot_state robot_state;
+	stair_car_msgs::relay_state relay_state;
 	stair_car_msgs::roll_config roll_config ;
 	stair_car_msgs::stair_config stair_config;
 	stair_car_msgs::brake_config brake_config;

@@ -2,12 +2,34 @@
 
  void HIGO_ROS::stair_cmd_callback(const stair_car_msgs::stair_configConstPtr& msg)
  {
-	std::cerr << "stair is  " << std::endl;
-    higo_ap_.getRobotAbstract()->motor_pos_comp_state.posComp3=0;
-	higo_ap_.getRobotAbstract()->stair_positionPhaseChange=msg->speed;
-	higo_ap_.getRobotAbstract()->stair_type=msg->type;
-	higo_ap_.getRobotAbstract()->stair_position=msg->position;
-								  
+	 if(update_data_cmd){
+		 // std::cerr << "stair is  " << std::endl;
+		if(higo_ap_.stair_position_temp == msg->position )
+		{
+			return;
+		}
+		else if((higo_ap_.stair_position_temp ==10.0)&&(msg->position>10.0))
+		{
+			return;
+		}
+		allow_set_stair_position_flag =1;
+		update_data_cmd =0;
+		higo_ap_.stair_position_complete_state =0;
+		if(msg->position > 10.0)
+		{
+			higo_ap_.getRobotAbstract()->motor_pos_comp_state.posComp3=0;
+			higo_ap_.getRobotAbstract()->stair_positionPhaseChange=msg->speed;
+			higo_ap_.getRobotAbstract()->stair_type=msg->type;
+			higo_ap_.getRobotAbstract()->stair_position=10.0;
+			return;
+		}
+		higo_ap_.getRobotAbstract()->motor_pos_comp_state.posComp3=0;
+		higo_ap_.getRobotAbstract()->stair_positionPhaseChange=msg->speed;
+		higo_ap_.getRobotAbstract()->stair_type=msg->type;
+		higo_ap_.getRobotAbstract()->stair_position=msg->position;
+	 }
+	
+									  
  }
 
 
@@ -44,6 +66,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		nh_.getParam("with_arm", with_arm_);
 		nh_.getParam("freq", controller_freq_);
 		robot_state_publisher_ = nh_.advertise<stair_car_msgs::robot_state>("stair_car_robot_state", 10);
+		relay_state_publisher_ = nh_.advertise<stair_car_msgs::relay_state>("/relay_state_cmd", 1000);  //发布控制继电器命令
 		stair_cmd_subscribe_ = nh_.subscribe("/stair_car_mobile_base/stair_controller/cmd_vel", 1,  &HIGO_ROS::stair_cmd_callback, this);
 		roll_cmd_subscribe_ = nh_.subscribe("/stair_car_mobile_base/roll_controller/cmd_vel", 1,  &HIGO_ROS::roll_cmd_callback, this);
 		brake_cmd_subscribe_ = nh_.subscribe("/stair_car_mobile_base/brake_cmd", 1,  &HIGO_ROS::brake_cmd_callback, this);
@@ -114,8 +137,8 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		ros::Time currentTime = ros::Time::now();
 
         static int command_switch_counts=0;
-
-
+		allow_set_stair_position_flag =0;
+		update_data_cmd =1;
 
 
 		while (ros::ok())
@@ -130,6 +153,18 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 						higo_ap_.updateCommand(READ_MOT3_REAL_POSITION, count,0);	       
 						break;
 				case 1:		
+						if(higo_ap_.stair_position_complete_state)
+						{
+						    update_data_cmd =1;
+							relay_state.relay_state =STAIR_RELAY6_ON;
+							relay_state_publisher_.publish(relay_state);
+						}
+						if(allow_set_stair_position_flag)
+						{
+							allow_set_stair_position_flag =0;
+							relay_state.relay_state =STAIR_RELAY6_OFF;
+							relay_state_publisher_.publish(relay_state);
+						}
 						higo_ap_.updateCommand(READ_CAR2_MOTOR3_COMPLETE_STATE, count,0);	
 				    	break;
 						

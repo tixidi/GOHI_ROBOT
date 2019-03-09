@@ -115,6 +115,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
 
     case READ_CAR2_MOTOR3_COMPLETE_STATE :
         analysis_state=readCommandAnalysis(command_state_ , (short int* )&robot->motor_pos_comp_state.posComp3 ,     sizeof(robot->motor_pos_comp_state.posComp3));
+        stair_position_complete_state_temp =(int)robot->motor_pos_comp_state.posComp3;  //first modify 
         std::cerr <<"get servo3 state  " <<(int)robot->motor_pos_comp_state.posComp3<<std::endl;
         if(robot->motor_pos_comp_state.posComp3)
         {
@@ -285,6 +286,7 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
         robot->ask_position_set.positiontype= robot->stair_type ;//rad
         robot->ask_position_set.position=robot->stair_position;
 
+        stair_position_temp_temp =robot->stair_position;  //first modify 
         // std::cerr <<"stair ask  positionPhaseChange " <<robot->ask_position_set.positionPhaseChange <<std::endl;
         // std::cerr <<"stair ask  type " <<robot->ask_position_set.positiontype <<std::endl;
         // std::cerr <<"stair ask  position " <<robot->ask_position_set.position <<std::endl;

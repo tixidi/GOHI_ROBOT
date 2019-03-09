@@ -45,7 +45,9 @@ public:
     }
 
 
-
+public:
+      unsigned char stair_position_complete_state;
+      float stair_position_temp;
 private:
 //first modify *************************
     // boost::shared_ptr<Transport> port_;
@@ -131,7 +133,8 @@ private:
                         
                         }else if(command == READ_CAR2_MOTOR3_COMPLETE_STATE)
                         {
-                        std::cerr<<"the "<< time_out_count<<" count's "<<"READ_CAR2_MOTOR3_COMPLETE_STATE   receive ok"<<std::endl;
+                            stair_position_complete_state =hflinkmodbus_->stair_position_complete_state_temp;
+                        //  std::cerr<<"the "<< time_out_count<<" count's "<<"READ_CAR2_MOTOR3_COMPLETE_STATE   receive ok"<<std::endl;
                         
                         } 
                     // one package ack arrived  
@@ -195,7 +198,7 @@ private:
                 {
                     if(command == SET_CAR2_POSITION_CONTROL)
                     {
-                           
+                       stair_position_temp =hflinkmodbus_->stair_position_temp_temp;
                     std::cerr<<"the "<< time_out_count<<" count's "<<"SET_CAR2_POSITION_CONTROL write receive ok  "<<std::endl;
                     }
                     else if(command == SET_CAR2_SPEED_CONTROL)

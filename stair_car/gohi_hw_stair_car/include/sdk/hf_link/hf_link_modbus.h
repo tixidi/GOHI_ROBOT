@@ -72,6 +72,18 @@ enum ModbusCommandCode{
     WRITE_MORE_REG=0x10
 };
 
+
+//控制继电器通断的命令
+enum RelayControlCmd{
+    RELAY5_ON  =0X20,
+    STAIR_RELAY6_ON  =0X40,
+    RELAY7_ON  =0X80,
+    RELAY5_OFF  =0Xc0,
+    STAIR_RELAY6_OFF =0Xa0,
+    RELAY7_OFF  =0X60,
+};
+
+
 enum ModbusCommandRegAddr{
     READ_ERROR_STATE_ADDR=0x0033,
     READ_MOT_SPEED_ADDR=0x0022,
@@ -145,6 +157,9 @@ public:
         write_analysis_package_count=0;
         read_analysis_package_count=0;
         command_state_ = READ_MOT1_ERROR_STATE;
+
+        stair_position_temp_temp =0;
+        stair_position_complete_state_temp =0;
     }
 
 public:  
@@ -173,6 +188,9 @@ public:
 
 
 
+public: 
+     float stair_position_temp_temp;
+     unsigned char stair_position_complete_state_temp;
 public:  
     //common
     unsigned char byteAnalysisCall(const unsigned char rx_byte);  

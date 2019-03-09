@@ -63,7 +63,8 @@ private:
 	// publish the robot state for diagnose system
 	ros::Publisher robot_state_publisher_;
 
-	ros::Publisher robot_cmd_publisher_;
+	ros::Publisher flat_cmd_publisher_;
+	ros::Publisher power_cmd_publisher_;
 	ros::Publisher stair_cmd_publisher_;
 	ros::Publisher roll_cmd_publisher_;
 

@@ -103,9 +103,10 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		nh_.getParam("freq", controller_freq_);
 	
 //      public more topics
-		robot_cmd_publisher_ = nh_.advertise<geometry_msgs::Twist>("/mobile_base/mobile_base_controller/cmd_vel", 1000);
-		stair_cmd_publisher_ = nh_.advertise<gohi_hw_rev_msgs::stair_config>("/mobile_base/stair_controller/cmd_vel", 1000);
-		roll_cmd_publisher_ = nh_.advertise<gohi_hw_rev_msgs::roll_config>("/mobile_base/roll_controller/cmd_vel", 1000);
+		power_cmd_publisher_ = nh_.advertise<geometry_msgs::Twist>("/power_car_mobile_base/power_car_mobile_base_controller/cmd_vel", 1000);
+		flat_cmd_publisher_ = nh_.advertise<geometry_msgs::Twist>("/flat_car_mobile_base/flat_car_mobile_base_controller/cmd_vel", 1000);
+		stair_cmd_publisher_ = nh_.advertise<gohi_hw_rev_msgs::stair_config>("/stair_car_mobile_base/stair_controller/cmd_vel", 1000);
+		roll_cmd_publisher_ = nh_.advertise<gohi_hw_rev_msgs::roll_config>("/stair_car_mobile_base/roll_controller/cmd_vel", 1000);
 		idcard_write_config_publisher_ = nh_.advertise<gohi_hw_rev_msgs::idcard_write_config>("/idcard_write_config/cmd", 1000);
 		laser_range_config_publisher_ = nh_.advertise<gohi_hw_rev_msgs::laser_range_config>("/laser_range_config/cmd", 1000);
 		robot_desire_point_config_publisher_ = nh_.advertise<gohi_hw_rev_msgs::robot_desire_point_config>("/robot_desire_point_config/cmd", 1000);
@@ -130,8 +131,8 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 	void HIGO_ROS::mainloop()
 	{
 		ros::CallbackQueue cm_callback_queue;
-	    geometry_msgs::Twist twist;
-
+	    geometry_msgs::Twist flat_twist;
+		geometry_msgs::Twist power_twist;
 		ros::NodeHandle cm_nh("mobile_base1");
 		cm_nh.setCallbackQueue(&cm_callback_queue);
 		controller_manager::ControllerManager cm(this, cm_nh);
@@ -152,16 +153,23 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		  {
 			  	higo_ap_.getRobotAbstract()->receive_package_flag=0;
 				higo_ap_.updateCommand(READ_INTERFACE_CAR1_SPEED_CONTROL, count,3);//回传应答
-				twist.linear.x = (float)higo_ap_.getRobotAbstract()->car1_speed_config.x_speed/100.0 ;
-				twist.linear.y = (float)higo_ap_.getRobotAbstract()->car1_speed_config.y_speed/100.0;
-				twist.linear.z = 0;
-				twist.angular.x = 0;
-				twist.angular.y = 0;
-				twist.angular.z = (float)higo_ap_.getRobotAbstract()->car1_speed_config.z_speed/100.0;
-        		std::cerr <<"car1 interface x_speed  " <<twist.linear.x <<std::endl; 
-        		std::cerr <<"car1 interface y_speed  " <<twist.linear.y <<std::endl; 
-        		std::cerr <<"car1 interface z_speed  " <<twist.angular.z<<std::endl; 				
-				robot_cmd_publisher_.publish(twist);
+				flat_twist.linear.x = (float)higo_ap_.getRobotAbstract()->car1_speed_config.x_speed/100.0 ;
+				flat_twist.linear.y = 0;
+				flat_twist.linear.z = 0;
+				flat_twist.angular.x = 0;
+				flat_twist.angular.y = 0;
+				flat_twist.angular.z = (float)higo_ap_.getRobotAbstract()->car1_speed_config.z_speed/100.0;
+        		std::cerr <<"car1 interface x_speed  " <<flat_twist.linear.x <<std::endl; 
+        		std::cerr <<"car1 interface y_speed  " <<flat_twist.linear.y <<std::endl; 
+        		std::cerr <<"car1 interface z_speed  " <<flat_twist.angular.z<<std::endl; 				
+				power_cmd_publisher_.publish(flat_twist);
+				power_twist.linear.x = -(float)higo_ap_.getRobotAbstract()->car1_speed_config.x_speed/100.0 ;
+				power_twist.linear.y = 0;
+				power_twist.linear.z = 0;
+				power_twist.angular.x = 0;
+				power_twist.angular.y = 0;
+				power_twist.angular.z = (float)higo_ap_.getRobotAbstract()->car1_speed_config.z_speed/100.0;
+				flat_cmd_publisher_.publish(power_twist);
 		  }
 		  //car3 position control
 		  else  if(higo_ap_.getRobotAbstract()->receive_package_flag==3)
@@ -266,7 +274,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		  }
 
 
-			// higo_ap_.updateCommand(READ_INTERFACE_CAR1_SPEED_CONTROL, count,2);//射频传感器读卡
+			higo_ap_.updateCommand(READ_INTERFACE_CAR1_SPEED_CONTROL, count,2);//射频传感器读卡
 			//----------------------------------------------------
 			readBufferUpdate();
 
