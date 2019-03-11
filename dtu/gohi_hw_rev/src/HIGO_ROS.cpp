@@ -101,7 +101,6 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		nh_.getParam("base_mode", base_mode_);
 		nh_.getParam("with_arm", with_arm_);
 		nh_.getParam("freq", controller_freq_);
-	
 //      public more topics
 		power_cmd_publisher_ = nh_.advertise<geometry_msgs::Twist>("/power_car_mobile_base/power_car_mobile_base_controller/cmd_vel", 1000);
 		flat_cmd_publisher_ = nh_.advertise<geometry_msgs::Twist>("/flat_car_mobile_base/flat_car_mobile_base_controller/cmd_vel", 1000);
@@ -162,14 +161,14 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
         		std::cerr <<"car1 interface x_speed  " <<flat_twist.linear.x <<std::endl; 
         		std::cerr <<"car1 interface y_speed  " <<flat_twist.linear.y <<std::endl; 
         		std::cerr <<"car1 interface z_speed  " <<flat_twist.angular.z<<std::endl; 				
-				power_cmd_publisher_.publish(flat_twist);
-				power_twist.linear.x = -(float)higo_ap_.getRobotAbstract()->car1_speed_config.x_speed/100.0 ;
+				flat_cmd_publisher_.publish(flat_twist);
+				power_twist.linear.x = (float)higo_ap_.getRobotAbstract()->car1_speed_config.x_speed/100.0 ;
 				power_twist.linear.y = 0;
 				power_twist.linear.z = 0;
 				power_twist.angular.x = 0;
 				power_twist.angular.y = 0;
 				power_twist.angular.z = (float)higo_ap_.getRobotAbstract()->car1_speed_config.z_speed/100.0;
-				flat_cmd_publisher_.publish(power_twist);
+				power_cmd_publisher_.publish(power_twist);
 		  }
 		  //car3 position control
 		  else  if(higo_ap_.getRobotAbstract()->receive_package_flag==3)

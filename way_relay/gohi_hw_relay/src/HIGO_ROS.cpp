@@ -91,12 +91,12 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 		static int command_switch_counts=0;
 		int count = 0;
-		relay_state =0x00;  //默认高三位为000   1表示ON   0表示off   每一位对应一个继电器
+		relay_state =0xe0;  //默认高三位为000   1表示ON   0表示off   每一位对应一个继电器
 		ros::Time currentTime = ros::Time::now();
 		while (ros::ok())
 		{	  
 
-			switch(command_switch_counts%4)
+			switch(command_switch_counts%3)
 			{
 				case 0:
 					higo_ap_.updateCommand(SET_RELAY5_STATE, count,0,relay_state);//38
@@ -107,13 +107,13 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 				case 2:
 					higo_ap_.updateCommand(SET_RELAY7_STATE, count,0,relay_state);//38
 					break;
-				case 3:
-					higo_ap_.updateCommand(READ_BMS_REG_DATA, count, 2);
-					bms_state_.voltage=1;
-					bms_state_.current=1;
-					bms_state_.percentage=higo_ap_.publish_data;
-					bms_state_publisher_.publish(bms_state_);		 
-					break;
+				// case 3:
+				// 	higo_ap_.updateCommand(READ_BMS_REG_DATA, count, 2);
+				// 	bms_state_.voltage=1;
+				// 	bms_state_.current=1;
+				// 	bms_state_.percentage=higo_ap_.publish_data;
+				// 	bms_state_publisher_.publish(bms_state_);		 
+				// 	break;
 
 			}
 			command_switch_counts++;

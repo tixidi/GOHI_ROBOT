@@ -23,7 +23,7 @@ HIGO_AP::HIGO_AP(std::string url, std::string config_addr)
     if (url == "tcp")
     {
        // boost::asio::io_service io_service;
-	    tcp::endpoint endpoint(address::from_string("192.168.0.206"), 502);
+	    tcp::endpoint endpoint(address::from_string("192.168.0.202"), 502);
 
         // 直接从 new 操作符的返回值构造
 	    client_ptr new_session(new client(io_service, endpoint));
@@ -32,6 +32,7 @@ HIGO_AP::HIGO_AP(std::string url, std::string config_addr)
         client_tcp_=new_session;
         read_time_out_ =15;//default 500
         write_time_out_ =10;
+        time_out_ =10;
         stair_position_complete_state =0;
         stair_position_temp =0;
         hflinkmodbus_ = boost::make_shared<HFLink_Modbus>(&my_robot_  , 0x01 , 0x11);
@@ -77,6 +78,20 @@ void HIGO_AP::timeoutHandler(const boost::system::error_code &ec)
 
 
 
+bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int count,int read_or_write,int relay_on_or_off)
+{
+    boost::asio::deadline_timer cicle_timer_(io_service);
+    cicle_timer_.expires_from_now(boost::posix_time::millisec(time_out_));
+    if(read_or_write==0)
+    {
+        
+        sendCommandModbus(command,relay_on_or_off);
+        //first modify ************************
+        readCommandModbus0();
+    }
+
+    return true;
+}
 
 
 
@@ -98,3 +113,86 @@ bool HIGO_AP::updateCommand(const MotorModbusCommand &command, int &count,int re
 
     return true;
 }
+bool HIGO_AP::dataAnalysisCall(uint16_t rx_data)
+{ 
+    static int modbus_receive_state_ =0;
+    if(modbus_receive_state_==0)
+    {
+        if (rx_data == send_data_buf[modbus_receive_state_])//get slave addr
+        {
+                modbus_receive_state_ = 1;
+        }
+    }
+    else if(modbus_receive_state_==1)
+    {
+        if (rx_data == send_data_buf[modbus_receive_state_])
+        {
+            modbus_receive_state_ = 2;
+        }
+        else 
+        {    
+            modbus_receive_state_ = 0;
+        }
+    } 
+    else if(modbus_receive_state_==2)
+    {
+        if (rx_data == send_data_buf[modbus_receive_state_])
+        {
+            modbus_receive_state_ = 3;
+        }
+        else
+            modbus_receive_state_ = 0;
+    }
+    else if(modbus_receive_state_==3)
+    {                                  
+        if (rx_data == send_data_buf[modbus_receive_state_])
+        {
+            modbus_receive_state_ = 4;
+        }
+        else
+            modbus_receive_state_ = 0;
+    }
+    else if(modbus_receive_state_==4)
+    {          
+        if (rx_data == send_data_buf[modbus_receive_state_])
+        {
+            modbus_receive_state_ = 5;
+            //  std::cerr<<"55"<<std::endl;
+        }
+        else
+        modbus_receive_state_ = 0;
+    }
+    else if(modbus_receive_state_==5)
+    {          
+        if (rx_data == send_data_buf[modbus_receive_state_])
+        {
+            modbus_receive_state_ = 6;
+            //  std::cerr<<"55"<<std::endl;
+        }
+        else
+        modbus_receive_state_ = 0;
+    }
+    else if(modbus_receive_state_==6)
+    {          
+        if (rx_data == send_data_buf[modbus_receive_state_])
+        {
+            modbus_receive_state_ = 7;
+            //  std::cerr<<"55"<<std::endl;
+        }
+        else
+        modbus_receive_state_ = 0;
+    }
+    else if(modbus_receive_state_==7)
+    {          
+        if (rx_data == send_data_buf[modbus_receive_state_])
+        {
+            modbus_receive_state_ =0;
+            return 1;
+            //  std::cerr<<"55"<<std::endl;
+        }
+        else
+        modbus_receive_state_ = 0;
+    }
+    return 0;
+}
+

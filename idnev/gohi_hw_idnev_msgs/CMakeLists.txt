@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
    idcard_write_config.msg
    idcard_read_config.msg
    idnev_state.msg
-
+  stair_config.msg
 
    #parameters.msg
  )

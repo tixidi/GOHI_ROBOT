@@ -70,7 +70,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
 
     float  pid_t  =0.1;
 
-    float per_meter_odometry = 0;
+    // float per_meter_odomey = 0;
     float meter_flag = 0;
 
     if(robot == NULL){
@@ -86,6 +86,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
         else if(rx_message.slave_reg_addr==READ_MOT_POSITION_ADDR)               command_state_=READ_MOT3_REAL_POSITION;         
         else if(rx_message.slave_reg_addr==SET_BRAKE_STATE_ADDR)                 command_state_=SET_MOT3_BRAKE_STATE;
         else if(rx_message.slave_reg_addr==SET_MOT_POSITION_ADDR)                command_state_=SET_CAR2_POSITION_CONTROL;
+        else if(rx_message.slave_reg_addr==READ_POSITION_RESET_STATE_ADDR)       command_state_=READ_CAR2_MOTER3_RESET_STATE;
         else                                                                     command_state_=LAST_COMMAND_FLAG_;
     }
     else if(rx_message.slave_addr==MOTOR4_ADDR)
@@ -116,11 +117,22 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
     case READ_CAR2_MOTOR3_COMPLETE_STATE :
         analysis_state=readCommandAnalysis(command_state_ , (short int* )&robot->motor_pos_comp_state.posComp3 ,     sizeof(robot->motor_pos_comp_state.posComp3));
         stair_position_complete_state_temp =(int)robot->motor_pos_comp_state.posComp3;  //first modify 
-        std::cerr <<"get servo3 state  " <<(int)robot->motor_pos_comp_state.posComp3<<std::endl;
+        // std::cerr <<"get servo3 state  " <<(int)robot->motor_pos_comp_state.posComp3<<std::endl;
         if(robot->motor_pos_comp_state.posComp3)
         {
             robot->motor_pos_comp_state.posComp3=0;
             robot->stair_positionPhaseChange=0;                
+        }
+
+
+        break;
+    case READ_CAR2_MOTER3_RESET_STATE :
+        analysis_state=readCommandAnalysis(command_state_ , (short int* )&robot->stair_SQ_reset_state , sizeof(robot->stair_SQ_reset_state ));
+        stair_reset_SQ_state_temp  =robot->stair_SQ_reset_state;
+        // std::cerr <<"READ_CAR2_MOTOR3_RESET_STATE " <<(int)robot->stair_SQ_reset_state<<std::endl;
+        if(robot->stair_SQ_reset_state)
+        {
+            robot->stair_SQ_reset_state=0;             
         }
 
 
@@ -144,7 +156,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
 
         //calc motor speed  degree/s
         robot->ask_measure_motor_speed.servo3=   robot->ask_measure_motor_position_dif.position3 * 360 / ( per_circle_position*pid_t )*degree_to_radian;
-        std::cerr <<"get servo3 speed  " <<robot->ask_measure_motor_speed.servo3<<std::endl;
+        // std::cerr <<"get servo3 speed  " <<robot->ask_measure_motor_speed.servo3<<std::endl;
         break;
     case READ_MOT4_REAL_POSITION :      
         // d_past_angle[1] =0;            
@@ -159,7 +171,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
 
         //calc motor speed  degree/s
         robot->ask_measure_motor_speed.servo4=   robot->ask_measure_motor_position_dif.position4 * 360 / ( per_circle_position1*pid_t )*degree_to_radian;
-        std::cerr <<"get servo4 speed  " <<robot->ask_measure_motor_speed.servo4<<std::endl;
+        // std::cerr <<"get servo4 speed  " <<robot->ask_measure_motor_speed.servo4<<std::endl;
         break;
 
 
@@ -200,6 +212,47 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
     return analysis_state;
 }
 
+
+
+unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_state,int relay_on_or_off)
+{
+   void *single_command;
+   short int v_speed = 1 ;//(m/s)
+   float  per_circle_position1 =(360/120)*8*18;
+
+   receive_package_renew[(unsigned char)command_state] = 0 ;
+
+
+    switch (command_state)
+    {
+        case SET_RELAY5_STATE:  //设置继电器状态
+            // std::cerr<<"into relay5"<<std::endl;
+            if(relay_on_or_off & 0x20){
+                sendStruct(SET_RELAY5_ADDR , WRITE_RELAY_REG_ON,SET_RELAY5_REG_ADDR,(unsigned char *)single_command , 0);           
+            }else
+                sendStruct(SET_RELAY5_ADDR , WRITE_RELAY_REG_OFF,SET_RELAY5_REG_ADDR,(unsigned char *)single_command , 0);     
+            break; 
+        case SET_RELAY6_STATE:  //设置继电器状态
+            // std::cerr<<"into relay6"<<std::endl;
+            if(relay_on_or_off & 0x40)
+                sendStruct(SET_RELAY6_ADDR , WRITE_RELAY_REG_ON,SET_RELAY6_REG_ADDR,(unsigned char *)single_command , 0);           
+            else 
+                sendStruct(SET_RELAY6_ADDR , WRITE_RELAY_REG_OFF,SET_RELAY6_REG_ADDR,(unsigned char *)single_command , 0);           
+            break; 
+        case SET_RELAY7_STATE:  //设置继电器状态
+            // std::cerr<<"into relay7"<<std::endl;
+            if(relay_on_or_off & 0x80)
+                sendStruct(SET_RELAY7_ADDR , WRITE_RELAY_REG_ON,SET_RELAY7_REG_ADDR,(unsigned char *)single_command , 0);           
+            else 
+                sendStruct(SET_RELAY7_ADDR , WRITE_RELAY_REG_OFF,SET_RELAY7_REG_ADDR,(unsigned char *)single_command , 0);  
+            break; 
+
+   default : // case SET_CAR5_SPEED_CONTROL :  
+
+        break;
+    } 
+    return 1;
+}
 /***********************************************************************************************************************
 * Function:    void HFLink::masterSendCommand(Command command)
 *
@@ -266,9 +319,13 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
 
 
     case READ_CAR2_MOTOR3_COMPLETE_STATE :
-        std::cerr <<"ask servo3 state " <<(int)robot->motor_pos_comp_state.posComp3<<std::endl;
+        // std::cerr <<"ask servo3 state " <<(int)robot->motor_pos_comp_state.posComp3<<std::endl;
         sendStruct(MOTOR3_ADDR , READ_REG,READ_POSITION_COMPLETE_STATE_ADDR,(unsigned char *)single_command , 0);              
-        break;        
+        break;  
+    case READ_CAR2_MOTER3_RESET_STATE :
+        // std::cerr <<"ask servo3 state " <<(int)robot->motor_pos_comp_state.posComp3<<std::endl;
+         sendStruct(MOTOR3_ADDR , READ_REG,READ_POSITION_RESET_STATE_ADDR,(unsigned char *)single_command , 0);              
+        break;      
     case READ_CAR2_MOTOR4_COMPLETE_STATE :
         sendStruct(MOTOR4_ADDR , READ_REG,READ_POSITION_COMPLETE_STATE_ADDR,(unsigned char *)single_command , 0);              
         break;
@@ -425,7 +482,13 @@ void HFLink_Modbus::sendStruct(const ModbusSlaveAddr slave_addr,const ModbusComm
         Request06(&tx_message);
 
         break;
-        
+    case WRITE_RELAY_REG_ON:
+        Request05(&tx_message);
+
+        break;
+    case WRITE_RELAY_REG_OFF:
+       Request00(&tx_message);
+        break;
     case WRITE_MORE_REG :
         Request16(&tx_message,len);
         break;

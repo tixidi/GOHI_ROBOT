@@ -150,7 +150,7 @@ public:
             {    
                 if (dataAnalysisCall((uint16_t)data[i]))
                 {
-                    // std::cerr << "read is ok"<<std::endl;
+                     std::cerr << "read is ok"<<std::endl;
                     // one package ack arrived  
                     ack_ready_ = true;         
                 }

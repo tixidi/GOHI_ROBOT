@@ -25,7 +25,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		nh_.setCallbackQueue(&queue_);
         base_mode_ = "2diff-wheel";
 		with_arm_ = false;
-		controller_freq_ = 100;
+		controller_freq_ = 10;
 		idcard_write_flag=0;
 		nh_.getParam("base_mode", base_mode_);
 		nh_.getParam("with_arm", with_arm_);

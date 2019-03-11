@@ -293,7 +293,6 @@ unsigned char HFLink_Modbus::readCommandAnalysis(const MotorModbusCommand comman
 
     return 1;
 }
-
 unsigned char HFLink_Modbus::setCommandAnalysis(const MotorModbusCommand command_state , unsigned char* p ,  unsigned short int len)
 { 
     if (hf_link_node_model == 1) 
@@ -380,5 +379,7 @@ void HFLink_Modbus::sendStruct(const ModbusSlaveAddr slave_addr,const ModbusComm
         break;
     }
 }
+
+
 
 

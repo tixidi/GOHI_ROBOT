@@ -289,6 +289,117 @@ void StateMachineModbus::Request03(const HFMessageModbus* tx_message_){
 
 }
 
+void StateMachineModbus::Request05(const HFMessageModbus* tx_message_){
+    unsigned short int CrcTemp;
+    //first modify       new 
+    if(tx_message_->slave_addr==0x05)
+    {
+        tx_buffer[0] =0X01;
+        tx_buffer[1] =0X05;
+        tx_buffer[2] =0X00;
+        tx_buffer[3] =tx_message_->slave_addr;
+        tx_buffer[4]=0xff;
+        tx_buffer[5]=0x00;
+
+        McMBCRC16(tx_buffer,6,&CrcTemp);
+        tx_buffer[6]=CrcTemp&0xFF;
+        tx_buffer[7]=CrcTemp>>8;
+        
+        send_message_count++;
+        tx_buffer_length =8;
+    }  
+    else if(tx_message_->slave_addr==0x06)
+    {
+        tx_buffer[0] =0X01;
+        tx_buffer[1] =0X05;
+        tx_buffer[2] =0X00;
+        tx_buffer[3] =tx_message_->slave_addr;
+        tx_buffer[4]=0xff;
+        tx_buffer[5]=0x00;
+
+        McMBCRC16(tx_buffer,6,&CrcTemp);
+        tx_buffer[6]=CrcTemp&0xFF;
+        tx_buffer[7]=CrcTemp>>8;
+        
+        send_message_count++;
+        tx_buffer_length =8;
+    }
+    else if(tx_message_->slave_addr==0x07)
+    {
+        tx_buffer[0] =0X01;
+        tx_buffer[1] =0X05;
+        tx_buffer[2] =0X00;
+        tx_buffer[3] =tx_message_->slave_addr;
+        tx_buffer[4]=0xff;
+        tx_buffer[5]=0x00;
+
+        McMBCRC16(tx_buffer,6,&CrcTemp);
+        tx_buffer[6]=CrcTemp&0xFF;
+        tx_buffer[7]=CrcTemp>>8;
+        
+        send_message_count++;
+        tx_buffer_length =8;
+    }
+    
+
+}
+
+
+
+void StateMachineModbus::Request00(const HFMessageModbus* tx_message_){
+    unsigned short int CrcTemp;
+    //first modify       new 
+    if(tx_message_->slave_addr==0x05)
+    {
+        tx_buffer[0] =0X01;
+        tx_buffer[1] =0X05;
+        tx_buffer[2] =0X00;
+        tx_buffer[3] =tx_message_->slave_addr;
+        tx_buffer[4]=0x00;
+        tx_buffer[5]=0x00;
+
+        McMBCRC16(tx_buffer,6,&CrcTemp);
+        tx_buffer[6]=CrcTemp&0xFF;
+        tx_buffer[7]=CrcTemp>>8;
+        
+        send_message_count++;
+        tx_buffer_length =8;
+    }  
+    else if(tx_message_->slave_addr==0x06)
+    {
+        tx_buffer[0] =0X01;
+        tx_buffer[1] =0X05;
+        tx_buffer[2] =0X00;
+        tx_buffer[3] =tx_message_->slave_addr;
+        tx_buffer[4]=0x00;
+        tx_buffer[5]=0x00;
+
+        McMBCRC16(tx_buffer,6,&CrcTemp);
+        tx_buffer[6]=CrcTemp&0xFF;
+        tx_buffer[7]=CrcTemp>>8;
+        
+        send_message_count++;
+        tx_buffer_length =8;
+    }
+    else if(tx_message_->slave_addr==0x07)
+    {
+        tx_buffer[0] =0X01;
+        tx_buffer[1] =0X05;
+        tx_buffer[2] =0X00;
+        tx_buffer[3] =tx_message_->slave_addr;
+        tx_buffer[4]=0x00;
+        tx_buffer[5]=0x00;
+
+        McMBCRC16(tx_buffer,6,&CrcTemp);
+        tx_buffer[6]=CrcTemp&0xFF;
+        tx_buffer[7]=CrcTemp>>8;
+        
+        send_message_count++;
+        tx_buffer_length =8;
+    }
+    
+}
+
 void StateMachineModbus::Request04(const HFMessageModbus* tx_message_){
     unsigned short int CrcTemp;
     if(tx_message_->slave_addr==0x70)         

@@ -83,7 +83,10 @@ private:
     int hflink_command_set_current_[LAST_COMMAND_FLAG_];
 
     float id_cmd_x_speed[LAST_ID_FLAG_];
-    float id_cmd_Rz[LAST_ID_FLAG_];    
+    float id_cmd_Rz[LAST_ID_FLAG_]; 
+    float id_cmd_stair_speed[LAST_ID_FLAG_];
+    float id_cmd_stair_type[LAST_ID_FLAG_]; 
+          
     int id_num[LAST_ID_FLAG_];
     float id_cmd_stair_position[LAST_ID_FLAG_];
     float id_cmd_roll_speed[LAST_ID_FLAG_];

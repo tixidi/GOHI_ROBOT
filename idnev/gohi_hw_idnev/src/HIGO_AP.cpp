@@ -44,12 +44,13 @@ HIGO_AP::HIGO_AP(std::string url, std::string config_addr,std::string idConfig_a
     file_.open(idConfig_addr.c_str(), std::fstream::in);
     if (file_.is_open())
     {
-        for (int i = 0; i < LAST_ID_FLAG_; i++)
+        for (int i = 0; i < 8; i++)
         {
             std::string temp;
             id_num[i] =i+1;  //ID number
-            file_ >> temp >> id_cmd_x_speed[i] >> id_cmd_Rz[i]>> id_cmd_stair_position[i]>>id_cmd_roll_speed[i];
-            std::cerr<< temp <<"   x ="<< id_cmd_x_speed[i] <<",RZ ="<< id_cmd_Rz[i]<<", stair position ="<<id_cmd_stair_position[i]<<", roll speed"<<id_cmd_roll_speed[i]<<std::endl;
+            file_ >> temp >> id_cmd_x_speed[i] >> id_cmd_Rz[i]>> id_cmd_stair_position[i]>>id_cmd_stair_speed[i]>>id_cmd_stair_type[i]>>id_cmd_roll_speed[i];
+            std::cerr<< temp <<"   x ="<< id_cmd_x_speed[i] <<",RZ ="<< id_cmd_Rz[i]<<", stair position ="<<id_cmd_stair_position[i]<<", roll speed"<<id_cmd_roll_speed[i] \
+                << ", stair speed ="<<id_cmd_stair_speed[i] << ", stair type ="<<id_cmd_stair_type[i] <<std::endl;
         }
         file_.close();
         // initialize_ok_ = port_->initialize_ok();
@@ -73,7 +74,7 @@ void HIGO_AP::timeoutHandler(const boost::system::error_code &ec)
 //first modify
 bool HIGO_AP::dataAnalysis(ID_Info &id_info_)
 {
-     for (int i = 0; i < LAST_ID_FLAG_; i++)
+     for (int i = 0; i < 8; i++)
     {
         if(id_info_.id_number==id_num[i])
         {
@@ -81,12 +82,14 @@ bool HIGO_AP::dataAnalysis(ID_Info &id_info_)
             id_info_.x_speed =id_cmd_x_speed[i];
             id_info_.Rz =id_cmd_Rz[i];
             id_info_.stair_position = id_cmd_stair_position[i];
+            id_info_.stair_speed =id_cmd_stair_speed[i];
+            id_info_.stair_type =id_cmd_stair_type[i];
             id_info_.roll_speed = id_cmd_roll_speed[i];
             return true;
              //function    
         }
     }
-    std::cerr<<"id number "<<id_info_.id_number<<"is not exist"<<id_info_.id_number<<std::endl;
+    // std::cerr<<"id number "<<id_info_.id_number<<"is not exist"<<id_info_.id_number<<std::endl;
     return false;
 }
 

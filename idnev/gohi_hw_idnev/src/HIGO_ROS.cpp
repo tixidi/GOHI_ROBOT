@@ -77,10 +77,10 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
        
 
            
-   		robot_cmd_publisher_ = nh_.advertise<geometry_msgs::Twist>("/flat_car_mobile_base/flat_car_mobile_base_controller/cmd_vel", 1000);//flat-car-cmd_vel
-		// stair_cmd_publisher_ = nh_.advertise<gohi_hw_rev_msgs::stair_config>("/mobile_base/stair_controller/cmd_vel", 1000);//stair-car-position-cmd_vel
+   		flat_cmd_publisher_ = nh_.advertise<geometry_msgs::Twist>("/flat_car_mobile_base/flat_car_mobile_base_controller/cmd_vel", 1000);//flat-car-cmd_vel
+	    stair_cmd_publisher_ = nh_.advertise<gohi_hw_idnev_msgs::stair_config>("/stair_car_mobile_base/stair_controller/cmd_vel", 1000);//stair-car-position-cmd_vel
 		// roll_cmd_publisher_ = nh_.advertise<gohi_hw_rev_msgs::roll_config>("/mobile_base/roll_controller/cmd_vel", 1000);//stair-car-speed-cmd_vel
-
+		power_cmd_publisher_ = nh_.advertise<geometry_msgs::Twist>("/power_car_mobile_base/power_car_mobile_base_controller/cmd_vel", 1000);//flat-car-cmd_vel
 
 		
  		if (higo_ap_.initialize_ok())
@@ -98,7 +98,8 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 	void HIGO_ROS::mainloop()
 	{
 		ros::CallbackQueue cm_callback_queue;
-	    geometry_msgs::Twist twist;
+	    geometry_msgs::Twist flat_twist;
+		geometry_msgs::Twist power_twist;
 		ros::NodeHandle cm_nh("hw_idnev");
 		cm_nh.setCallbackQueue(&cm_callback_queue);
 		controller_manager::ControllerManager cm(this, cm_nh);
@@ -115,29 +116,51 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		{	  
 
 	
-			// higo_ap_.updateCommand(READ_EULER_ANGLE, count,0);//38
+			//  higo_ap_.updateCommand(READ_EULER_ANGLE, count,0);//38
 			if(higo_ap_.dataAnalysis(higo_ap_.getRobotAbstract()->id_info_data))
 			{
 				idnev_state_.id_number =higo_ap_.getRobotAbstract()->id_info_data.id_number;
 				idnev_state_.x_speed =higo_ap_.getRobotAbstract()->id_info_data.x_speed;
 				idnev_state_.Rz =higo_ap_.getRobotAbstract()->id_info_data.Rz;
 				idnev_state_.stair_position = higo_ap_.getRobotAbstract()->id_info_data.stair_position;
+				idnev_state_.stair_speed = higo_ap_.getRobotAbstract()->id_info_data.stair_speed;
+				idnev_state_.stair_type = higo_ap_.getRobotAbstract()->id_info_data.stair_type;
 				idnev_state_.roll_speed = higo_ap_.getRobotAbstract()->id_info_data.roll_speed;
 				// idnev_state_publisher_.publish(idnev_state_);	
 
 
 
 				//flat-car speed control
-				twist.linear.x = (float)idnev_state_.x_speed;
-				twist.linear.y = 0;
-				twist.linear.z = 0;
-				twist.angular.x = 0;
-				twist.angular.y = 0;
-				twist.angular.z = (float)idnev_state_.Rz;
-        		std::cerr <<"car1 interface x_speed  " <<twist.linear.x <<std::endl; 
-        		std::cerr <<"car1 interface y_speed  " <<twist.linear.y <<std::endl; 
-        		std::cerr <<"car1 interface z_speed  " <<twist.angular.z<<std::endl; 				
-				robot_cmd_publisher_.publish(twist);		
+				flat_twist.linear.x = (float)idnev_state_.x_speed;
+				flat_twist.linear.y = 0;
+				flat_twist.linear.z = 0;
+				flat_twist.angular.x = 0;
+				flat_twist.angular.y = 0;
+				flat_twist.angular.z = (float)idnev_state_.Rz;
+        		// std::cerr <<"car1 interface x_speed  " <<twist.linear.x <<std::endl; 
+        		// std::cerr <<"car1 interface y_speed  " <<twist.linear.y <<std::endl; 
+        		// std::cerr <<"car1 interface z_speed  " <<twist.angular.z<<std::endl; 				
+				flat_cmd_publisher_.publish(flat_twist);	
+
+				//power-car speed control
+				power_twist.linear.x = (float)idnev_state_.x_speed;
+				power_twist.linear.y = 0;
+				power_twist.linear.z = 0;
+				power_twist.angular.x = 0;
+				power_twist.angular.y = 0;
+				power_twist.angular.z = (float)idnev_state_.Rz;
+        		// std::cerr <<"car1 interface x_speed  " <<twist.linear.x <<std::endl; 
+        		// std::cerr <<"car1 interface y_speed  " <<twist.linear.y <<std::endl; 
+        		// std::cerr <<"car1 interface z_speed  " <<twist.angular.z<<std::endl; 				
+				power_cmd_publisher_.publish(power_twist);	
+
+				stair_config.speed =(float)idnev_state_.stair_speed;
+				stair_config.type =(float)idnev_state_.stair_type;
+				stair_config.position =(float)idnev_state_.stair_position;
+				
+				stair_cmd_publisher_.publish(stair_config);
+
+
 
 			}
 			else

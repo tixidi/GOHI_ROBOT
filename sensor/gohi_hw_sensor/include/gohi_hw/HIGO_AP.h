@@ -95,8 +95,7 @@ private:
     inline void readCommandModbus0(const MotorModbusCommand &command)
     {
          static int time_out_count=0;
-
-         
+    
          boost::asio::deadline_timer cicle_timer_(io_service);
          cicle_timer_.expires_from_now(boost::posix_time::millisec(read_time_out_));
          

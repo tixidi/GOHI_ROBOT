@@ -22,7 +22,7 @@ HIGO_AP::HIGO_AP(std::string url, std::string config_addr)
     if (url == "tcp")
     {
        // boost::asio::io_service io_service;
-	    tcp::endpoint endpoint(address::from_string("192.168.0.203"), 502);
+	    tcp::endpoint endpoint(address::from_string("192.168.0.202"), 502);
 
         // 直接从 new 操作符的返回值构造
 	    client_ptr new_session(new client(io_service, endpoint));

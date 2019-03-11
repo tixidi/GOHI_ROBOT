@@ -29,8 +29,8 @@ HIGO_AP::HIGO_AP(std::string url, std::string config_addr)
    
 
         client_tcp_=new_session;
-        read_time_out_ =15;//default 500
-        write_time_out_ =10;
+        read_time_out_ =20;//default 500
+        write_time_out_ =20;
         hflinkmodbus_ = boost::make_shared<HFLink_Modbus>(&my_robot_  , 0x01 , 0x11);
         timer_.reset(new boost::asio::deadline_timer(io_service,boost::posix_time::milliseconds(read_time_out_)));
         timer_.reset(new boost::asio::deadline_timer(io_service,boost::posix_time::milliseconds(write_time_out_)));

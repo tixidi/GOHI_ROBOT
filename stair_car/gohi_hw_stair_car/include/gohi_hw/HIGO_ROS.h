@@ -60,8 +60,8 @@ public:
 public:
 	unsigned char allow_set_stair_position_flag;  //松开刹车标志
 	unsigned char update_data_cmd;  //允许升降位置状态更新
-
-
+	unsigned char SQ_reset_not_allow_set_position;  //如果行程开关出发，那么该标志位被置为1，接着就不执行设置位置命令
+	unsigned char start_flag;
 private:
 	//communication with embeded system
 	HIGO_AP higo_ap_;
@@ -93,7 +93,7 @@ private:
 
 	//hardware resource
 	stair_car_msgs::robot_state robot_state;
-	stair_car_msgs::relay_state relay_state;
+	// stair_car_msgs::relay_state relay_state;
 	stair_car_msgs::roll_config roll_config ;
 	stair_car_msgs::stair_config stair_config;
 	stair_car_msgs::brake_config brake_config;
@@ -105,7 +105,7 @@ private:
 
 
 
-
+	unsigned char relay_state;
     // hardware_interface::PositionJointInterface servo_pos_interface_;
 	//ref   ����diffbot.h 
 	//ref   ����diffbot.h 

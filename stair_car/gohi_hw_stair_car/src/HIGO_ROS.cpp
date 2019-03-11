@@ -8,19 +8,20 @@
 		{
 			return;
 		}
-		else if((higo_ap_.stair_position_temp ==10.0)&&(msg->position>10.0))
+		else if((higo_ap_.stair_position_temp ==40.0)&&(msg->position>40.0))
 		{
 			return;
 		}
 		allow_set_stair_position_flag =1;
 		update_data_cmd =0;
 		higo_ap_.stair_position_complete_state =0;
-		if(msg->position > 10.0)
+		SQ_reset_not_allow_set_position =0;
+		if(msg->position > 40.0)
 		{
 			higo_ap_.getRobotAbstract()->motor_pos_comp_state.posComp3=0;
 			higo_ap_.getRobotAbstract()->stair_positionPhaseChange=msg->speed;
 			higo_ap_.getRobotAbstract()->stair_type=msg->type;
-			higo_ap_.getRobotAbstract()->stair_position=10.0;
+			higo_ap_.getRobotAbstract()->stair_position=40.0;
 			return;
 		}
 		higo_ap_.getRobotAbstract()->motor_pos_comp_state.posComp3=0;
@@ -138,32 +139,33 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
         static int command_switch_counts=0;
 		allow_set_stair_position_flag =0;
+		SQ_reset_not_allow_set_position =0;
+		 start_flag =1;
 		update_data_cmd =1;
-
-
+		relay_state =0x00;  //默认高三位为000   1表示ON   0表示off   每一位对应一个继电器
+		relay_state =STAIR_RELAY6_ON; 
+		higo_ap_.updateCommand(SET_RELAY6_STATE, count,0,relay_state);//38
 		while (ros::ok())
 		{
 
 
-     		std::cerr <<"-------------------------------------------------------------------------------" <<std::endl;
+     		// std::cerr <<"-------------------------------------------------------------------------------" <<std::endl;
 
-			switch(command_switch_counts%6)
+			switch(command_switch_counts%7)
 			{					   
 				case 0:
 						higo_ap_.updateCommand(READ_MOT3_REAL_POSITION, count,0);	       
 						break;
 				case 1:		
+						
 						if(higo_ap_.stair_position_complete_state)
 						{
+							std::cerr <<"higo_ap_.stair_position_complete_state =" <<(float)higo_ap_.getRobotAbstract()->stair_position<<std::endl;
 						    update_data_cmd =1;
-							relay_state.relay_state =STAIR_RELAY6_ON;
-							relay_state_publisher_.publish(relay_state);
-						}
-						if(allow_set_stair_position_flag)
-						{
-							allow_set_stair_position_flag =0;
-							relay_state.relay_state =STAIR_RELAY6_OFF;
-							relay_state_publisher_.publish(relay_state);
+							relay_state =STAIR_RELAY6_ON; 
+							// relay_state_publisher_.publish(relay_state);
+							higo_ap_.updateCommand(SET_RELAY6_STATE, count,0,relay_state);//38
+
 						}
 						higo_ap_.updateCommand(READ_CAR2_MOTOR3_COMPLETE_STATE, count,0);	
 				    	break;
@@ -182,7 +184,17 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 						}
 						else  	
 						{
-							higo_ap_.updateCommand(SET_CAR2_POSITION_CONTROL, count,1);
+							if(allow_set_stair_position_flag)
+							{
+								allow_set_stair_position_flag =0;
+								// relay_state.relay_state =STAIR_RELAY6_OFF;
+								// relay_state_publisher_.publish(relay_state);
+								relay_state =STAIR_RELAY6_OFF;
+								higo_ap_.updateCommand(SET_RELAY6_STATE, count,0,relay_state);//38
+							}
+							if(!SQ_reset_not_allow_set_position)
+								std::cerr<<"into _______________________________"<<std::endl;
+								higo_ap_.updateCommand(SET_CAR2_POSITION_CONTROL, count,1);
 						}
 				       break;
 				case 5:
@@ -194,7 +206,18 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 						{
 							higo_ap_.updateCommand(SET_CAR2_SPEED_CONTROL, count,1);	
 						}
-				       break;						
+				       break;	
+				 case 6:
+				 	   higo_ap_.updateCommand(READ_CAR2_MOTER3_RESET_STATE, count,0);	
+						if(!higo_ap_.stair_reset_SQ_state)
+						{
+							//行程开关触发
+							SQ_reset_not_allow_set_position =1;
+							update_data_cmd =1;
+							relay_state =STAIR_RELAY6_ON; 
+							higo_ap_.updateCommand(SET_RELAY6_STATE, count,0,relay_state);//38
+						}
+				    	break;						
 
 			}
 			command_switch_counts++;
@@ -212,7 +235,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 			robot_state_publisher_.publish(robot_state);
 			
-			std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
+			// std::cerr <<(int)count<< "spend time is  " << (float)(ros::Time::now() - currentTime).toSec() <<std::endl;
 			currentTime = ros::Time::now();
 
 			rate.sleep();

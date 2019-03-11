@@ -22,7 +22,7 @@
 
 
 #include <gohi_hw_idnev_msgs/idnev_state.h>
-
+#include <gohi_hw_idnev_msgs/stair_config.h>
 #include <gohi_hw_idnev_msgs/idcard_write_config.h>
 
 #include <gohi_hw_idnev_msgs/idcard_read_config.h>
@@ -37,7 +37,6 @@
 // for hf link and transport
 #include <gohi_hw/transport.h>
 #include <gohi_hw/transport_serial.h>
-
 // #include <hf_link.h>
 #include <hf_link_modbus.h>
 
@@ -51,7 +50,6 @@ class HIGO_ROS : public  hardware_interface::RobotHW
 
 public:
 	HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr,std::string idConfig_addr);
-	
     double getFreq()const
     {
        	return controller_freq_;
@@ -64,12 +62,14 @@ private:
 	ros::NodeHandle nh_;
 	ros::CallbackQueue queue_;
 	// publish the robot state for diagnose system
-	ros::Publisher robot_state_publisher_;
+	ros::Publisher flat_cmd_publisher_;
+	ros::Publisher power_cmd_publisher_;
 	ros::Publisher robot_cmd_publisher_;
 	ros::Publisher stair_cmd_publisher_;
 	ros::Publisher roll_cmd_publisher_;
 	ros::Publisher idnev_state_publisher_;
 
+	
 
 	//subscriber the robot state for diagnose system
 	ros::Subscriber idnev_state_subscriber_;
@@ -85,7 +85,7 @@ private:
 
 	//hardware resource
 	gohi_hw_idnev_msgs::idnev_state idnev_state_;
-
+	gohi_hw_idnev_msgs::stair_config stair_config;
 
 	unsigned char idcard_write_flag;
 	unsigned char idcard_read_flag;

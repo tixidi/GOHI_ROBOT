@@ -113,9 +113,7 @@ enum ModbusCommandRegAddr{
 
     WRITE_SENSOR_DATA_TO_PAD_INTERFACE_ADDR=0x0001,
     WRITE_LASER_DATA_TO_PAD_INTERFACE_ADDR=0x0002,
-
-
-//first  modify
+        //first  modify
     SET_RELAY5_REG_ADDR   =0x05,
     SET_RELAY6_REG_ADDR   =0x06,
     SET_RELAY7_REG_ADDR   =0x07,

@@ -35,6 +35,7 @@ enum MotorModbusCommand{
     READ_CAR2_MOTOR4_COMPLETE_STATE,
     READ_CAR3_MOTOR5_COMPLETE_STATE,
     READ_CAR3_MOTOR6_COMPLETE_STATE,
+    READ_CAR2_MOTER3_RESET_STATE,
     
     SET_MOT1_BRAKE_STATE,
     SET_MOT2_BRAKE_STATE,
@@ -53,7 +54,9 @@ enum MotorModbusCommand{
     
     READ_LAXIAN_POSITION,
     READ_EULER_ANGLE,
-
+    SET_RELAY5_STATE,   //设置继电器的状态
+    SET_RELAY6_STATE,   //设置继电器的状态
+    SET_RELAY7_STATE,   //设置继电器的状态
     READ_RFID_REG_DATA,//读射频传感器
     SET_RFID_REG_DATA, //写射频传感器
 
@@ -69,7 +72,9 @@ enum ModbusCommandCode{
     READ_REG=0x03,
     READ_INPUT_REG=0x04,
     WRITE_REG=0x06,
-    WRITE_MORE_REG=0x10
+    WRITE_MORE_REG=0x10,
+    WRITE_RELAY_REG_OFF =0x00,
+    WRITE_RELAY_REG_ON =0xff,
 };
 
 
@@ -81,13 +86,15 @@ enum RelayControlCmd{
     RELAY5_OFF  =0Xc0,
     STAIR_RELAY6_OFF =0Xa0,
     RELAY7_OFF  =0X60,
+
 };
 
 
 enum ModbusCommandRegAddr{
     READ_ERROR_STATE_ADDR=0x0033,
     READ_MOT_SPEED_ADDR=0x0022,
-    READ_POSITION_COMPLETE_STATE_ADDR=0x0023,    
+    READ_POSITION_COMPLETE_STATE_ADDR=0x0023,  
+    READ_POSITION_RESET_STATE_ADDR=0x002c, 
     READ_MOT_POSITION_ADDR=0x0024,    
     SET_BRAKE_STATE_ADDR=0x0040,
     SET_MOT_SPEED_ADDR=0x0043,
@@ -103,8 +110,14 @@ enum ModbusCommandRegAddr{
     READ_INTERFACE_CAR1_SPEED_CONTROL_ADDR=0x0001,              //1 x速速         2 y速度      3 Z速度
     READ_INTERFACE_CAR2_SPEED_CONTROL_ADDR=0x0004,              //1 x速速         2 y速度      3 Z速度
     READ_INTERFACE_CAR3_POSITION_CONTROL_ADDR=0x0007,           //1 速度          2 位置类型    3 位置
-    READ_INTERFACE_CAR4_SINGLE_SPEED_CONTROL_ADDR=0x000A        //1传送带1速度     2 传送带2速度 3 传送带3速度
+    READ_INTERFACE_CAR4_SINGLE_SPEED_CONTROL_ADDR=0x000A,        //1传送带1速度     2 传送带2速度 3 传送带3速度
+
     
+
+//first  modify
+    SET_RELAY5_REG_ADDR   =0x05,
+    SET_RELAY6_REG_ADDR   =0x06,
+    SET_RELAY7_REG_ADDR   =0x07,
 };
 
 
@@ -129,9 +142,11 @@ enum ModbusSlaveAddr{
 
     PAD_INTERFACE_ADDR_ODOM  =0x74,    
     PAD_INTERFACE_ADDR_ID    =0x75,
-    PAD_INTERFACE_ADDR_LASER =0x76
+    PAD_INTERFACE_ADDR_LASER =0x76,
         
-    
+    SET_RELAY5_ADDR =0X05,
+    SET_RELAY6_ADDR =0X06,
+    SET_RELAY7_ADDR =0X07,
     };  //射频传感器设备地址//
 
 #define BigLittleSwap16(A) ((((uint16)(A) & 0xff00) >> 8) | \ (((uint16)(A) & 0x00ff) << 8
@@ -167,6 +182,7 @@ public:
     //the master can use masterSendCommand function to send data to slave
     //like SET_GLOBAL_SPEED , READ_ROBOT_SYSTEM_INFO, READ_ROBOT_SPEED...
     unsigned char masterSendCommand(const MotorModbusCommand command_state);
+    unsigned char masterSendCommand(const MotorModbusCommand command_state,int relay_on_or_off);
     inline unsigned char getReceiveRenewFlag(const MotorModbusCommand command_state) const
     {
         return receive_package_renew[command_state];
@@ -191,6 +207,7 @@ public:
 public: 
      float stair_position_temp_temp;
      unsigned char stair_position_complete_state_temp;
+     unsigned char stair_reset_SQ_state_temp;
 public:  
     //common
     unsigned char byteAnalysisCall(const unsigned char rx_byte);  

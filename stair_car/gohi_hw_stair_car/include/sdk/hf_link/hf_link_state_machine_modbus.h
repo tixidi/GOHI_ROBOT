@@ -64,6 +64,8 @@ public:
     void Request06(const HFMessageModbus* tx_message_);//单个写保持寄存器
     void Request16(const HFMessageModbus* tx_message_, unsigned short int len);//批量写保持寄存器
     void Request16ToPAD(const HFMessageModbus* tx_message_);//批量写保持寄存器
+    void Request05(const HFMessageModbus* tx_message_);//继电器开
+    void Request00(const HFMessageModbus* tx_message_); //继电器关
     
     void McMBCRC16(unsigned char *pDataIn, int iLenIn, unsigned short int  *pCRCOut);
     void HexToAscii(unsigned char * pHex, unsigned char * pAscii, int nLen);

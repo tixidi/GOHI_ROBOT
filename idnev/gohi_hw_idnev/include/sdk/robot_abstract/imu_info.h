@@ -24,6 +24,8 @@ typedef struct{
     float x_speed;
     float Rz;
     float stair_position;
+    float stair_speed;
+    float stair_type;
     float roll_speed;
 }ID_Info;
 
