@@ -284,11 +284,11 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
         break;
     case WRITE_LASER_DATA_TO_PAD_INTERFACE:
          
-        for(int kk=0;kk<360;kk++) 
+        for(int kk=0;kk<241;kk++) 
         {
             tx_to_PAD_buffer[kk]=robot->laser_scan_data[kk];
         }
-        tx_to_PAD_num=360;
+        tx_to_PAD_num=241;
 
         sendStructToPAD(LASER_DATA_TO_PAD_INTERFACE , WRITE_MORE_REG,WRITE_LASER_DATA_TO_PAD_INTERFACE_ADDR,(unsigned char *)single_command , 0);               
         break;

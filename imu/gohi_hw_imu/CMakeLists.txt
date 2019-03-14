@@ -15,9 +15,14 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 
+
 generate_messages(
   DEPENDENCIES std_msgs
 )
+
+
+set(config_path \"${CMAKE_CURRENT_SOURCE_DIR}\")
+add_definitions(-DCONFIG_PATH=${config_path})
 
 catkin_package(
   INCLUDE_DIRS include

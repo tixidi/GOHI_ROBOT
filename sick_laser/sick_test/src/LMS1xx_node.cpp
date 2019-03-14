@@ -1,18 +1,21 @@
 
 #include <ros/ros.h>
-
+#include <stdlib.h>
+#include <stdio.h>
+#include <string>
+#include <fstream>
+#include <sstream>
 #include <csignal>
 #include <cstdio>
 #include <LMS1xx/LMS1xx.h>
 #include <iostream>
 #include <GL/glut.h>
+
 #include <vector>
 #include <math.h>
 
-#include <vector>
-#include <string>
-#include <sstream>
-#include <iostream> 
+
+
 
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/String.h>
@@ -27,6 +30,16 @@ using namespace std;
 #define DEG2RAD M_PI/180.0
 
 
+bool mouseLeftDown;
+ bool mouseRightDown;
+  bool mouseMiddleDown; 
+  float mouseX, mouseY; 
+  float cameraDistanceX;
+   float cameraDistanceY; 
+   float cameraAngleX; 
+   float cameraAngleY;
+    float times=1;
+
 sick_msgs::sick_range  sick_range_;
 ros::Publisher sick_data_publisher_;
 
@@ -37,6 +50,7 @@ double R = 0.5;
 double N = 541;
 double Pi = 3.1415;
 int angle111;
+double spin=0.0;
 //double Pi=acos(-1.0); //定义Pi
 #define scale 10
 
@@ -66,6 +80,8 @@ struct ObstacleField
 struct ObstacleField obstacle_msg={0.5,30,150,1,0.5,0.0};//30~150 为120视角
 
 
+int startScanPos;
+int endScanPos;
 
 
 void drawArc(double x,double y,double start_angle,double end_angle,double delta_angle,double radius,bool fill)
@@ -161,42 +177,127 @@ void drawCoordinate()
     glPopMatrix();
 
 }
+
+
 void Keyboard(int key, int x, int y) //键盘交互 
 { 
+
+    
     if (key == GLUT_KEY_LEFT)  
     {    
-      angle111+=30;
+       times = 0.008f+1;
+      
     }   
     if (key == GLUT_KEY_RIGHT)  
     {
-      angle111-=30;
+       times = -0.008f+1;
+     
     }
     glutPostRedisplay();//重新调用绘制函数
 
 
 }
+
+void mouseMotionCB(int x, int y)
+{
+    cameraAngleX = cameraAngleY = 0;
+    cameraDistanceX = cameraDistanceY = 0;
+
+    if (mouseLeftDown)
+    {
+        cameraAngleY += (x - mouseX) * 0.1f;
+        cameraAngleX += (y - mouseY) * 0.1f;
+        mouseX = x;
+        mouseY = y;
+        
+    }
+    if (mouseRightDown)
+    {
+        cameraDistanceX = (x - mouseX) * 0.002f;
+        cameraDistanceY = -(y - mouseY) * 0.002f;
+        mouseY = y;
+        mouseX = x;
+    }
+
+
+  glutPostRedisplay();
+}
+
   void mymouse(int button,int state,int x,int y) 
   {  
-     if(state==GLUT_DOWN)     
-     {          
-       if(button==GLUT_LEFT_BUTTON)         
-        {          
-          glTranslatef(-0.5,0,0);//左移   
-                    
-        }          
-        else if(button==GLUT_RIGHT_BUTTON)  
-        {             
-           glTranslatef(0.5,0,0);//右移  
-           
-        }           
-        glutPostRedisplay();//重新调用绘制函数     
-     }      
+    mouseX = x;
+    mouseY = y;
+  
+    times = 1;
+    if(button == GLUT_LEFT_BUTTON)
+    {
+        if(state == GLUT_DOWN)
+        {
+            mouseLeftDown = true;
+        }
+        else if(state == GLUT_UP)
+            mouseLeftDown = false;
+    }
+
+    else if(button == GLUT_RIGHT_BUTTON)
+    {
+        if(state == GLUT_DOWN)
+        {
+            mouseRightDown = true;
+        }
+        else if(state == GLUT_UP)
+            mouseRightDown = false;
+    }
+
+    /*
+    * 鼠标滚轮控制图形缩放
+    */
+    // else if (state == GLUT_UP &&button == GLUT_MIDDLE_BUTTON)
+    // {
+    //     times = 0.008f+1;
+    //     glutPostRedisplay();
+      
+    // }
+
+    // else if (state == GLUT_ && button == GLUT_MIDDLE_BUTTON)
+    // {
+    //     times = -0.008f+1;
+    //     glutPostRedisplay();
+        
+    // }    
+   
      return; 
   }
 
+void reshape(int w, int h)
+{
+	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	if (w <= h)
+		glOrtho(-1.5, 1.5, -1.5 * (GLfloat)h / (GLfloat)w, 1.5 * (GLfloat)h / (GLfloat)w, -10.0, 10.0);
+	else
+		glOrtho(-1.5*(GLfloat)w / (GLfloat)h, 1.5*(GLfloat)w / (GLfloat)h, -1.5, 1.5, -10.0, 10.0);
+
+  // gluLookAt (0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0);
+  gluLookAt (0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
+
 void Display(void)
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    // glClear(GL_COLOR_BUFFER_BIT);
+
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // //glTranslatef(0.0, 0.0, 0.0);//平移
+    // glScalef(times, times, times);//缩放
+    //glRotatef(-90, 1, 0, 0);//旋转
+    // glTranslatef(cameraDistanceX, cameraDistanceY, 0);
+    // glRotatef(cameraAngleX, 1, 0, 0);
+    // glRotatef(cameraAngleY, 0, 1, 0);
+
  
     glPointSize(2.0f);
     //drawCoordinate();
@@ -205,8 +306,10 @@ void Display(void)
 
     glColor3f(1.0,0.0,0.0); 
 
+   
+
     //glViewport(100, 100, 400, 400);
-/*  
+
   //画笛卡尔坐标系    
 
    
@@ -218,7 +321,7 @@ void Display(void)
     glVertex2d(0,height/2.0);  
     glVertex2d(0,-height/2.0);  
     glEnd();  
-*/
+
     //drawCircle(0,0,1.0,false);  
 
     drawArc(0,0,obstacle_msg.startAngle*DEG2RAD,obstacle_msg.stopAngle*DEG2RAD,DEG2RAD,obstacle_msg.warnRange/scale,false);  
@@ -239,33 +342,43 @@ void Display(void)
    	glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
   	glVertex2f(0.0f, 0.0f);
  
-  //   for (int i = int(obstacle_msg.startAngle/obstacle_msg.angleResolution);
-  //            i < int(obstacle_msg.stopAngle/obstacle_msg.angleResolution); i++)
-  //   {
+ 
+ 
+
+
+    for (int i = startScanPos;
+             i <=endScanPos; i++)
+    {
    
-  //         float tempDist=data.dist1[i] * 0.001; 
+          float tempDist=data.dist1[i] * 0.001; 
+
+              
         
-	// 	      pos_x =(cos((i*0.5) *DEG2RAD + theta)*tempDist);
-	// 	      pos_y =(sin((i*0.5) *DEG2RAD + theta)*tempDist);
+		      pos_x =(cos((i*0.5) *DEG2RAD +150)*tempDist);
+		      pos_y =(sin((i*0.5) *DEG2RAD +150)*tempDist);
 
         
-  //         if(tempDist<obstacle_msg.warnRange)      glColor3f(0.0f, 1.0f, 0.0f);
-  //         else if(tempDist<obstacle_msg.safeRange) glColor3f(1.0f, 1.0f, 0.0f); 
-  //         else                                     glColor3f(1.0f, 1.0f, 1.0f);
+          // if(tempDist<obstacle_msg.warnRange)      glColor3f(0.0f, 1.0f, 0.0f);
+          // else if(tempDist<obstacle_msg.safeRange) glColor3f(1.0f, 1.0f, 0.0f); 
+          // else                                     glColor3f(1.0f, 1.0f, 1.0f);
 		
 
 
-	// 	      glVertex2f(pos_x/scale, pos_y/scale);
-          
-  //         glBegin(GL_LINES);
+    
+          glColor3f(1.0f, 1.0f, 1.0f);
 
-  //         glVertex2f(0.0f,0.0f);
-  //         glVertex2f(pos_x/scale, pos_y/scale);
-  //         glEnd();
+		      glVertex2f(pos_x/scale, pos_y/scale);
+          
+          glBegin(GL_LINES);
+
+          glVertex2f(0.0f,0.0f);
+          glVertex2f(pos_x/scale, pos_y/scale);
+          glEnd();
          
-	// } 
+	} 
 
     glEnd();
+    
     glFlush();
 }
 
@@ -280,18 +393,18 @@ void checkObstacle(float Tdegree,float Tradius)
 void myIdle(void)
 {
       float tempDist;
-      cout<<"Reading scan data."<<endl;
+      static int send_num;
+      // cout<<"Reading scan data."<<endl;
       if (laser.getScanData(&data))
        {
 
-        int startScanPos=int((obstacle_msg.startAngle+45)/obstacle_msg.angleResolution);
-        int endScanPos=int((obstacle_msg.stopAngle+45)/obstacle_msg.angleResolution);
-        cout<<"the startScanPos "<< startScanPos<<endl;
-        cout<<"the endScanPos "<< endScanPos<<endl;
-        cout<<"the dist_len1 "<< data.dist_len1<<endl;
+        // cout<<"the startScanPos "<< startScanPos<<endl;
+        // cout<<"the endScanPos "<< endScanPos<<endl;
+        // cout<<"the dist_len1 "<< data.dist_len1<<endl;
         
      
         maxValue=0.0;
+        send_num=0;
         for (int i = 0;i <data.dist_len1 ;i++)
         {
    
@@ -300,10 +413,11 @@ void myIdle(void)
             tempDist=data.dist1[i]; 
             cout<<"the num "<< i<<" the value "  <<tempDist<<endl;
             if(tempDist>=maxValue) maxValue=tempDist;
-            // sick_range_.data[i-startScanPos]=tempDist;
+            sick_range_.data[send_num]=tempDist;
+            send_num++;
           } 
 
-        // sick_data_publisher_.publish(sick_range_); 
+        
         if(maxValue==0.0) maxValue=1.0;    
         obstacle_msg.maxRange=maxValue;
         // cout<< "the max value"<<maxValue<<endl;
@@ -311,7 +425,8 @@ void myIdle(void)
         //  checkObstacle(i*0.5,tempDist);
           
 	     }
-
+        sick_data_publisher_.publish(sick_range_); 
+        cout<<"the num "<< send_num <<endl;
 
       }
       else
@@ -319,7 +434,9 @@ void myIdle(void)
         cout<<"Laser timed out on delivering scan, attempting to reinitialize."<<endl;
       }
       Display();
+      
 }
+
 
 
 int main(int argc, char **argv)
@@ -389,7 +506,9 @@ int main(int argc, char **argv)
       ++num_values;
     }
 
-   
+    startScanPos=int((obstacle_msg.startAngle+45)/obstacle_msg.angleResolution);
+    endScanPos=int((obstacle_msg.stopAngle+45)/obstacle_msg.angleResolution);
+      
 
     cout<<"num values1"<<num_values<<endl;
 
@@ -425,16 +544,26 @@ int main(int argc, char **argv)
 
     cout<<"Commanding continuous measurements."<<endl;
     laser.scanContinous(1);
-    glutInit(&argc,argv);
-   
+  
+    glutInit(&argc, argv); 
+      // glOrtho(-5,5,-5,5,-1,1);//视野缩放 
+    
     glutInitDisplayMode(GLUT_RGB);
-    glutInitWindowPosition(200,200);
     glutInitWindowSize(width,height);
+    glutInitWindowPosition(200,200);
+
     glutCreateWindow("Three Window");
-    //glOrtho(-5,5,-5,5,-1,1);//视野缩放 
-    //glutMouseFunc(&mymouse);//调用鼠标响应函数
-    //glutSpecialFunc(&Keyboard);//调用键盘回调函数
+
+
+
+    glutMouseFunc(&mymouse);//调用鼠标响应函数
+    glutSpecialFunc(&Keyboard);//调用键盘回调函数   
+    glutMotionFunc(&mouseMotionCB);
+
     glutDisplayFunc(&Display);
+    glutReshapeFunc(&reshape);
+
+
     glutIdleFunc(&myIdle);
     glutMainLoop();
 
