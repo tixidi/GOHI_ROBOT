@@ -37,6 +37,7 @@ public:
         friend_id = friend_id_;   // 0x01 means master
         port_num = port_num_;
         modbus_receive_state_=0;
+        error_state_flag =0;
         
     }
     inline unsigned char* getSerializedData(void)
@@ -72,6 +73,9 @@ public:
     HFMessageModbus rx_message ,  tx_message;
     unsigned char my_id , friend_id;
 
+
+public:
+    unsigned char error_state_flag;
 private:
     RecstateModbus   receive_state_;
     float receive_message_count  , send_message_count;

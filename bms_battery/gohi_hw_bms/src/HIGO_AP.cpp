@@ -204,11 +204,9 @@ int HIGO_AP::calculateCrc(unsigned char data1, unsigned char data2)
 	return result;
 }
 
-int HIGO_AP::dataAnalysis(const unsigned char *data,int len)
+int HIGO_AP::getResult(unsigned char data1, unsigned char data2)
 {
-	int result =0;
-    unsigned char data1 =data[len-25];
-    unsigned char data2 =data[len-24];
+    int result =0;
     if('0'<=data1 && data1<='9'){
        result =(data1 -48)*16;
     }else if('A'<=data1 && data1<='Z'){
@@ -219,6 +217,35 @@ int HIGO_AP::dataAnalysis(const unsigned char *data,int len)
     }else if('A'<=data2 && data2<='Z'){
        result +=(data2 +10-65);
     }
-    std::cerr<<result<<std::endl;
-	return result;
+    return result;
+}
+
+void HIGO_AP::dataAnalysis(const unsigned char *data,int len, BMSBattery &bms_battery_temp_)
+{
+	int result =0;
+    unsigned char data1 =data[len-25];
+    unsigned char data2 =data[len-24];
+    result =getResult(data1,data2);
+    bms_battery_temp_.battery_capacity_percentage =result;
+    // std::cerr<<result<<std::endl;
+	data1 =data[len-125];
+    data2 =data[len-124];   
+    result =getResult(data1,data2);
+    bms_battery_temp_.battery_health =result;
+    data1 =data[len-123];
+    data2 =data[len-122];   
+    result =getResult(data1,data2);
+    bms_battery_temp_.total_voltage =result;
+    data1 =data[len-121];
+    data2 =data[len-120];   
+    result =getResult(data1,data2);
+    bms_battery_temp_.total_voltage = (bms_battery_temp_.total_voltage *256 +result)*2;//单位：mv
+    data1 =data[len-23];
+    data2 =data[len-22];   
+    result =getResult(data1,data2);
+    bms_battery_temp_.current_capacity =result;//单位：mv
+    data1 =data[len-21];
+    data2 =data[len-20];   
+    result =getResult(data1,data2);
+    bms_battery_temp_.current_capacity =(float)(bms_battery_temp_.current_capacity *256 +result)*0.1;//单位：AH
 }

@@ -62,7 +62,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		nh_.setCallbackQueue(&queue_);
         base_mode_ = "2diff-wheel";
 		with_arm_ = false;
-		controller_freq_ = 50;
+		controller_freq_ = 20;  //修改前的数值为50
 		nh_.getParam("base_mode", base_mode_);
 		nh_.getParam("with_arm", with_arm_);
 		nh_.getParam("freq", controller_freq_);
@@ -121,6 +121,36 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 	}
 
+	void HIGO_ROS::delay(int time)
+	{
+		while(time--);
+	}
+	void HIGO_ROS::init()
+	{
+		while(1){
+			higo_ap_.getRobotAbstract()->motor_pos_comp_state.posComp3=0;
+			higo_ap_.getRobotAbstract()->stair_positionPhaseChange=2;
+			higo_ap_.getRobotAbstract()->stair_type=0;
+			higo_ap_.getRobotAbstract()->stair_position =-30.0;
+			higo_ap_.updateCommand(SET_CAR2_POSITION_CONTROL, count,1);
+			delay(500000000);
+			higo_ap_.updateCommand(READ_CAR2_MOTER3_RESET_STATE, count,0);	
+				if(!higo_ap_.stair_reset_SQ_state)
+				{
+					//行程开关触发
+					SQ_reset_not_allow_set_position =1;
+					update_data_cmd =1;
+					relay_state =STAIR_RELAY6_ON; 
+					higo_ap_.updateCommand(SET_RELAY6_STATE, count,0,relay_state);//38
+					std::cerr << "push on"<<std::endl;
+					break;	
+				}
+			delay(500000000);
+		}
+		std::cerr << "push" <<std::endl;
+		delay(500000000);
+		
+	}
 	void HIGO_ROS::mainloop()
 	{
 		ros::CallbackQueue cm_callback_queue;
@@ -134,50 +164,73 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		cm_spinner.start();
 		hw_spinner.start();
 
-		int count = 0;
+		int rev_time_out_ =500;
+		 count = 0;
 		ros::Time currentTime = ros::Time::now();
-
+		int test_flag =1;
         static int command_switch_counts=0;
 		allow_set_stair_position_flag =0;
 		SQ_reset_not_allow_set_position =0;
-		 start_flag =1;
+		start_flag =1;
+		static int  time_cnt =0;
 		update_data_cmd =1;
 		relay_state =0x00;  //默认高三位为000   1表示ON   0表示off   每一位对应一个继电器
-		relay_state =STAIR_RELAY6_ON; 
-		higo_ap_.updateCommand(SET_RELAY6_STATE, count,0,relay_state);//38
+		relay_state =STAIR_RELAY6_OFF; 
+		higo_ap_.updateCommand(SET_RELAY6_STATE, count,0,relay_state);//38		
+		// init();	
+		// delay(500000000);
+		higo_ap_.updateCommand(SET_MOT3_RESET_TEST, count,1);	 	//对SQ2写复位测试	 
+		delay(500000000);
 		while (ros::ok())
 		{
+			// higo_ap_.updateCommand(SET_MOT3_RESET_TEST, count,1);	 	//对SQ2写复位测试
+			higo_ap_.updateCommand(READ_CAR2_MOTOR3_COMPLETE_STATE, count,0);
+			if(higo_ap_.stair_position_complete_state)
+			{
+				if(test_flag)
+				{
+					test_flag =0;
+					std::cerr <<"higo_ap_.stair_position_complete_state =" <<(float)higo_ap_.getRobotAbstract()->stair_position<<std::endl;
+				}
+				time_cnt =0;
+				update_data_cmd =1;
+				relay_state =STAIR_RELAY6_OFF; 
+				higo_ap_.updateCommand(SET_RELAY6_STATE, count,0,relay_state);//38
 
+			}
+			if(++time_cnt >= 400){
 
-     		// std::cerr <<"-------------------------------------------------------------------------------" <<std::endl;
+				update_data_cmd =1;
+				time_cnt =0;
+				higo_ap_.updateCommand(SET_MOT3_BRAKE_STATE, count,1);
+				//relay_state =STAIR_RELAY6_ON; 
+				//higo_ap_.updateCommand(SET_RELAY6_STATE, count,0,relay_state);//38
 
-			switch(command_switch_counts%7)
+			}		
+			if(higo_ap_.error_state)
+			{	
+				update_data_cmd =1;
+				higo_ap_.error_state =0;
+				// relay_state =STAIR_R-10.0ELAY6_ON; 
+				// higo_ap_.updateCommand(SET_RELAY6_STATE, count,0,relay_state);//38	
+			}
+			switch(command_switch_counts%6)
 			{					   
 				case 0:
 						higo_ap_.updateCommand(READ_MOT3_REAL_POSITION, count,0);	       
 						break;
-				case 1:		
+				// case 1:		
+											
+				//     	break;
 						
-						if(higo_ap_.stair_position_complete_state)
-						{
-							std::cerr <<"higo_ap_.stair_position_complete_state =" <<(float)higo_ap_.getRobotAbstract()->stair_position<<std::endl;
-						    update_data_cmd =1;
-							relay_state =STAIR_RELAY6_ON; 
-							// relay_state_publisher_.publish(relay_state);
-							higo_ap_.updateCommand(SET_RELAY6_STATE, count,0,relay_state);//38
-
-						}
-						higo_ap_.updateCommand(READ_CAR2_MOTOR3_COMPLETE_STATE, count,0);	
-				    	break;
-						
-				case 2:
+				case 1:
 						higo_ap_.updateCommand(READ_MOT3_ERROR_STATE, count,0);	
 						break;
-				case 3:		
+				case 2:		
 						higo_ap_.updateCommand(READ_MOT4_ERROR_STATE, count,0);	
 					    break;
 				
-				case 4:
+				case 3:
 						if(brake_config_callback_flag==1)
 						{
 							higo_ap_.updateCommand(SET_MOT3_BRAKE_STATE, count,1);	 	//brake car
@@ -186,18 +239,19 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 						{
 							if(allow_set_stair_position_flag)
 							{
+								test_flag =1;
 								allow_set_stair_position_flag =0;
-								// relay_state.relay_state =STAIR_RELAY6_OFF;
-								// relay_state_publisher_.publish(relay_state);
-								relay_state =STAIR_RELAY6_OFF;
+								relay_state =STAIR_RELAY6_ON;
 								higo_ap_.updateCommand(SET_RELAY6_STATE, count,0,relay_state);//38
+								// higo_ap_.updateCommand(SET_CAR2_POSITION_CONTROL, count,1);
 							}
+							
 							if(!SQ_reset_not_allow_set_position)
-								std::cerr<<"into _______________________________"<<std::endl;
-								higo_ap_.updateCommand(SET_CAR2_POSITION_CONTROL, count,1);
+								// std::cerr<<"into _______________________________"<<std::endl;
+								 higo_ap_.updateCommand(SET_CAR2_POSITION_CONTROL, count,1);
 						}
 				       break;
-				case 5:
+				case 4:
 						if(brake_config_callback_flag==1)
 						{
 							higo_ap_.updateCommand(SET_MOT4_BRAKE_STATE, count,1);	 	//brake car			
@@ -207,17 +261,20 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 							higo_ap_.updateCommand(SET_CAR2_SPEED_CONTROL, count,1);	
 						}
 				       break;	
-				 case 6:
-				 	   higo_ap_.updateCommand(READ_CAR2_MOTER3_RESET_STATE, count,0);	
+				 case 5:
+				 	  	higo_ap_.updateCommand(READ_CAR2_MOTER3_RESET_STATE, count,0);	
 						if(!higo_ap_.stair_reset_SQ_state)
 						{
+							higo_ap_.updateCommand(SET_MOT3_RESET_TEST, count,1);	 	//对SQ2写复位测试
+							// delay(500000000);
 							//行程开关触发
 							SQ_reset_not_allow_set_position =1;
 							update_data_cmd =1;
-							relay_state =STAIR_RELAY6_ON; 
+							relay_state =STAIR_RELAY6_OFF; 
 							higo_ap_.updateCommand(SET_RELAY6_STATE, count,0,relay_state);//38
 						}
-				    	break;						
+				    	break;	
+									
 
 			}
 			command_switch_counts++;
@@ -230,6 +287,8 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 			writeBufferUpdate();
 
+			robot_state.motor3_speed =higo_ap_.getRobotAbstract()->ask_position_config.positionPhaseChange;
+			robot_state.motor4_speed =higo_ap_.getRobotAbstract()->ask_expect_motor_speed.servo4;    
             robot_state.motor3_error_state=higo_ap_.getRobotAbstract()->motor_error_state.error3 ;
 			robot_state.motor4_error_state=higo_ap_.getRobotAbstract()->motor_error_state.error4 ;
 

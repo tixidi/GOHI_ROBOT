@@ -10,6 +10,16 @@
 #include <hf_link_modbus.h>
 #include <cstdlib>
 
+typedef struct bms_battery_data{
+    int battery_capacity_percentage;
+    int total_voltage;
+    int battery_health;
+    float current_capacity;
+}BMSBattery;
+
+
+
+
 class HIGO_AP
 {
 public:
@@ -23,8 +33,9 @@ public:
     bool dataAnalysisCall(const unsigned char rx_data);
     unsigned char crc_high_first(unsigned char *ptr, unsigned short len);
     int calculateCrc(unsigned char data1, unsigned char data2);
-    int dataAnalysis(const unsigned char *data,int len);
-    
+    void dataAnalysis(const unsigned char *data,int len, BMSBattery &bms_battery_temp_);
+    int getResult(unsigned char data1, unsigned char data2);
+
     inline RobotAbstract* getRobotAbstract()
     {
         return &my_robot_;
@@ -97,7 +108,7 @@ public:
 
                     if(CRC_data == calculateCrc(data_buff[strlen((const char *)data_buff)-3],data_buff[strlen((const char *)data_buff)-2])){
                         std::cerr<<" the data is OK"<<data_buff<<std::endl; 
-                        publish_data =dataAnalysis(data_buff,strlen((const char *)data_buff));
+                        dataAnalysis(data_buff,strlen((const char *)data_buff),bms_battery_);
                     }
                     else{
                         std::cerr<<" the data is ERROR!"<<data_buff<<std::endl;
@@ -120,7 +131,7 @@ public:
         }
     }
     //first modify 
-    int publish_data;
+    BMSBattery bms_battery_;
 private:
     
     //first modify***************************

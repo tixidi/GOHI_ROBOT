@@ -95,13 +95,14 @@ public:
         memset(&ack_to_pad_sensor_data_type,0,sizeof(ack_to_pad_sensor_data_type)); //默认分辨率为1度
         memset(&ack_to_pad_laser_data_type,0,sizeof(ack_to_pad_laser_data_type)); //默认分辨率为1度
         
+        memset(&bms_battey_,0,sizeof(BmsBatteryDate)); //默认分辨率为1度
         
-        
-
-        
+         memset(&moter_error_state_,0,sizeof(MoterErrorState)); //默认分辨率为1度
+        memset(&moter_speed_state_,0,sizeof(MoterSpeedState)); //默认分辨率为1度
 
     }
-
+    MoterSpeedState  moter_speed_state_;
+    MoterErrorState  moter_error_state_;
     /************************************system info*********************************************/
     SystemInfo system_info;   //(meter,meter,factor(0~1))
 
@@ -143,10 +144,12 @@ public:
     CarGLobalPositionConfig car_global_position_config;
     LaserRangeConfig   laser_range_config;
 
+
     AckToPadDataType  ack_to_pad_sensor_data_type;
     AckToPadDataType  ack_to_pad_laser_data_type;
+    /******************************电池参数*******************************************************/
+    BmsBatteryDate bms_battey_;
     /*************************************************************************************/
-
     short int laser_scan_data[SEND_TO_PAD_BUFER_SIZE];
     unsigned short int laser_scan_num;
     unsigned short int laser_scan_range;

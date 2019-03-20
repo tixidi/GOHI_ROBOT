@@ -12,15 +12,19 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   gohi_hw_rev_msgs
+  sensor_msgs
 )
 
 
 
+generate_messages(
+  DEPENDENCIES std_msgs sensor_msgs
+)
 
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES gohi_hw
-#  CATKIN_DEPENDS controller_manager geometry_msgs hardware_interface realtime_tools roscpp std_msgs
+#  CATKIN_DEPENDS controller_manager geometry_msgs hardware_interface realtime_tools roscpp std_msgs 
 #  DEPENDS system_lib
 )
 

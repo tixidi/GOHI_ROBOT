@@ -53,8 +53,8 @@ public:
       	return controller_freq_;
     }
 	void mainloop();
-	
-
+	void delay(int time);
+	void init();
 
 
 public:
@@ -74,7 +74,7 @@ private:
 	ros::Subscriber stair_cmd_subscribe_;
 	ros::Subscriber roll_cmd_subscribe_;
 	ros::Subscriber brake_cmd_subscribe_;
-	
+	  boost::asio::io_service io_service;
 
 
 	ros::ServiceServer getparam_srv_;
@@ -104,7 +104,7 @@ private:
     double x_vel_, y_vel_, theta_vel_;
 
 
-
+	int count;
 	unsigned char relay_state;
     // hardware_interface::PositionJointInterface servo_pos_interface_;
 	//ref   ����diffbot.h 

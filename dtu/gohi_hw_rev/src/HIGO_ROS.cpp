@@ -61,7 +61,7 @@ void HIGO_ROS::idcard_read_config_callback(const gohi_hw_rev_msgs::idcard_read_c
 
     // memcpy(&msg.data[0],&higo_ap_.getRobotAbstract()->laser_scan_data[0],360);   
   	
-	 for(int kk=0;kk<360;kk++) 
+	 for(int kk=0;kk<241;kk++) 
 	  {
 		  higo_ap_.getRobotAbstract()->laser_scan_data[kk]=msg.data[kk];
 	  }
@@ -87,7 +87,44 @@ void HIGO_ROS::idcard_read_config_callback(const gohi_hw_rev_msgs::idcard_read_c
 								  
  }
 
+ void HIGO_ROS::battery_state_read_callback(const sensor_msgs::BatteryState& msg)
+ {	
+	higo_ap_.getRobotAbstract()->bms_battey_.current_capacity=(short int)msg.current;
+	higo_ap_.getRobotAbstract()->bms_battey_.total_voltage =msg.voltage;
+	higo_ap_.getRobotAbstract()->bms_battey_.battery_health=msg.power_supply_health;
+	higo_ap_.getRobotAbstract()->bms_battey_.battery_capacity_percentage =msg.percentage;
+								  
+ }
 
+
+ void HIGO_ROS::stair_state_read_callback(const gohi_hw_rev_msgs::robot_state& msg)
+ {	
+	 higo_ap_.getRobotAbstract()->moter_speed_state_.mot3_speed=msg.motor3_speed;
+	higo_ap_.getRobotAbstract()->moter_speed_state_.mot4_speed =msg.motor4_speed;
+	higo_ap_.getRobotAbstract()->moter_error_state_.mot3_error=msg.motor3_error_state;
+	higo_ap_.getRobotAbstract()->moter_error_state_.mot4_error =msg.motor4_error_state;
+								  
+ }
+  void HIGO_ROS::power_state_read_callback(const gohi_hw_rev_msgs::robot_state& msg)
+ {	
+	 
+	 higo_ap_.getRobotAbstract()->moter_speed_state_.mot5_speed=msg.motor5_speed;
+	higo_ap_.getRobotAbstract()->moter_speed_state_.mot6_speed =msg.motor6_speed;
+	higo_ap_.getRobotAbstract()->moter_error_state_.mot5_error =msg.motor5_error_state;
+	higo_ap_.getRobotAbstract()->moter_error_state_.mot6_error =msg.motor6_error_state;
+
+								  
+ }
+  void HIGO_ROS::flat_state_read_callback(const gohi_hw_rev_msgs::robot_state& msg)
+ {	
+	 
+	 higo_ap_.getRobotAbstract()->moter_speed_state_.mot1_speed=msg.motor1_speed;
+	higo_ap_.getRobotAbstract()->moter_speed_state_.mot2_speed =msg.motor2_speed;
+	higo_ap_.getRobotAbstract()->moter_error_state_.mot1_error=msg.motor1_error_state;
+	higo_ap_.getRobotAbstract()->moter_error_state_.mot2_error=msg.motor2_error_state;
+
+								  
+ }
 
 HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr) :
 		higo_ap_(url, config_addr),
@@ -113,9 +150,11 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		idcard_read_config_subscriber_ = nh_.subscribe("/idcard_read_config/cmd", 1,  &HIGO_ROS::idcard_read_config_callback, this);
 		sick_range_read_config_subscriber_ = nh_.subscribe("/sick_range", 1,  &HIGO_ROS::laser_range_read_config_callback, this);
 		imu_state_subscriber_ = nh_.subscribe("/imu_state_data", 1,  &HIGO_ROS::imu_state_read_callback, this);
+		battery_state_subscriber_ = nh_.subscribe("/bms_state_data", 1,  &HIGO_ROS::battery_state_read_callback, this);
+		stair_car_state_subscriber_ =nh_.subscribe("/stair_car_robot_state", 1,  &HIGO_ROS::stair_state_read_callback, this);
+		power_car_state_subscriber_ =nh_.subscribe("/power_car_robot_state", 1,  &HIGO_ROS::power_state_read_callback, this);
+		flat_car_state_subscriber_ =nh_.subscribe("/flat_car_robot_state", 1,  &HIGO_ROS::flat_state_read_callback, this);
 
-
-		
  		if (higo_ap_.initialize_ok())
 		{
 			ROS_INFO("system initialized succeed, ready for communication");
@@ -144,6 +183,9 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 		int count = 0;
 		ros::Time currentTime = ros::Time::now();
+
+        static int send_times=0;
+
 		while (ros::ok())
 		{
 
@@ -151,7 +193,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
           if(higo_ap_.getRobotAbstract()->receive_package_flag==1)
 		  {
 			  	higo_ap_.getRobotAbstract()->receive_package_flag=0;
-				higo_ap_.updateCommand(READ_INTERFACE_CAR1_SPEED_CONTROL, count,3);//回传应答
+				// higo_ap_.updateCommand(READ_INTERFACE_CAR1_SPEED_CONTROL, count,3);//回传应答
 				flat_twist.linear.x = (float)higo_ap_.getRobotAbstract()->car1_speed_config.x_speed/100.0 ;
 				flat_twist.linear.y = 0;
 				flat_twist.linear.z = 0;
@@ -174,7 +216,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		  else  if(higo_ap_.getRobotAbstract()->receive_package_flag==3)
 		  {
 				higo_ap_.getRobotAbstract()->receive_package_flag=0;
-				higo_ap_.updateCommand(READ_INTERFACE_CAR3_POSITION_CONTROL, count,3);//回传应答				
+				// higo_ap_.updateCommand(READ_INTERFACE_CAR3_POSITION_CONTROL, count,3);//回传应答				
 				stair_vel_cmd_config_.speed = (float)higo_ap_.getRobotAbstract()->car3_position_config.speed/100.0 ;
 				stair_vel_cmd_config_.type = (float)higo_ap_.getRobotAbstract()->car3_position_config.type ;
 				stair_vel_cmd_config_.position = (float)higo_ap_.getRobotAbstract()->car3_position_config.position ;
@@ -188,7 +230,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		  else  if(higo_ap_.getRobotAbstract()->receive_package_flag==4)
 		  {
 			  	higo_ap_.getRobotAbstract()->receive_package_flag=0;
-				higo_ap_.updateCommand(READ_INTERFACE_CAR4_SINGLE_SPEED_CONTROL, count,3);//回传应答					  
+				// higo_ap_.updateCommand(READ_INTERFACE_CAR4_SINGLE_SPEED_CONTROL, count,3);//回传应答					  
 		   		roll_vel_cmd_config_.m1_speed = (float)higo_ap_.getRobotAbstract()->car4_single_speed_config.m1_speed/100.0 ;
 		   		roll_vel_cmd_config_.m2_speed = (float)higo_ap_.getRobotAbstract()->car4_single_speed_config.m1_speed/100.0 ;
 		   		roll_vel_cmd_config_.m3_speed = (float)higo_ap_.getRobotAbstract()->car4_single_speed_config.m1_speed/100.0 ;
@@ -202,7 +244,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		  else  if(higo_ap_.getRobotAbstract()->receive_package_flag==5)
 		  {
 			  	higo_ap_.getRobotAbstract()->receive_package_flag=0;
-				higo_ap_.updateCommand(READ_INTERFACE_CAR1_ODOM_CONTROL, count,3);//回传应答	
+				// higo_ap_.updateCommand(READ_INTERFACE_CAR1_ODOM_CONTROL, count,3);//回传应答	
 		   		robot_desire_point_config_.position_x = (float)higo_ap_.getRobotAbstract()->car_global_position_config.position_X/100.0;
 		   		robot_desire_point_config_.position_y= (float)higo_ap_.getRobotAbstract()->car_global_position_config.position_Y/100.0 ;
 		   		robot_desire_point_config_.position_z = (float)higo_ap_.getRobotAbstract()->car_global_position_config.position_Z/100.0 ;
@@ -218,8 +260,8 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		  else  if(higo_ap_.getRobotAbstract()->receive_package_flag==6)
 		  {
 			  	higo_ap_.getRobotAbstract()->receive_package_flag=0;
-				higo_ap_.updateCommand(READ_INTERFACE_ID_CONTROL, count,3);//回传应答		
-				// higo_ap_.updateCommand(SET_RFID_REG_DATA, count,1);//射频传感器读卡  ---ok			  
+				// higo_ap_.updateCommand(READ_INTERFACE_ID_CONTROL, count,3);//回传应答		
+				
 				idcard_write_config_.data[0]=(short int)higo_ap_.getRobotAbstract()->rfid_write_data.write_to_reg_data1;
 				idcard_write_config_.data[1]=(short int)higo_ap_.getRobotAbstract()->rfid_write_data.write_to_reg_data2;
 				idcard_write_config_.data[2]=(short int)higo_ap_.getRobotAbstract()->rfid_write_data.write_to_reg_data7;
@@ -243,7 +285,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		  else  if(higo_ap_.getRobotAbstract()->receive_package_flag==7)
 		  {
 			  	higo_ap_.getRobotAbstract()->receive_package_flag=0;
-	     		higo_ap_.updateCommand(READ_INTERFACE_LASER_CONTROL, count,3);//回传应答					  
+	     		// higo_ap_.updateCommand(READ_INTERFACE_LASER_CONTROL, count,3);//回传应答					  
 
 				laser_range_config_.l_range=(short int)higo_ap_.getRobotAbstract()->laser_range_config.laser_range_L;
 				laser_range_config_.r_range=(short int)higo_ap_.getRobotAbstract()->laser_range_config.laser_range_R;
@@ -272,7 +314,10 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
         	    higo_ap_.updateCommand(WRITE_LASER_DATA_TO_PAD_INTERFACE, count,3);//射频传感器读卡  ---ok				  	  
 		  }
 
-
+            if(send_times%10==0)
+			 	 higo_ap_.updateCommand(WRITE_SENSOR_DATA_TO_PAD_INTERFACE, count,3);//射频传感器读卡  ---ok
+				  
+			send_times++;
 			higo_ap_.updateCommand(READ_INTERFACE_CAR1_SPEED_CONTROL, count,2);//射频传感器读卡
 			//----------------------------------------------------
 			readBufferUpdate();
@@ -285,6 +330,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 			rate.sleep();
 			
 			count++;
+		   
 
 		}
 

@@ -87,6 +87,7 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
         else if(rx_message.slave_reg_addr==SET_BRAKE_STATE_ADDR)                 command_state_=SET_MOT3_BRAKE_STATE;
         else if(rx_message.slave_reg_addr==SET_MOT_POSITION_ADDR)                command_state_=SET_CAR2_POSITION_CONTROL;
         else if(rx_message.slave_reg_addr==READ_POSITION_RESET_STATE_ADDR)       command_state_=READ_CAR2_MOTER3_RESET_STATE;
+        else if(rx_message.slave_reg_addr==SET_MOT3_RESET_TEST_ADDR)             command_state_=SET_MOT3_RESET_TEST;
         else                                                                     command_state_=LAST_COMMAND_FLAG_;
     }
     else if(rx_message.slave_addr==MOTOR4_ADDR)
@@ -116,8 +117,8 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
 
     case READ_CAR2_MOTOR3_COMPLETE_STATE :
         analysis_state=readCommandAnalysis(command_state_ , (short int* )&robot->motor_pos_comp_state.posComp3 ,     sizeof(robot->motor_pos_comp_state.posComp3));
-        stair_position_complete_state_temp =(int)robot->motor_pos_comp_state.posComp3;  //first modify 
-        // std::cerr <<"get servo3 state  " <<(int)robot->motor_pos_comp_state.posComp3<<std::endl;
+        stair_position_complete_state_temp =(unsigned short)robot->motor_pos_comp_state.posComp3;  //first modify 
+        
         if(robot->motor_pos_comp_state.posComp3)
         {
             robot->motor_pos_comp_state.posComp3=0;
@@ -137,6 +138,10 @@ unsigned char HFLink_Modbus::packageAnalysis(void)
 
 
         break;
+    case SET_MOT3_RESET_TEST :
+        analysis_state=readCommandAnalysis(command_state_ , (short int* )&robot->stair_SQ_reset_test, sizeof(robot->stair_SQ_reset_test ));
+        break;
+ 
     case READ_CAR2_MOTOR4_COMPLETE_STATE :
         analysis_state=readCommandAnalysis(command_state_ , (unsigned char *)&robot->motor_pos_comp_state.posComp4 , sizeof(robot->motor_pos_comp_state.posComp4));
         break;
@@ -337,7 +342,10 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
     case SET_MOT4_BRAKE_STATE :
         sendStruct(MOTOR4_ADDR , WRITE_REG,SET_BRAKE_STATE_ADDR, (unsigned char *)&robot->ask_brake_config.brake4 , sizeof(robot->ask_brake_config.brake4) );     
         break;        
-              
+    case SET_MOT3_RESET_TEST :
+        robot->stair_SQ_reset_test =3;
+        sendStruct(MOTOR3_ADDR , WRITE_REG,SET_MOT3_RESET_TEST_ADDR, (unsigned char *)&robot->stair_SQ_reset_test , sizeof(robot->stair_SQ_reset_test) );     
+        break;          
     case SET_CAR2_POSITION_CONTROL :
         robot->ask_position_set.positionPhaseChange=robot->stair_positionPhaseChange;  //rad/s
         robot->ask_position_set.positiontype= robot->stair_type ;//rad

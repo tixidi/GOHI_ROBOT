@@ -77,7 +77,7 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 		}
 		else
 		{
-			ROS_ERROR("hf link initialized failed, please check the hardware");
+			// ROS_ERROR("hf link initialized failed, please check the hardware");
 		}
 
 	}
@@ -160,7 +160,8 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 
 
 			writeBufferUpdate();
-
+			robot_state.motor5_speed =higo_ap_.getRobotAbstract()->ask_expect_motor_speed.servo5;
+			robot_state.motor6_speed =higo_ap_.getRobotAbstract()->ask_expect_motor_speed.servo6;
             robot_state.motor5_error_state=higo_ap_.getRobotAbstract()->motor_error_state.error5 ;
 			robot_state.motor6_error_state=higo_ap_.getRobotAbstract()->motor_error_state.error6 ;
 

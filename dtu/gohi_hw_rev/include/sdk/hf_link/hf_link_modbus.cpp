@@ -277,8 +277,23 @@ unsigned char HFLink_Modbus::masterSendCommand(const MotorModbusCommand command_
         tx_to_PAD_buffer[14]=robot->euler_angle.pitch;
         tx_to_PAD_buffer[15]=robot->euler_angle.roll; 
         tx_to_PAD_buffer[16]=robot->euler_angle.yaw;
-        
-        tx_to_PAD_num=17;
+        tx_to_PAD_buffer[17]=robot->bms_battey_.battery_capacity_percentage;  //电池电量百分比
+        tx_to_PAD_buffer[18]=robot->bms_battey_.total_voltage;              //电池总电压
+        tx_to_PAD_buffer[19]=robot->bms_battey_.current_capacity;          //当前容量
+        tx_to_PAD_buffer[20]=robot->bms_battey_.battery_health;          //电池的健康状态
+        tx_to_PAD_buffer[21]=robot->moter_error_state_.mot1_error; 
+        tx_to_PAD_buffer[22]=robot->moter_error_state_.mot2_error; 
+        tx_to_PAD_buffer[23]=robot->moter_error_state_.mot3_error; 
+        tx_to_PAD_buffer[24]=robot->moter_error_state_.mot4_error; 
+        tx_to_PAD_buffer[25]=robot->moter_error_state_.mot5_error; 
+        tx_to_PAD_buffer[26]=robot->moter_error_state_.mot6_error; 
+        tx_to_PAD_buffer[27]=robot->moter_speed_state_.mot1_speed; 
+        tx_to_PAD_buffer[28]=robot->moter_speed_state_.mot2_speed; 
+        tx_to_PAD_buffer[29]=robot->moter_speed_state_.mot3_speed; 
+        tx_to_PAD_buffer[30]=robot->moter_speed_state_.mot4_speed; 
+        tx_to_PAD_buffer[31]=robot->moter_speed_state_.mot5_speed; 
+        tx_to_PAD_buffer[32]=robot->moter_speed_state_.mot6_speed; 
+        tx_to_PAD_num=33;
         sendStructToPAD(SENSOR_DATA_TO_PAD_INTERFACE , WRITE_MORE_REG,WRITE_SENSOR_DATA_TO_PAD_INTERFACE_ADDR,(unsigned char *)single_command , 0);      
      
         break;

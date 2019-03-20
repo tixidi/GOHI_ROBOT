@@ -49,6 +49,7 @@ public:
       unsigned char stair_position_complete_state;
       unsigned char stair_reset_SQ_state;
       float stair_position_temp;
+      unsigned char error_state ;
 private:
 //first modify *************************
     // boost::shared_ptr<Transport> port_;
@@ -87,7 +88,10 @@ private:
         Buffer data(hflinkmodbus_->getSerializedData(), hflinkmodbus_->getSerializedLength() + hflinkmodbus_->getSerializedData());
         client_tcp_->writeBuffer(data);
         stair_position_complete_state =hflinkmodbus_->stair_position_complete_state_temp;
+        // hflinkmodbus_->stair_position_complete_state_temp =0;
         stair_reset_SQ_state =hflinkmodbus_->stair_reset_SQ_state_temp;
+        error_state          =hflinkmodbus_->error_state_flag;
+        hflinkmodbus_->error_state_flag =0;
         for(int i=0;i<data.size();i++){
             if(command_state == SET_CAR1_LEFT_SPEED_CONTROL){
                 std::cerr << "write motor1 :"<< (uint16_t)data[i]<<std::endl;
@@ -101,7 +105,7 @@ private:
         Buffer data(hflinkmodbus_->getSerializedData(), hflinkmodbus_->getSerializedLength() + hflinkmodbus_->getSerializedData());
         client_tcp_->writeBuffer(data);
         for(int i=0;i<data.size();i++){
-            send_data_buf[i] =(int)data[i];
+            send_data_buf[i] =(uint16_t)data[i];
             // std::cerr<< send_data_buf[i]<<" ";
         }
         // std::cerr<<std::endl;

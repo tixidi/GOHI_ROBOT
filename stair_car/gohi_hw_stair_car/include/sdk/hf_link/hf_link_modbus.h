@@ -51,6 +51,8 @@ enum MotorModbusCommand{
     SET_CAR3_LEFT_SPEED_CONTROL,
     SET_CAR3_RIGHT_SPEED_CONTROL,
     SET_CAR5_SPEED_CONTROL,//兴颂驱动器
+
+    SET_MOT3_RESET_TEST,
     
     READ_LAXIAN_POSITION,
     READ_EULER_ANGLE,
@@ -94,7 +96,7 @@ enum ModbusCommandRegAddr{
     READ_ERROR_STATE_ADDR=0x0033,
     READ_MOT_SPEED_ADDR=0x0022,
     READ_POSITION_COMPLETE_STATE_ADDR=0x0023,  
-    READ_POSITION_RESET_STATE_ADDR=0x002c, 
+    READ_POSITION_RESET_STATE_ADDR=0x002d, 
     READ_MOT_POSITION_ADDR=0x0024,    
     SET_BRAKE_STATE_ADDR=0x0040,
     SET_MOT_SPEED_ADDR=0x0043,
@@ -113,7 +115,7 @@ enum ModbusCommandRegAddr{
     READ_INTERFACE_CAR4_SINGLE_SPEED_CONTROL_ADDR=0x000A,        //1传送带1速度     2 传送带2速度 3 传送带3速度
 
     
-
+    SET_MOT3_RESET_TEST_ADDR =0x00aa,
 //first  modify
     SET_RELAY5_REG_ADDR   =0x05,
     SET_RELAY6_REG_ADDR   =0x06,
@@ -206,7 +208,7 @@ public:
 
 public: 
      float stair_position_temp_temp;
-     unsigned char stair_position_complete_state_temp;
+     unsigned short stair_position_complete_state_temp;
      unsigned char stair_reset_SQ_state_temp;
 public:  
     //common

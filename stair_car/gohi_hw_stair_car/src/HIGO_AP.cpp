@@ -35,6 +35,7 @@ HIGO_AP::HIGO_AP(std::string url, std::string config_addr)
         time_out_ =10;
         stair_position_complete_state =0;
         stair_position_temp =0;
+        error_state =0;
         hflinkmodbus_ = boost::make_shared<HFLink_Modbus>(&my_robot_  , 0x01 , 0x11);
         timer_.reset(new boost::asio::deadline_timer(io_service,boost::posix_time::milliseconds(read_time_out_)));
         timer_.reset(new boost::asio::deadline_timer(io_service,boost::posix_time::milliseconds(write_time_out_)));
@@ -121,6 +122,7 @@ bool HIGO_AP::dataAnalysisCall(uint16_t rx_data)
         if (rx_data == send_data_buf[modbus_receive_state_])//get slave addr
         {
                 modbus_receive_state_ = 1;
+                std::cerr<<"11"<<std::endl;
         }
     }
     else if(modbus_receive_state_==1)
@@ -131,6 +133,7 @@ bool HIGO_AP::dataAnalysisCall(uint16_t rx_data)
         }
         else 
         {    
+              std::cerr<<"22"<<std::endl;
             modbus_receive_state_ = 0;
         }
     } 
@@ -140,8 +143,11 @@ bool HIGO_AP::dataAnalysisCall(uint16_t rx_data)
         {
             modbus_receive_state_ = 3;
         }
-        else
+        else{
+            std::cerr<<"33"<<std::endl;
             modbus_receive_state_ = 0;
+        }
+            
     }
     else if(modbus_receive_state_==3)
     {                                  
@@ -149,25 +155,31 @@ bool HIGO_AP::dataAnalysisCall(uint16_t rx_data)
         {
             modbus_receive_state_ = 4;
         }
-        else
+         else{
+            std::cerr<<"44"<<std::endl;
             modbus_receive_state_ = 0;
+        }
+           
     }
     else if(modbus_receive_state_==4)
     {          
         if (rx_data == send_data_buf[modbus_receive_state_])
         {
             modbus_receive_state_ = 5;
-            //  std::cerr<<"55"<<std::endl;
+             
         }
-        else
-        modbus_receive_state_ = 0;
+        else{
+             std::cerr<<"55"<<std::endl;
+            modbus_receive_state_ = 0;
+        }
+           
     }
     else if(modbus_receive_state_==5)
     {          
         if (rx_data == send_data_buf[modbus_receive_state_])
         {
             modbus_receive_state_ = 6;
-            //  std::cerr<<"55"<<std::endl;
+              std::cerr<<"66"<<std::endl;
         }
         else
         modbus_receive_state_ = 0;
@@ -177,7 +189,7 @@ bool HIGO_AP::dataAnalysisCall(uint16_t rx_data)
         if (rx_data == send_data_buf[modbus_receive_state_])
         {
             modbus_receive_state_ = 7;
-            //  std::cerr<<"55"<<std::endl;
+              std::cerr<<"77"<<std::endl;
         }
         else
         modbus_receive_state_ = 0;

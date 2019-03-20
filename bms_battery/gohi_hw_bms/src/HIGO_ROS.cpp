@@ -59,14 +59,14 @@ HIGO_ROS::HIGO_ROS(ros::NodeHandle &nh, std::string url, std::string config_addr
 				// higo_ap_.updateCommand(READ_THERMOMETER_REG_DATA, count,0);	//温度传感器	
 
 			higo_ap_.updateCommand(READ_BMS_REG_DATA, count, 2);
-			 std::cerr << "the publish_data is " <<higo_ap_.publish_data<<std::endl;
+			//  std::cerr << "the publish_data is " <<higo_ap_.publish_data<<std::endl;
 	  
 
 
-
-			bms_state_.voltage=1;
-			bms_state_.current=1;
-			bms_state_.percentage=higo_ap_.publish_data;
+			bms_state_.power_supply_health =higo_ap_.bms_battery_.battery_health;
+			bms_state_.voltage=higo_ap_.bms_battery_.total_voltage;
+			bms_state_.current=higo_ap_.bms_battery_.current_capacity;
+			bms_state_.percentage=higo_ap_.bms_battery_.battery_capacity_percentage;
  			bms_state_publisher_.publish(bms_state_);		 
 			
 				

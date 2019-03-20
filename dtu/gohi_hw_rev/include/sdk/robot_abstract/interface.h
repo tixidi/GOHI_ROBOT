@@ -48,7 +48,31 @@ typedef  struct{
      short int  type;
 }AckToPadDataType; 
 
+typedef struct {
+    short int battery_capacity_percentage;
+    short int total_voltage;
+    short int battery_health;
+    short int current_capacity;
+}BmsBatteryDate;
 
 
+typedef struct {
+     short int mot1_error;
+     short int mot2_error;
+     short int mot3_error;
+     short int mot4_error;
+     short int mot5_error;
+     short int mot6_error;
 
+}MoterErrorState;
+
+typedef struct {
+     short int mot1_speed;
+     short int mot2_speed;
+     short int mot3_speed;
+     short int mot4_speed;
+     short int mot5_speed;
+     short int mot6_speed;
+
+}MoterSpeedState;
 #endif 

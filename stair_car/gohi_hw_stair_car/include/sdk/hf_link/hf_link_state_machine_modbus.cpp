@@ -21,7 +21,6 @@
 
 
 
-
 unsigned char StateMachineModbus::receiveStates(const unsigned char rx_data)
 {
     static unsigned char rev_sum_changed;
@@ -90,7 +89,8 @@ unsigned char StateMachineModbus::receiveStates(const unsigned char rx_data)
         {
             modbus_receive_state_ = 5;
             rx_buffer[4]=rx_data;
-            // std::cerr<<"4"<<std::endl;
+            //  std::cerr<<"tx_message.data[0]:"<<(unsigned short)tx_message.data[0]<<std::endl;
+            //   std::cerr<<"rx_data:"<<(unsigned short)rx_data<<std::endl;
         }
         else
             modbus_receive_state_ = 0;
@@ -101,6 +101,8 @@ unsigned char StateMachineModbus::receiveStates(const unsigned char rx_data)
         {
             modbus_receive_state_ = 6;
             rx_buffer[5]=rx_data;
+            // std::cerr<<"tx_message.data[1]:"<<(unsigned short)tx_message.data[1]<<std::endl; 
+            //  std::cerr<<"rx_data:"<<(unsigned short)rx_data<<std::endl;        
             McMBCRC16(rx_buffer,6,&CrcRecValue);
             // std::cerr<<"5"<<std::endl;         
         }
@@ -167,6 +169,7 @@ unsigned char StateMachineModbus::receiveStates_R(unsigned char rx_data)
             else 
             {    
                 // rev_sum_changed=0;
+                error_state_flag =1;
                 std::cerr<<"other status"<<std::endl;
                 modbus_receive_state_ = 0;
             }

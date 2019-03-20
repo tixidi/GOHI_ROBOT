@@ -20,8 +20,8 @@ HIGO_AP::HIGO_AP(std::string url, std::string config_addr,std::string idConfig_a
     {
         
     }
-
-
+    read_id_num_temp =0;
+    set_car_speed_flag =0;
     //process the config file
     file_.open(config_addr.c_str(), std::fstream::in);
     if (file_.is_open())
@@ -78,6 +78,7 @@ bool HIGO_AP::dataAnalysis(ID_Info &id_info_)
     {
         if(id_info_.id_number==id_num[i])
         {
+            if(read_id_num_temp == id_num[i]) return true;
             std::cerr<<"id number is exist,id number is"<<id_num[i]<<std::endl;
             id_info_.x_speed =id_cmd_x_speed[i];
             id_info_.Rz =id_cmd_Rz[i];
@@ -85,6 +86,8 @@ bool HIGO_AP::dataAnalysis(ID_Info &id_info_)
             id_info_.stair_speed =id_cmd_stair_speed[i];
             id_info_.stair_type =id_cmd_stair_type[i];
             id_info_.roll_speed = id_cmd_roll_speed[i];
+            
+            set_car_speed_flag =1;
             return true;
              //function    
         }

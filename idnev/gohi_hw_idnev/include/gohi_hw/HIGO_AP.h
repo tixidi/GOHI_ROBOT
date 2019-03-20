@@ -57,8 +57,8 @@ public:
     }
 
     
-    
-
+    unsigned char set_car_speed_flag;
+    int read_id_num_temp;
 private:
     //first modify******************************
     boost::shared_ptr<Transport> port_;

@@ -27,6 +27,7 @@
 #include <gohi_hw_rev_msgs/robot_desire_point_config.h>
 #include <gohi_hw_rev_msgs/sick_range.h>
 #include <gohi_hw_rev_msgs/imu_state.h>
+#include <sensor_msgs/BatteryState.h>
 
 
 // for ros headers
@@ -75,8 +76,10 @@ private:
     ros::Subscriber idcard_read_config_subscriber_;
 	ros::Subscriber sick_range_read_config_subscriber_;
 	ros::Subscriber imu_state_subscriber_;
-	
-	
+	ros::Subscriber battery_state_subscriber_;
+	ros::Subscriber stair_car_state_subscriber_;
+	ros::Subscriber power_car_state_subscriber_;
+	ros::Subscriber flat_car_state_subscriber_;
 	
 
 
@@ -136,8 +139,10 @@ private:
 	void idcard_read_config_callback(const gohi_hw_rev_msgs::idcard_read_config& msg);
 	void laser_range_read_config_callback(const gohi_hw_rev_msgs::sick_range& msg);
 	void imu_state_read_callback(const gohi_hw_rev_msgs::imu_state& msg);
-	
-	
+	void battery_state_read_callback(const sensor_msgs::BatteryState& msg);
+	void stair_state_read_callback(const gohi_hw_rev_msgs::robot_state& msg);
+	void flat_state_read_callback(const gohi_hw_rev_msgs::robot_state& msg);
+	void power_state_read_callback(const gohi_hw_rev_msgs::robot_state& msg);
 
 };
 

@@ -120,7 +120,7 @@ public:
         memset(&stair_position , 0 , sizeof(stair_position));
         memset(&stair_stop_flag , 0 , sizeof(stair_stop_flag));
         stair_SQ_reset_state =0;
-        
+        stair_SQ_reset_test =0;
        
     }
 
@@ -191,7 +191,8 @@ public:
     float stair_position;
     unsigned char stair_stop_flag;
     unsigned char  stair_SQ_reset_state;
-    
+
+    unsigned char  stair_SQ_reset_test;
 
 };
 

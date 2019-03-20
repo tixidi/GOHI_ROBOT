@@ -27,6 +27,7 @@ typedef struct{
     float stair_speed;
     float stair_type;
     float roll_speed;
+    // unsigned char set_car_speed_flag;
 }ID_Info;
 
 typedef  struct{
